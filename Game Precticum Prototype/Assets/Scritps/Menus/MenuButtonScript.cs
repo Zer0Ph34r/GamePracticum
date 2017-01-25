@@ -14,22 +14,7 @@ public class MenuButtonScript : MonoBehaviour {
     [SerializeField]
     Canvas InstructionsCanvas;
 
-    // buttons on this canvas
-    [SerializeField]
-    Button startButton;
-    [SerializeField]
-    Button instructionsButton;
-    [SerializeField]
-    Button creditsButton;
-    [SerializeField]
-    Button quitButton;
-
     #endregion
-
-    //private void Start()
-    //{
-    //    startButton = GetComponent<Button>();
-    //}
 
     /// <summary>
     /// Change scene to Main Scene
@@ -44,7 +29,8 @@ public class MenuButtonScript : MonoBehaviour {
     /// </summary>
     public void TutorialButton()
     {
-
+        gameObject.SetActive(false);
+        InstructionsCanvas.transform.gameObject.SetActive(true);
     }
 
     /// <summary>
@@ -52,7 +38,8 @@ public class MenuButtonScript : MonoBehaviour {
     /// </summary>
     public void CreditsButton()
     {
-
+        CreditsCanvas.transform.gameObject.SetActive(true);
+        gameObject.SetActive(false);
     }
 
     /// <summary>

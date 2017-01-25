@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class BackButtonScript : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    [SerializeField]
+    Canvas Main;
+
+	/// <summary>
+    ///  Turn on main canvas and turn this one off
+    /// </summary>
+    public void BackButton()
+    {
+        Main.transform.gameObject.SetActive(true);
+        gameObject.SetActive(false);
+    }
+
 }
