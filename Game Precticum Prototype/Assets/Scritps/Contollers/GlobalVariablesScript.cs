@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GlobalVariablesScript {
+public class GlobalVariables {
 
     #region Feilds
 
-    public const int TABLE_SIZE = 15;
+    public static int TABLE_SIZE = 15;
     //public const int 
 
     #endregion

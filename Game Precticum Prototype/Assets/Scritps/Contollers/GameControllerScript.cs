@@ -14,7 +14,7 @@ public class GameControllerScript : MonoBehaviour {
     GameObject blueGem;
 
     // table size int X int
-    //int tableSize =
+    //int tableSize = 
 
     #endregion
 
