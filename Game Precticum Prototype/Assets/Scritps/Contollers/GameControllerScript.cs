@@ -12,19 +12,33 @@ public class GameControllerScript : MonoBehaviour {
     GameObject yellowGem;
     GameObject greenGem;
     GameObject blueGem;
+    GameObject purpleGem;
 
     // table size int X int
-    //int tableSize = 
+    int tableSize = GlobalVariables.TABLE_SIZE;
 
     #endregion
 
     // Use this for initialization
     void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
+
+        #region Load Assets
+        whiteGem = Resources.Load<GameObject>("Prefabs/PryamidWhite");
+        redGem = Resources.Load<GameObject>("Prefabs/PryamidRed");
+        yellowGem = Resources.Load<GameObject>("Prefabs/PryamidYelow");
+        greenGem = Resources.Load<GameObject>("Prefabs/PryamidGreen");
+        blueGem = Resources.Load<GameObject>("Prefabs/PryamidBlue");
+        purpleGem = Resources.Load<GameObject>("Prefabs/PryamidPurple");
+        #endregion
+
+        #region Create Game Board
+
+        #endregion
+
+    }
+
+    // Update is called once per frame
+    void Update () {
 		
 	}
 }
