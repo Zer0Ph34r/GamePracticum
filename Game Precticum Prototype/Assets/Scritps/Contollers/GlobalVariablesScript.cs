@@ -6,7 +6,7 @@ public class GlobalVariables {
 
     #region Feilds
 
-    public static int TABLE_SIZE = 15;
+    public static int TABLE_SIZE = 10;
     //public const int 
 
     #endregion

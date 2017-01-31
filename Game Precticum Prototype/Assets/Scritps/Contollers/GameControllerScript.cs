@@ -17,6 +17,9 @@ public class GameControllerScript : MonoBehaviour {
     GameObject blueGem;
     GameObject purpleGem;
 
+    // grid for gems on table
+    Sprite gridBackground;
+
     // table size int X int
     int tableSize = GlobalVariables.TABLE_SIZE;
 
@@ -29,12 +32,15 @@ public class GameControllerScript : MonoBehaviour {
     void Start () {
 
         #region Load Assets
-        whiteGem = Resources.Load<GameObject>("Prefabs/PryamidWhite");
+        // Load Gems
+        whiteGem = Resources.Load<GameObject>("Prefabs/PyramidWhite");
         redGem = Resources.Load<GameObject>("Prefabs/PyramidRed");
-        yellowGem = Resources.Load<GameObject>("Prefabs/PryamidYellow");
-        greenGem = Resources.Load<GameObject>("Prefabs/PryamidGreen");
+        yellowGem = Resources.Load<GameObject>("Prefabs/PyramidYellow");
+        greenGem = Resources.Load<GameObject>("Prefabs/PyramidGreen");
         blueGem = Resources.Load<GameObject>("Prefabs/PyramidBlue");
         purpleGem = Resources.Load<GameObject>("Prefabs/PyramidPurple");
+        // Load Sprites
+        gridBackground = Resources.Load<Sprite>("Sprites/Grid");
         #endregion
 
         #region Create Game Board
@@ -49,7 +55,20 @@ public class GameControllerScript : MonoBehaviour {
         //get main camera
         mainCamera = Camera.main;
         // set camera's position according to table size
-        mainCamera.transform.position = new Vector3(tableSize, tableSize, tableSize);
+        mainCamera.transform.position = new Vector3(tableSize / 2, tableSize * (7 / 8f), tableSize * 6);
+        // Move Camera to face the gems instantiated
+        mainCamera.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
+        //mainCamera.backgroundColor = Color.white;
+
+        #endregion
+
+        #region Create Background
+        // creat game object , add spreite renderer and set the background sprite as the render sprite
+        GameObject background = new GameObject();
+        background.AddComponent<SpriteRenderer>();
+        background.GetComponent<SpriteRenderer>().sprite = gridBackground;
+        // Move game object behind gems
+        background.transform.position = new Vector3(0, 0, -1);
 
         #endregion
 
