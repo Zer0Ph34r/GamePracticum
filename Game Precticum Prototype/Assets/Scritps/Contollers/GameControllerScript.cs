@@ -40,7 +40,7 @@ public class GameControllerScript : MonoBehaviour {
         blueGem = Resources.Load<GameObject>("Prefabs/PyramidBlue");
         purpleGem = Resources.Load<GameObject>("Prefabs/PyramidPurple");
         // Load Sprites
-        gridBackground = Resources.Load<Sprite>("Sprites/Grid");
+        gridBackground = Resources.Load<Sprite>("Sprites/GridBackground");
         #endregion
 
         #region Create Game Board
@@ -68,7 +68,8 @@ public class GameControllerScript : MonoBehaviour {
         background.AddComponent<SpriteRenderer>();
         background.GetComponent<SpriteRenderer>().sprite = gridBackground;
         // Move game object behind gems
-        background.transform.position = new Vector3(0, 0, -1);
+        background.transform.position = new Vector3(4.6f, 4.6f, -1);
+        background.transform.localScale = new Vector3(1.9f, 1.9f, 1);
 
         #endregion
 
@@ -79,7 +80,7 @@ public class GameControllerScript : MonoBehaviour {
 		
 	}
 
-    #region Methods
+    #region Instantiation Methods
 
     /// <summary>
     /// Creates game board according to game board size
@@ -90,8 +91,8 @@ public class GameControllerScript : MonoBehaviour {
         {
             for (int k = 0; k < tableSize; ++k)
             {
-                GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(i, k, 0), Quaternion.identity);
-                gems[i, k] = go;
+                gems[i, k] = (GameObject)Instantiate(RandomizeObject(), new Vector3(i, k, 0), Quaternion.identity);
+                //gems[i, k] = go;
             }
         }
     }
@@ -103,43 +104,45 @@ public class GameControllerScript : MonoBehaviour {
     GameObject RandomizeObject()
     {
         // return object
-        GameObject returnGem = new GameObject();
+        GameObject returnGem = null;
         // radom number between 0 and number of gems
         switch ((int)Random.Range(0,6))
         {
             case 0:
-                {
                     returnGem = whiteGem;
                     break;
-                }
             case 1:
-                {
                     returnGem = redGem;
                     break;
-                }
             case 2:
-                {
                     returnGem = blueGem;
                     break;
-                }
             case 3:
-                {
                     returnGem = greenGem;
                     break;
-                }
             case 4:
-                {
                     returnGem = yellowGem;
                     break;
-                }
             case 5:
-                {
                     returnGem = purpleGem;
                     break;
-                }
         }
 
         return returnGem;
+    }
+
+    #endregion
+
+    #region Grid Methods
+
+    void CheckGrid()
+    {
+        // NOTE: if there are strings of 3 or more, reolve them all, then call refill grid
+    }
+
+    void RefillGrid()
+    {
+        // NOTE: Drop gems above empty grid spaces until Grid is full
     }
 
     #endregion
