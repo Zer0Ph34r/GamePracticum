@@ -13,5 +13,20 @@ public class GemScript : MonoBehaviour {
 
     #region Methods
 
+    // When the Mouse clicks on a gem
+    private void OnMouseDown()
+    {
+        // check if gem is selected or not and set bool accordingly
+        if (isSelected)
+        {
+            isSelected = false; 
+        }
+        else
+        {
+            isSelected = true;
+        }
+        
+    }
+
     #endregion
 }
