@@ -26,6 +26,9 @@ public class GameControllerScript : MonoBehaviour {
     // 2D array of table contents
     GameObject[,] gems;
 
+	// Bool for checking valid moves
+	bool isValid = false;
+
     #endregion
 
     // Use this for initialization
@@ -83,11 +86,12 @@ public class GameControllerScript : MonoBehaviour {
 		{
 			RaycastHit hit;
 			//Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
-			if (Physics.Raycast(Input.mousePosition, Vector3.forward, out hit, 1000f, 0, QueryTriggerInteraction.Collide))
+			if (Physics.Raycast(Camera.main.WorldToScreenPoint (Input.mousePosition), Vector3.forward, out hit, 1000f, 0, QueryTriggerInteraction.Collide))
 			{
 				hit.transform.gameObject.GetComponent<GemScript>().SelectGem();
 			}
 		}
+
 	}
 
     #region Instantiation Methods
@@ -102,7 +106,6 @@ public class GameControllerScript : MonoBehaviour {
             for (int k = 0; k < tableSize; ++k)
             {
                 gems[i, k] = (GameObject)Instantiate(RandomizeObject(), new Vector3(i, k, 0), Quaternion.identity);
-                //gems[i, k] = go;
             }
         }
     }
@@ -145,10 +148,70 @@ public class GameControllerScript : MonoBehaviour {
 
     #region Grid Methods
 
-    void CheckGrid()
+    void ResolveGrid()
     {
         // NOTE: if there are strings of 3 or more, reolve them all, then call refill grid
     }
+
+	/// <summary>
+	/// Checks if a swap of tiles is valid of not based on which gem in the grid is being swapped
+	/// </summary>
+	void CheckValidSwap(int x, int y)
+	{
+		if (x - 2 >= 0) 
+		{
+			if (gems [x, y].tag == gems [x - 1, y].tag &&
+				gems [x, y].tag == gems [x - 2, y].tag)
+			{
+				isValid = true;
+			}
+		}
+		if (x + 2 <= tableSize)
+		{
+			if (gems [x, y].tag == gems [x + 1, y].tag &&
+				gems [x, y].tag == gems [x + 2, y].tag)
+			{
+				isValid = true;
+			}
+		}
+		if (y - 2 >= 0) 
+		{
+		
+			if (gems [x, y].tag == gems [x, y - 1].tag &&
+				gems [x, y].tag == gems [x, y - 1].tag)
+			{
+				isValid = true;
+			}
+		}
+		if (y + 2 <= tableSize) {
+			if (gems [x, y].tag == gems [x, y + 1].tag &&
+			    gems [x, y].tag == gems [x, y + 2].tag) 
+			{
+				isValid = true;
+			}
+		} 
+		else 
+		{
+			isValid = false;
+		}
+
+		if (isValid) 
+		{
+			ResolveGrid ();
+		}
+		else
+		{
+			CancelSwap ();
+		}
+
+	}
+
+	// Resets gems back to starting position and writes out warning to player
+	void CancelSwap()
+	{
+		Debug.Log ("Invalid Move: You must connect at least three similar gems");
+		//NOTE: Add code for moving gems abck into starting positions
+	}
 
     void RefillGrid()
     {
