@@ -85,7 +85,6 @@ public class GameControllerScript : MonoBehaviour {
         background.GetComponent<SpriteRenderer>().sprite = gridBackground;
         // Move game object behind gems
         background.transform.position = new Vector3(4.6f, 4.6f, -1);
-        //background.transform.localScale = new Vector3(1.9f, 1.9f, 1);
 
         #endregion
 
