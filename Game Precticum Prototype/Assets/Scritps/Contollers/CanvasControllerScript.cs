@@ -11,11 +11,11 @@ public class CanvasControllerScript : MonoBehaviour {
 	Object buttonPrefab;
 
 	// Grid of invisible UI buttons for selecting gems
-	Button[, ] buttons;
+	GameObject[, ] buttons;
 	int tableSize = GlobalVariables.TABLE_SIZE;
 
 	// Reference to Main Camera
-	Camera mainCamera;
+//	Camera mainCamera;
 
 	#endregion
 
@@ -23,10 +23,10 @@ public class CanvasControllerScript : MonoBehaviour {
 	void Start () {
 
 		// create array of buttons for table selection
-		buttons = new Button [tableSize, tableSize];
+		buttons = new GameObject [tableSize, tableSize];
 
 		// Save reference to main camera
-		mainCamera = Camera.main;
+//		mainCamera = Camera.main;
 
 		// Load Butotn Prefab
 		buttonPrefab = Resources.Load("Prefabs/ButtonUI");
@@ -45,8 +45,16 @@ public class CanvasControllerScript : MonoBehaviour {
 		{
 			for (int k = 0; k < tableSize; ++k)
 			{
-				buttons[i, k] = (Button)Instantiate(buttonPrefab, mainCamera.WorldToScreenPoint(new Vector3(i, k, 0)), Quaternion.identity);
+				GameObject go = (GameObject)Instantiate(buttonPrefab, new Vector3(i, k, transform.position.z), Quaternion.identity);
+				Parent (go);
+				buttons [i, k] = go;
 			}
 		}
+	}
+
+	// Sets object as child of parent object
+	void Parent(GameObject childOb )
+	{
+		childOb.transform.SetParent (transform);
 	}
 }

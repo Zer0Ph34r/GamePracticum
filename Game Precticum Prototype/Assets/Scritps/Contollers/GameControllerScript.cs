@@ -24,7 +24,7 @@ public class GameControllerScript : MonoBehaviour {
     int tableSize = GlobalVariables.TABLE_SIZE;
 
     // 2D array of table contents
-    GameObject[,] gems;
+	public GameObject[,] gems {get; set; }
 
 	// Bool for checking valid moves
 	bool isValid = false;
@@ -46,14 +46,6 @@ public class GameControllerScript : MonoBehaviour {
         gridBackground = Resources.Load<Sprite>("Sprites/GridBackground");
         #endregion
 
-        #region Create Game Board
-        // create table
-        gems = new GameObject[tableSize, tableSize];
-        // fill table and create game board
-        CreateGameBoard();
-
-        #endregion
-
         #region Set Camera
         //get main camera
         mainCamera = Camera.main;
@@ -61,9 +53,15 @@ public class GameControllerScript : MonoBehaviour {
         mainCamera.transform.position = new Vector3(tableSize / 2, tableSize * (7 / 8f), tableSize * 6);
         // Move Camera to face the gems instantiated
         mainCamera.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
-        //mainCamera.backgroundColor = Color.white;
-
         #endregion
+
+		#region Create Game Board
+		// create table
+		gems = new GameObject[tableSize, tableSize];
+		// fill table and create game board
+		CreateGameBoard();
+
+		#endregion
 
         #region Create Background
         // creat game object , add spreite renderer and set the background sprite as the render sprite
