@@ -9,6 +9,10 @@ public class GemScript : MonoBehaviour {
     // bool for being selected
     bool isSelected = false;
 	public bool canSelect = true;
+	public static int selected = 0;
+
+	GameObject selected1;
+	GameObject selected2;
 
     #endregion
 
@@ -25,6 +29,16 @@ public class GemScript : MonoBehaviour {
 	void Start()
 	{
 		onSelected += ChangeState;
+	}
+
+	void Update ()
+	{
+		if (selected == 2) 
+		{
+			SwapPieces (selected1, selected2);
+			selected = 0;
+		}
+
 	}
 
     #region Methods
@@ -45,6 +59,13 @@ public class GemScript : MonoBehaviour {
             //isSelected = true;
             transform.GetChild(0).gameObject.SetActive(true);
 			onSelected ();
+			selected++;
+			if (selected1 == null) {
+				selected1 = this.gameObject;
+			} else {
+				selected2 = this.gameObject;
+			}
+				
         }
         
     }
