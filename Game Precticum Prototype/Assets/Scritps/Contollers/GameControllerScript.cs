@@ -27,8 +27,16 @@ public class GameControllerScript : MonoBehaviour {
 	public GameObject[,] gems {get; set; }
 	GameObject[] playerHand;
 
-	// Bool for checking valid moves
-	bool isValid = false;
+    // save object positions for swapping
+    Vector3 handPos;
+    Vector3 boardPos;
+
+    // Objects to swap
+    GameObject handPiece;
+    GameObject boardPiece;
+
+    // Bool for checking valid moves
+    bool isValid = false;
 
     #endregion
 
@@ -70,10 +78,8 @@ public class GameControllerScript : MonoBehaviour {
 		// Fill Player Hand with random gems
 		for (int i = 0; i < 3; ++i)
 		{
-			GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(11, i + 4, 0), Quaternion.identity);
-			go.tag = ("Hand");
-			playerHand[i] = go;
-
+            // Add gem to hand array for checking later on
+            playerHand[i] = (GameObject)Instantiate(RandomizeObject(), new Vector3(11, i + 4, 0), Quaternion.identity);
 		}
 
 		#endregion
@@ -88,13 +94,8 @@ public class GameControllerScript : MonoBehaviour {
 
         #endregion
 
-		// add Events
-		GemScript.onSwap += CheckValidSwap;
-
     }
 		
-
-
 
     #region Instantiation Methods
 
@@ -103,6 +104,7 @@ public class GameControllerScript : MonoBehaviour {
     /// </summary>
     void CreateGameBoard()
     {
+        // creates 2D array of gems on the field
         for (int i = 0; i < tableSize; ++i)
         {
             for (int k = 0; k < tableSize; ++k)
@@ -143,6 +145,7 @@ public class GameControllerScript : MonoBehaviour {
                     break;
         }
 
+        // returns randomly generated gem
         return returnGem;
     }
 
@@ -150,16 +153,37 @@ public class GameControllerScript : MonoBehaviour {
 
     #region Grid Methods
 
+    /// <summary>
+    /// Creates a new 2D array of the board to resolve all possible chains
+    /// then swaps this new array with the old and calls the refill method
+    /// </summary>
     void ResolveGrid()
     {
-        // NOTE: if there are strings of 3 or more, reolve them all, then call refill grid
+        // NOTE: if there are strings of 3 or more, resolve them all, then call refill grid method
     }
 
-	/// <summary>
-	/// Checks if a swap of tiles is valid of not based on which gem in the grid is being swapped
-	/// </summary>
-	void CheckValidSwap(int x, int y)
+    /// <summary>
+    /// Swaps two pieces and then checks for validity
+    /// </summary>
+    void SwapPieces()
+    {
+        // set positions
+        handPos = handPiece.transform.position;
+        boardPos = boardPiece.transform.position;
+        // set new positions
+        handPiece.transform.position = boardPos;
+        boardPiece.transform.position = handPos;
+
+        // after swapping pieces, check if it's a valid swap
+        CheckValidSwap((int)boardPos.x, (int)boardPos.y);
+    }
+
+    /// <summary>
+    /// Checks if a swap of tiles is valid of not based on which gem in the grid is being swapped
+    /// </summary>
+    void CheckValidSwap(int x, int y)
 	{
+        // check if the piece is at least 3 away from the left edge
 		if (x - 2 >= 0) 
 		{
 			if (gems [x, y].tag == gems [x - 1, y].tag &&
@@ -168,7 +192,8 @@ public class GameControllerScript : MonoBehaviour {
 				isValid = true;
 			}
 		}
-		if (x + 2 <= tableSize)
+        // check if the piece is at least 3 away from the right edge
+        if (x + 2 <= tableSize)
 		{
 			if (gems [x, y].tag == gems [x + 1, y].tag &&
 				gems [x, y].tag == gems [x + 2, y].tag)
@@ -176,7 +201,8 @@ public class GameControllerScript : MonoBehaviour {
 				isValid = true;
 			}
 		}
-		if (y - 2 >= 0) 
+        // check if the piece is at least 3 away from the bottom edge
+        if (y - 2 >= 0) 
 		{
 		
 			if (gems [x, y].tag == gems [x, y - 1].tag &&
@@ -185,7 +211,8 @@ public class GameControllerScript : MonoBehaviour {
 				isValid = true;
 			}
 		}
-		if (y + 2 <= tableSize) {
+        // check if the piece is at least 3 away from the top edge
+        if (y + 2 <= tableSize) {
 			if (gems [x, y].tag == gems [x, y + 1].tag &&
 			    gems [x, y].tag == gems [x, y + 2].tag) 
 			{
@@ -194,13 +221,16 @@ public class GameControllerScript : MonoBehaviour {
 		} 
 		else 
 		{
+            // the swap is invalid
 			isValid = false;
 		}
 
+        // if the swap is valid resolve all chains on the board
 		if (isValid) 
 		{
 			ResolveGrid ();
 		}
+        // if it's not valid, reset the pieces and tell the player
 		else
 		{
 			CancelSwap ();
@@ -211,10 +241,17 @@ public class GameControllerScript : MonoBehaviour {
 	// Resets gems back to starting position and writes out warning to player
 	void CancelSwap()
 	{
-		Debug.Log ("Invalid Move: You must connect at least three similar gems");
-		//NOTE: Add code for moving gems abck into starting positions
+        // reset pieces selected to starting positions
+        boardPiece.transform.position = boardPos;
+        handPiece.transform.position = handPos;
+
+        // Tell Player that swap was invalid
 	}
 
+    /// <summary>
+    /// Has pieces "fall" into place, then creates new gems above the holes to 
+    /// fill in grid completely
+    /// </summary>
     void RefillGrid()
     {
         // NOTE: Drop gems above empty grid spaces until Grid is full
