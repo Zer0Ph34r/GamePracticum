@@ -109,7 +109,9 @@ public class GameControllerScript : MonoBehaviour {
         {
             for (int k = 0; k < tableSize; ++k)
             {
-                gems[i, k] = (GameObject)Instantiate(RandomizeObject(), new Vector3(i, k, 0), Quaternion.identity);
+                GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(i, k, 0), Quaternion.identity);
+                //go.GetComponent<GemScript>().AddEvent(SaveBoardPiece);
+                gems[i, k] = go;
             }
         }
     }
@@ -147,6 +149,15 @@ public class GameControllerScript : MonoBehaviour {
 
         // returns randomly generated gem
         return returnGem;
+    }
+
+    #endregion
+
+    #region Events
+
+    void SaveBoardPiece(GameObject boardObject)
+    {
+        boardPiece = boardObject;
     }
 
     #endregion

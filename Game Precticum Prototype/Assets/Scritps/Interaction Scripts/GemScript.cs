@@ -31,6 +31,7 @@ public class GemScript : MonoBehaviour {
     {
         // Flips between selected and unselected states
         ChangeState();
+        onSelected();
     }
 
 	// changes gem state so only one gem can be selected at a time
@@ -49,6 +50,11 @@ public class GemScript : MonoBehaviour {
 
 	}
 
+    // add event to this object to call when it is selected
+    public void AddEvent(callMethod methodName)
+    {
+        onSelected += methodName;
+    }
     
 
     #endregion
