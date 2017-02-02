@@ -25,6 +25,7 @@ public class GameControllerScript : MonoBehaviour {
 
     // 2D array of table contents
 	public GameObject[,] gems {get; set; }
+	GameObject[] playerHand;
 
 	// Bool for checking valid moves
 	bool isValid = false;
@@ -63,6 +64,20 @@ public class GameControllerScript : MonoBehaviour {
 
 		#endregion
 
+		#region Create Player Hand
+		// Create Player Hand Empty
+		playerHand = new GameObject[3];
+		// Fill Player Hand with random gems
+		for (int i = 0; i < 3; ++i)
+		{
+			GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(11, i + 4, 0), Quaternion.identity);
+			go.tag = ("Hand");
+			playerHand[i] = go;
+
+		}
+
+		#endregion
+
         #region Create Background
         // creat game object , add spreite renderer and set the background sprite as the render sprite
         GameObject background = new GameObject();
@@ -75,22 +90,13 @@ public class GameControllerScript : MonoBehaviour {
         #endregion
 
     }
-
-    // Update is called once per frame
-	private void Update()
+		
+	void Update ()
 	{
-		// Check if person has selected a gem or not
-		if ( Input.GetMouseButtonDown(0))
-		{
-			RaycastHit hit;
-			//Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
-			if (Physics.Raycast(Camera.main.WorldToScreenPoint (Input.mousePosition), Vector3.forward, out hit, 1000f, 0, QueryTriggerInteraction.Collide))
-			{
-				hit.transform.gameObject.GetComponent<GemScript>().SelectGem();
-			}
-		}
+		if ()
 
 	}
+
 
     #region Instantiation Methods
 
