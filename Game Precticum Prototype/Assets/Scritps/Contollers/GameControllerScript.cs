@@ -76,8 +76,18 @@ public class GameControllerScript : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update () {
-		
+	private void Update()
+	{
+		// Check if person has selected a gem or not
+		if ( Input.GetMouseButtonDown(0))
+		{
+			RaycastHit hit;
+			//Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+			if (Physics.Raycast(Input.mousePosition, Vector3.forward, out hit, 1000f, 0, QueryTriggerInteraction.Collide))
+			{
+				hit.transform.gameObject.GetComponent<GemScript>().SelectGem();
+			}
+		}
 	}
 
     #region Instantiation Methods

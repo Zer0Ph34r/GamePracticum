@@ -11,18 +11,10 @@ public class GemScript : MonoBehaviour {
 
     #endregion
 
-    private void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            SelectGem();
-        }
-    }
-
     #region Methods
 
     // When the Mouse clicks on a gem
-    private void SelectGem()
+    public void SelectGem()
     {
         // check if gem is selected or not and set bool accordingly
         if (isSelected)
