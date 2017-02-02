@@ -89,13 +89,12 @@ public class GameControllerScript : MonoBehaviour {
 
         #endregion
 
+		// add Events
+		GemScript.onSwap += CheckValidSwap;
+
     }
 		
-	void Update ()
-	{
-		if ()
 
-	}
 
 
     #region Instantiation Methods
