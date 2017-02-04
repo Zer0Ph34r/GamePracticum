@@ -32,8 +32,8 @@ public class GameControllerScript : MonoBehaviour {
 	GameObject[] playerHand;
 
     // save object positions for swapping
-    Vector3 handPos;
-    Vector3 boardPos;
+    public Vector3 handPos;
+    public Vector3 boardPos;
 
     #endregion
 
@@ -86,7 +86,7 @@ public class GameControllerScript : MonoBehaviour {
 		for (int i = 0; i < 3; ++i)
 		{
             // Add gem to hand array for checking later on
-            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(11, i + 4, 0), Quaternion.identity);
+            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(11, i + 7, 0), Quaternion.identity);
             go.GetComponent<GemScript>().isHand = true;
             playerHand[i] = go;
         }
@@ -310,7 +310,6 @@ public class GameControllerScript : MonoBehaviour {
     /// </summary>
     void SwapPieces()
     {
-
         // set positions
         handPos = handPiece.transform.position;
         boardPos = boardPiece.transform.position;
@@ -359,25 +358,24 @@ public class GameControllerScript : MonoBehaviour {
         // check if the piece is at least 3 away from the left edge
 		if (x - 2 >= 0) 
 		{
-			if (gems [x, y].tag == gems [x - 1, y].tag &&
+            if (gems [x, y].tag == gems [x - 1, y].tag &&
 				gems [x, y].tag == gems [x - 2, y].tag)
 			{
                 returnValue = true;
 			}
 		}
         // check if the piece is at least 3 away from the right edge
-        else if (x + 2 <= tableSize)
+        if (x + 2 <= tableSize)
 		{
-			if (gems [x, y].tag == gems [x + 1, y].tag &&
+            if (gems [x, y].tag == gems [x + 1, y].tag &&
 				gems [x, y].tag == gems [x + 2, y].tag)
 			{
                 returnValue = true;
 			}
 		}
         // check if the piece is at least 3 away from the bottom edge
-        else if (y - 2 >= 0) 
+        if (y - 2 >= 0) 
 		{
-		
 			if (gems [x, y].tag == gems [x, y - 1].tag &&
 				gems [x, y].tag == gems [x, y - 1].tag)
 			{
@@ -385,10 +383,13 @@ public class GameControllerScript : MonoBehaviour {
 			}
 		}
         // check if the piece is at least 3 away from the top edge
-        else if (y + 2 <= tableSize) {
-			if (gems [x, y].tag == gems [x, y + 1].tag &&
-			    gems [x, y].tag == gems [x, y + 2].tag) 
+        if (y + 2 <= tableSize)
+        {
+            if (gems [x, y].CompareTag(gems [x, y + 1].tag) &&
+			    (gems [x, y].tag == gems [x, y + 2].tag ||
+                gems[x, y].tag == gems[x, y - 1].tag)) 
 			{
+                //CompareTag()
                 returnValue = true;
 			}
 		}
@@ -414,6 +415,8 @@ public class GameControllerScript : MonoBehaviour {
     void RefillGrid()
     {
         // NOTE: Drop gems above empty grid spaces until Grid is full
+        // First, drop all the gems as low as they can go
+        //for (int i = )
     }
 
     #endregion
