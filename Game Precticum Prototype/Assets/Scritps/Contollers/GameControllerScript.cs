@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GameControllerScript : MonoBehaviour {
 
-    #region Feilds
+    #region Fields
 
     // Main Cemera
     Camera mainCamera;
@@ -41,16 +41,9 @@ public class GameControllerScript : MonoBehaviour {
     GameObject handPiece;
     GameObject boardPiece;
 
-    // Bool for checking valid moves
-    bool isValid = false;
-
     // bool for checking locked status
     bool handLocked = false;
     bool gridLocked = false;
-
-    #region Events
-
-    #endregion
 
     #endregion
 
@@ -181,8 +174,10 @@ public class GameControllerScript : MonoBehaviour {
     /// <summary>
     /// Prevents multiple gems from being selected or swapped
     /// </summary>
-    void lockHandGems(bool tf)
+    void lockHandGems(bool tf, GameObject go)
     {
+        // set handPiece to go
+        handPiece = go;
         // lock each peice
         foreach (GameObject gem in playerHand)
         {
@@ -200,8 +195,10 @@ public class GameControllerScript : MonoBehaviour {
     /// <summary>
     /// Prevents multiple gems from being selected or swapped
     /// </summary>
-    void lockGridGems(bool tf)
+    void lockGridGems(bool tf, GameObject go)
     {
+        // set board piece to go
+        boardPiece = go;
         // lock each peice
         foreach (GameObject gem in gems)
         {
@@ -220,6 +217,7 @@ public class GameControllerScript : MonoBehaviour {
 
     #region Grid Methods
 
+    #region Resolve Method
     /// <summary>
     /// Creates a new 2D array "Moves" which list all possible chains
     /// then sorts for unique chians and destroys all gems in those chains
@@ -300,83 +298,102 @@ public class GameControllerScript : MonoBehaviour {
                 prevColor = currColor;
             }
         }
-        
 
+        // NOTE: Add in checking for all unique chains and destroying them than calling the refill method
+
+        RefillGrid();
     }
+    #endregion
 
     /// <summary>
     /// Swaps two pieces and then checks for validity
     /// </summary>
     void SwapPieces()
     {
+
         // set positions
         handPos = handPiece.transform.position;
         boardPos = boardPiece.transform.position;
-        // set new positions
-        handPiece.transform.position = boardPos;
-        boardPiece.transform.position = handPos;
+        
+        // check if it's a valid swap
+        if (CheckValidSwap((int)boardPos.x, (int)boardPos.y))
+        {    
+            // set new positions
+            handPiece.transform.position = boardPos;
+            boardPiece.transform.position = handPos;
 
-        // after swapping pieces, check if it's a valid swap
-        CheckValidSwap((int)boardPos.x, (int)boardPos.y);
+            // reset swapping objects
+            boardPiece = null;
+            handPiece = null;
+
+            //ResolveGrid();
+        }
+        else
+        {
+            // reset all gems to unlocked and unselected state 
+            foreach(GameObject gem in gems)
+            {
+                gem.GetComponent<GemScript>().Reset();
+            }
+            foreach(GameObject gem in playerHand)
+            {
+                gem.GetComponent<GemScript>().Reset();
+            }
+            // reset locked status
+            gridLocked = false;
+            handLocked = false;
+
+            // reset swapping objects
+            boardPiece = null;
+            handPiece = null;
+        }
+        
     }
 
     /// <summary>
     /// Checks if a swap of tiles is valid of not based on which gem in the grid is being swapped
     /// </summary>
-    void CheckValidSwap(int x, int y)
+    bool CheckValidSwap(int x, int y)
 	{
+        bool returnValue = false;
         // check if the piece is at least 3 away from the left edge
 		if (x - 2 >= 0) 
 		{
 			if (gems [x, y].tag == gems [x - 1, y].tag &&
 				gems [x, y].tag == gems [x - 2, y].tag)
 			{
-				isValid = true;
+                returnValue = true;
 			}
 		}
         // check if the piece is at least 3 away from the right edge
-        if (x + 2 <= tableSize)
+        else if (x + 2 <= tableSize)
 		{
 			if (gems [x, y].tag == gems [x + 1, y].tag &&
 				gems [x, y].tag == gems [x + 2, y].tag)
 			{
-				isValid = true;
+                returnValue = true;
 			}
 		}
         // check if the piece is at least 3 away from the bottom edge
-        if (y - 2 >= 0) 
+        else if (y - 2 >= 0) 
 		{
 		
 			if (gems [x, y].tag == gems [x, y - 1].tag &&
 				gems [x, y].tag == gems [x, y - 1].tag)
 			{
-				isValid = true;
+                returnValue =  true;
 			}
 		}
         // check if the piece is at least 3 away from the top edge
-        if (y + 2 <= tableSize) {
+        else if (y + 2 <= tableSize) {
 			if (gems [x, y].tag == gems [x, y + 1].tag &&
 			    gems [x, y].tag == gems [x, y + 2].tag) 
 			{
-				isValid = true;
+                returnValue = true;
 			}
-		} 
-		else 
-		{
-            // the swap is invalid
-			isValid = false;
 		}
 
-        // if the swap is valid resolve all chains on the board
-		if (isValid) 
-		{
-			ResolveGrid ();
-		}
-        // if it's not valid, reset the pieces and tell the player
-		else
-		{
-			CancelSwap ();
-		}
+        return returnValue;
 
 	}
 

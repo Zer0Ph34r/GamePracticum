@@ -14,7 +14,7 @@ public class GemScript : MonoBehaviour {
     #region EventFields
 
     // Create delegate for adding in method calls
-    public delegate void callMethod(bool TF);
+    public delegate void callMethod(bool TF, GameObject go);
     // create event for calling that delegate
     public static event callMethod handSelected;
     public static event callMethod gridSelected;
@@ -27,7 +27,6 @@ public class GemScript : MonoBehaviour {
     {
         isSelected = false;
         canSelect = true;
-        //GameControllerScript.BlockGems += ReturnThis;
     }
 
     #region Methods
@@ -37,6 +36,18 @@ public class GemScript : MonoBehaviour {
     {
         // Flips between selected and unselected states
         ChangeState();
+    }
+
+    /// <summary>
+    /// Reset a Piece to how it began it's life
+    /// </summary>
+    public void Reset()
+    {
+        // reset piece to starting conditions
+        isSelected = false;
+        canSelect = true;
+        transform.GetChild(0).gameObject.SetActive(false);
+
     }
 
 	// changes gem state so only one gem can be selected at a time
@@ -49,11 +60,11 @@ public class GemScript : MonoBehaviour {
             // locks hand or grid
             if (isHand)
             {
-                handSelected(true);
+                handSelected(false , gameObject);
             }
             else
             {
-                gridSelected(true);
+                gridSelected(false, gameObject);
             }
             
         }
@@ -63,14 +74,13 @@ public class GemScript : MonoBehaviour {
             transform.GetChild(0).gameObject.SetActive(false);
             if (isHand)
             {
-                handSelected(false);
+                handSelected(true, gameObject);
             }
             else
             {
-                gridSelected(false);
+                gridSelected(true, gameObject);
             }
         }
-
 	}
 
     GameObject ReturnThis()
