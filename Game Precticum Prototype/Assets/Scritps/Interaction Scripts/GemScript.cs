@@ -7,8 +7,9 @@ public class GemScript : MonoBehaviour {
     #region Fields
 
     // bool for being selected
-    bool isSelected = false;
-    bool canSelect = true;
+    public bool isSelected { get; set; }
+    public bool canSelect { get; set; }
+    public bool isHand { get; set; }
 
     #region EventFields
 
@@ -23,7 +24,9 @@ public class GemScript : MonoBehaviour {
 
     private void Start()
     {
-        GameControllerScript.getGems += ReturnThis;
+        isSelected = false;
+        canSelect = true;
+        GameControllerScript.BlockGems += ReturnThis;
     }
 
     #region Methods
@@ -42,6 +45,7 @@ public class GemScript : MonoBehaviour {
 		{
             isSelected = true;
             transform.GetChild(0).gameObject.SetActive(true);
+            onSelected();
         }
 		else
 		{

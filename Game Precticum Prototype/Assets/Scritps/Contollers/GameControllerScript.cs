@@ -9,6 +9,7 @@ public class GameControllerScript : MonoBehaviour {
     // Main Cemera
     Camera mainCamera;
 
+    #region Load Objects
     // Gem game objects
     GameObject whiteGem;
     GameObject redGem;
@@ -19,6 +20,9 @@ public class GameControllerScript : MonoBehaviour {
 
     // grid for gems on table
     Sprite gridBackground;
+    #endregion
+
+    #region Table/Hand Stuff
 
     // table size int X int
     int tableSize = GlobalVariables.TABLE_SIZE;
@@ -31,6 +35,8 @@ public class GameControllerScript : MonoBehaviour {
     Vector3 handPos;
     Vector3 boardPos;
 
+    #endregion
+
     // Objects to swap
     GameObject handPiece;
     GameObject boardPiece;
@@ -41,8 +47,8 @@ public class GameControllerScript : MonoBehaviour {
     #region Events
 
     // create delegate and event for returning selected gems
-    public delegate GameObject getGem();
-    public static event getGem getGems;
+    public delegate GameObject blockGem();
+    public static event blockGem BlockGems;
 
     #endregion
 
@@ -87,8 +93,10 @@ public class GameControllerScript : MonoBehaviour {
 		for (int i = 0; i < 3; ++i)
 		{
             // Add gem to hand array for checking later on
-            playerHand[i] = (GameObject)Instantiate(RandomizeObject(), new Vector3(11, i + 4, 0), Quaternion.identity);
-		}
+            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(11, i + 4, 0), Quaternion.identity);
+            go.GetComponent<GemScript>().isHand = true;
+            playerHand[i] = go;
+        }
 
 		#endregion
 
@@ -99,6 +107,13 @@ public class GameControllerScript : MonoBehaviour {
         background.GetComponent<SpriteRenderer>().sprite = gridBackground;
         // Move game object behind gems
         background.transform.position = new Vector3(4.6f, 4.6f, -1);
+
+        #endregion
+
+        #region Add Event Methods
+
+        // add method for when a gem is selected
+
 
         #endregion
 
@@ -162,9 +177,13 @@ public class GameControllerScript : MonoBehaviour {
 
     #region Events
 
-    void SaveBoardPiece(GameObject boardObject)
+    /// <summary>
+    /// Prevents multiple gems from being selected or swapped
+    /// </summary>
+    void lockGems()
     {
-        boardPiece = boardObject;
+        
+
     }
 
     #endregion
@@ -172,12 +191,87 @@ public class GameControllerScript : MonoBehaviour {
     #region Grid Methods
 
     /// <summary>
-    /// Creates a new 2D array of the board to resolve all possible chains
-    /// then swaps this new array with the old and calls the refill method
+    /// Creates a new 2D array "Moves" which list all possible chains
+    /// then sorts for unique chians and destroys all gems in those chains
     /// </summary>
     void ResolveGrid()
     {
-        // NOTE: if there are strings of 3 or more, resolve them all, then call refill grid method
+        // MoveScript is a container for holding lists of cells
+        
+        // currColor is the current tag for checking matches
+        string currColor = "";
+        // currCell is the current cell being checked
+        GameObject currCell;
+        // leftMove is a movesGrid at [row, column - 1]
+        
+        //aboveColor is the tag of the gem above the current gem
+        string aboveColor = "";
+        // aboveMove is the move above the currMove [row - 1, column]
+
+        // movesGrid is an empty 2D array of size [tablesize, tablesize]
+        MoveScript[,] movesGrid = new MoveScript[tableSize, tableSize];
+        // This loop will look through the whole 
+        // table and find all possible matches
+        //  - Loop through each row
+        for (int i = 0; i < tableSize; ++i)
+        {
+            // prevColor is the last color checked
+            string prevColor = "";
+            //  - Loop through each column
+            for (int k = 0; k < tableSize; ++k)
+            {
+                // set currCell and currColor
+                currCell = gems[i, k];
+                currColor = currCell.tag;
+                // Check for null references
+                if (currColor != "")
+                {
+                    // check currColor against prevColor
+                    if (currColor != prevColor)
+                    {
+                        // check if currColor is equal to above color
+                        if (i > 0 && aboveColor == currColor)
+                        {
+                            // mave current move equal move above it
+                            movesGrid[i, k] = movesGrid[i - 1, k];
+                        }
+                        else
+                        {
+                            // create a new empty move
+                            movesGrid[i,k] = new MoveScript();
+                        }
+                    }
+                    else
+                    {
+                        // if left move and above move are not equal
+                        if (i > 0 && aboveColor == currColor &&
+                            movesGrid[i - 1, k] != movesGrid[i, k - 1])
+                        {
+                            // combine left and above moves into one move
+                            MoveScript combinedMoves = new MoveScript();
+                            combinedMoves.AddMoves(movesGrid[i - 1, k], movesGrid[i, k - 1]);
+                            foreach (GameObject go in combinedMoves.GetList)
+                            {
+                                movesGrid[(int)go.transform.position.x, (int)go.transform.position.y] = combinedMoves;
+                            }
+                            // set current move equal to combines moves
+                            movesGrid[i, k] = combinedMoves;
+                        }
+                        else
+                        {
+                            // set currMove to leftMove
+                            movesGrid[i, k] = movesGrid[i, k - 1];
+                        }
+                    }
+                    // add currCell to currMove
+                    movesGrid[i, k].AddMove(currCell);
+                }
+                // set prevColor to currColor for next iteration
+                prevColor = currColor;
+            }
+        }
+        
+
     }
 
     /// <summary>
