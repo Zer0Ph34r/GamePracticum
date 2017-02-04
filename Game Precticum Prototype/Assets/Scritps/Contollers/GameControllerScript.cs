@@ -44,11 +44,11 @@ public class GameControllerScript : MonoBehaviour {
     // Bool for checking valid moves
     bool isValid = false;
 
-    #region Events
+    // bool for checking locked status
+    bool handLocked = false;
+    bool gridLocked = false;
 
-    // create delegate and event for returning selected gems
-    public delegate GameObject blockGem();
-    public static event blockGem BlockGems;
+    #region Events
 
     #endregion
 
@@ -113,7 +113,8 @@ public class GameControllerScript : MonoBehaviour {
         #region Add Event Methods
 
         // add method for when a gem is selected
-
+        GemScript.gridSelected += lockGridGems;
+        GemScript.handSelected += lockHandGems;
 
         #endregion
 
@@ -180,10 +181,39 @@ public class GameControllerScript : MonoBehaviour {
     /// <summary>
     /// Prevents multiple gems from being selected or swapped
     /// </summary>
-    void lockGems()
+    void lockHandGems(bool tf)
     {
-        
+        // lock each peice
+        foreach (GameObject gem in playerHand)
+        {
+            gem.GetComponent<GemScript>().canSelect = tf;
+        }
+        // Show hand is locked
+        handLocked = true;
+        // check if both grid and hand are locked
+        if (handLocked && gridLocked)
+        {
+            SwapPieces();
+        }
+    }
 
+    /// <summary>
+    /// Prevents multiple gems from being selected or swapped
+    /// </summary>
+    void lockGridGems(bool tf)
+    {
+        // lock each peice
+        foreach (GameObject gem in gems)
+        {
+            gem.GetComponent<GemScript>().canSelect = tf;
+        }
+        // Show hand is locked
+        gridLocked = true;
+        // check if both grid and hand are locked
+        if (handLocked && gridLocked)
+        {
+            SwapPieces();
+        }
     }
 
     #endregion
