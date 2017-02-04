@@ -38,6 +38,14 @@ public class GameControllerScript : MonoBehaviour {
     // Bool for checking valid moves
     bool isValid = false;
 
+    #region Events
+
+    // create delegate and event for returning selected gems
+    public delegate GameObject getGem();
+    public static event getGem getGems;
+
+    #endregion
+
     #endregion
 
     // Use this for initialization
@@ -96,7 +104,6 @@ public class GameControllerScript : MonoBehaviour {
 
     }
 		
-
     #region Instantiation Methods
 
     /// <summary>

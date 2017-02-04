@@ -8,21 +8,23 @@ public class GemScript : MonoBehaviour {
 
     // bool for being selected
     bool isSelected = false;
+    bool canSelect = true;
+
+    #region EventFields
+
+    // Create delegate for adding in method calls
+    public delegate void callMethod();
+    // create event for calling that delegate
+    public static event callMethod onSelected;
 
     #endregion
 
-	#region EventFields
-	// Create delegate for adding in method calls
-	public delegate void callMethod();
-	// create event for calling that delegate
-	public static event callMethod onSelected;
+    #endregion
 
-	#endregion
-
-	//void Start()
-	//{
-	//	onSelected += ChangeState;
-	//}
+    private void Start()
+    {
+        GameControllerScript.getGems += ReturnThis;
+    }
 
     #region Methods
 
@@ -31,31 +33,28 @@ public class GemScript : MonoBehaviour {
     {
         // Flips between selected and unselected states
         ChangeState();
-        onSelected();
     }
 
 	// changes gem state so only one gem can be selected at a time
 	public void ChangeState()
 	{
-		if (isSelected) 
-		{
-            isSelected = false;
-            transform.GetChild(0).gameObject.SetActive(true);
-        }
-		else 
+		if (!isSelected && canSelect) 
 		{
             isSelected = true;
+            transform.GetChild(0).gameObject.SetActive(true);
+        }
+		else
+		{
+            isSelected = false;
             transform.GetChild(0).gameObject.SetActive(false);
         }
 
 	}
 
-    // add event to this object to call when it is selected
-    public void AddEvent(callMethod methodName)
+    GameObject ReturnThis()
     {
-        onSelected += methodName;
+        return gameObject;
     }
-    
 
     #endregion
 }
