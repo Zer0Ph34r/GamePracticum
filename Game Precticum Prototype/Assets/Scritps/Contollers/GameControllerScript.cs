@@ -330,6 +330,7 @@ public class GameControllerScript : MonoBehaviour {
         {
             foreach (GameObject go in move.GetList)
             {
+                gems[(int)go.transform.position.x, (int)go.transform.position.y] = null;
                 Destroy(go);
             }
         }
@@ -355,12 +356,16 @@ public class GameControllerScript : MonoBehaviour {
         {
             // set new positions
             handPiece.transform.position = boardPos;
+            gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
+            handPiece.GetComponent<GemScript>().isHand = false;
             boardPiece.transform.position = handPos;
-
-            handPiece.GetComponent<GemScript>().Reset();
-            boardPiece.GetComponent<GemScript>().Reset();
+            boardPiece.GetComponent<GemScript>().isHand = true;
 
             // reset swapping objects
+            boardPiece.GetComponent<GemScript>().Reset();
+            handPiece.GetComponent<GemScript>().Reset();
+
+            // null reference pieces
             boardPiece = null;
             handPiece = null;
 
@@ -460,25 +465,38 @@ public class GameControllerScript : MonoBehaviour {
     void RefillGrid()
     {
         // First, drop all the gems as low as they can go
-        for (int i = 1; i < tableSize; i++)
+        for (int i = 0; i < tableSize; i++)
         {
-            for (int k = 0; k < tableSize; ++k)
+            for (int k = 1; k < tableSize; k++)
             {
                 CheckFalling(i,k);
             }
         }
 
         // Now fill empty spaces with new gems
-        for (int i = 1; i < tableSize; i++)
+        for (int j = 0; j < tableSize; j++)
         {
-            for (int k = 0; k < tableSize; ++k)
+            for (int l = 0; l < tableSize; ++l)
             {
-                if (gems[i,k] == null)
+                if (gems[j,l] == null)
                 {
-                    FillGaps(i, k);
+                    FillGaps(j, l);
                 }
             }
         }
+
+        // reset all gems to unlocked and unselected state 
+        foreach (GameObject gem in gems)
+        {
+            gem.GetComponent<GemScript>().Reset();
+        }
+        foreach (GameObject gem in playerHand)
+        {
+            gem.GetComponent<GemScript>().Reset();
+        }
+        // reset locked status
+        gridLocked = false;
+        handLocked = false;
 
     }
 
@@ -489,7 +507,9 @@ public class GameControllerScript : MonoBehaviour {
     void CheckFalling(int x, int y)
     {
         // check if the space below this is null
-        if (gems[x, y - 1] == null)
+        if (y >= 1 &&
+            gems[x, y] != null &&
+            gems[x, y - 1] == null)
         {
             // move gem to new position
             gems[x, y].transform.position = new Vector3(x, y - 1, 0);
