@@ -47,6 +47,8 @@ public class GameControllerScript : MonoBehaviour {
 
     #endregion
 
+    #region Start Method
+
     // Use this for initialization
     void Start () {
 
@@ -112,7 +114,9 @@ public class GameControllerScript : MonoBehaviour {
         #endregion
 
     }
-		
+
+    #endregion
+
     #region Instantiation Methods
 
     /// <summary>
@@ -125,11 +129,21 @@ public class GameControllerScript : MonoBehaviour {
         {
             for (int k = 0; k < tableSize; ++k)
             {
-                GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(i, k, 0), Quaternion.identity);
-                go.GetComponent<GemScript>().isHand = false;
-                gems[i, k] = go;
+                CreateBoardPiece(i, k);
             }
         }
+    }
+
+    /// <summary>
+    /// Creates Random Piece and adds it ot the board of gems
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    void CreateBoardPiece(int x, int y)
+    {
+        GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(x, y, 0), Quaternion.identity);
+        go.GetComponent<GemScript>().isHand = false;
+        gems[x, y] = go;
     }
 
     /// <summary>
@@ -171,6 +185,8 @@ public class GameControllerScript : MonoBehaviour {
 
     #region Events
 
+    #region Lock Hand
+
     /// <summary>
     /// Prevents multiple gems from being selected or swapped
     /// </summary>
@@ -192,6 +208,9 @@ public class GameControllerScript : MonoBehaviour {
         }
     }
 
+    #endregion
+
+    #region Lock Grid
     /// <summary>
     /// Prevents multiple gems from being selected or swapped
     /// </summary>
@@ -212,6 +231,8 @@ public class GameControllerScript : MonoBehaviour {
             SwapPieces();
         }
     }
+
+    #endregion
 
     #endregion
 
@@ -354,45 +375,31 @@ public class GameControllerScript : MonoBehaviour {
         // check if it's a valid swap
         if (CheckValidSwap((int)boardPos.x, (int)boardPos.y))
         {
-            // set new positions
+            // set new positions to hand Piece
             handPiece.transform.position = boardPos;
+            // set handPiece into gem array
             gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
+            // make handPiece a board piece
             handPiece.GetComponent<GemScript>().isHand = false;
+
+            // Move board piece to hand position
             boardPiece.transform.position = handPos;
+            // Add board piece to player hand
+            playerHand[((int)handPos.y - 7)] = boardPiece;
+            // Turn board piece into hand piece
             boardPiece.GetComponent<GemScript>().isHand = true;
 
             // reset swapping objects
             boardPiece.GetComponent<GemScript>().Reset();
             handPiece.GetComponent<GemScript>().Reset();
 
-            // null reference pieces
-            boardPiece = null;
-            handPiece = null;
-
-            // reset locked status
-            gridLocked = false;
-            handLocked = false;
-
+            // resolve all possible solutions on board
             ResolveGrid();
         }
         else
         {
-            // reset all gems to unlocked and unselected state 
-            foreach(GameObject gem in gems)
-            {
-                gem.GetComponent<GemScript>().Reset();
-            }
-            foreach(GameObject gem in playerHand)
-            {
-                gem.GetComponent<GemScript>().Reset();
-            }
-            // reset locked status
-            gridLocked = false;
-            handLocked = false;
-
-            // reset swapping objects
-            boardPiece = null;
-            handPiece = null;
+            // Reset board so payer can pick again
+            ResetBoard();
         }
         
     }
@@ -405,6 +412,8 @@ public class GameControllerScript : MonoBehaviour {
     /// </summary>
     bool CheckValidSwap(int x, int y)
 	{
+        //NOTE: Add in 0X0 checks
+
         // check if the piece is at least 3 away from the left edge
 		if (x - 2 >= 0) 
 		{
@@ -448,6 +457,8 @@ public class GameControllerScript : MonoBehaviour {
 
     #endregion
 
+    #region Cancel Swap
+
     // Resets gems back to starting position and writes out warning to player
     void CancelSwap()
 	{
@@ -458,6 +469,9 @@ public class GameControllerScript : MonoBehaviour {
         //NOTE: Tell Player that swap was invalid
 	}
 
+    #endregion
+
+    #region Refill Method
     /// <summary>
     /// Has pieces "fall" into place, then creates new gems above the holes to 
     /// fill in grid completely
@@ -485,20 +499,12 @@ public class GameControllerScript : MonoBehaviour {
             }
         }
 
-        // reset all gems to unlocked and unselected state 
-        foreach (GameObject gem in gems)
-        {
-            gem.GetComponent<GemScript>().Reset();
-        }
-        foreach (GameObject gem in playerHand)
-        {
-            gem.GetComponent<GemScript>().Reset();
-        }
-        // reset locked status
-        gridLocked = false;
-        handLocked = false;
+        // reset game for next round
+        ResetBoard();
 
     }
+
+    #endregion
 
     #region CheckFalling
 
@@ -534,6 +540,35 @@ public class GameControllerScript : MonoBehaviour {
         GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(x, y, 0), Quaternion.identity);
         go.GetComponent<GemScript>().isHand = false;
         gems[x, y] = go;
+    }
+
+    #endregion
+
+    #region Reset Board
+
+    /// <summary>
+    /// Resets all board and ahdn pieces so they can be selected again
+    /// </summary>
+    void ResetBoard()
+    {
+        // reset all gems to unlocked and unselected state 
+        foreach (GameObject gem in gems)
+        {
+            gem.GetComponent<GemScript>().Reset();
+        }
+        foreach (GameObject gem in playerHand)
+        {
+            gem.GetComponent<GemScript>().Reset();
+        }
+
+        // reset game board and hand
+        // null reference pieces
+        boardPiece = null;
+        handPiece = null;
+
+        // reset locked status
+        gridLocked = false;
+        handLocked = false;
     }
 
     #endregion
