@@ -126,7 +126,7 @@ public class GameControllerScript : MonoBehaviour {
             for (int k = 0; k < tableSize; ++k)
             {
                 GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(i, k, 0), Quaternion.identity);
-                //go.GetComponent<GemScript>().AddEvent(SaveBoardPiece);
+                go.GetComponent<GemScript>().isHand = false;
                 gems[i, k] = go;
             }
         }
@@ -301,10 +301,32 @@ public class GameControllerScript : MonoBehaviour {
 
         // NOTE: Add in checking for all unique chains and destroying them than calling the refill method
 
+        #region Prevent Duplicate "Moves"
+
+        // Create a new list to house unique solutions
+        List<MoveScript> nonDuplicate = new List<MoveScript>();
+        // iterate through each movescript in movesGrid
+        foreach (MoveScript move in movesGrid)
+        {
+            // check if solution is longer than 2
+            if (move.GetList.Count > 2)
+            {
+                // check if solution exists already
+                if (!nonDuplicate.Contains(move))
+                {
+                    // If criteria is met, add this solution
+                    nonDuplicate.Add(move);
+                }
+            }
+        }
+
+        #endregion
+
         RefillGrid();
     }
     #endregion
 
+    #region Swap Pieces
     /// <summary>
     /// Swaps two pieces and then checks for validity
     /// </summary>
@@ -316,16 +338,23 @@ public class GameControllerScript : MonoBehaviour {
         
         // check if it's a valid swap
         if (CheckValidSwap((int)boardPos.x, (int)boardPos.y))
-        {    
+        {
             // set new positions
             handPiece.transform.position = boardPos;
             boardPiece.transform.position = handPos;
+
+            handPiece.GetComponent<GemScript>().Reset();
+            boardPiece.GetComponent<GemScript>().Reset();
 
             // reset swapping objects
             boardPiece = null;
             handPiece = null;
 
-            //ResolveGrid();
+            // reset locked status
+            gridLocked = false;
+            handLocked = false;
+
+            ResolveGrid();
         }
         else
         {
@@ -348,58 +377,60 @@ public class GameControllerScript : MonoBehaviour {
         }
         
     }
+    #endregion
+
+    #region CheckSwap
 
     /// <summary>
     /// Checks if a swap of tiles is valid of not based on which gem in the grid is being swapped
     /// </summary>
     bool CheckValidSwap(int x, int y)
 	{
-        bool returnValue = false;
         // check if the piece is at least 3 away from the left edge
 		if (x - 2 >= 0) 
 		{
-            if (gems [x, y].tag == gems [x - 1, y].tag &&
-				gems [x, y].tag == gems [x - 2, y].tag)
+            if (handPiece.tag == gems [x - 1, y].tag &&
+                handPiece.tag == gems [x - 2, y].tag)
 			{
-                returnValue = true;
+                return true;
 			}
 		}
         // check if the piece is at least 3 away from the right edge
-        if (x + 2 <= tableSize)
+        if (x + 2 < tableSize)
 		{
-            if (gems [x, y].tag == gems [x + 1, y].tag &&
-				gems [x, y].tag == gems [x + 2, y].tag)
+            if (handPiece.tag == gems [x + 1, y].tag &&
+                handPiece.tag == gems [x + 2, y].tag)
 			{
-                returnValue = true;
+                return true;
 			}
 		}
         // check if the piece is at least 3 away from the bottom edge
         if (y - 2 >= 0) 
 		{
-			if (gems [x, y].tag == gems [x, y - 1].tag &&
-				gems [x, y].tag == gems [x, y - 1].tag)
+			if (handPiece.tag == gems [x, y - 1].tag &&
+                handPiece.tag == gems [x, y - 1].tag)
 			{
-                returnValue =  true;
+                return  true;
 			}
 		}
         // check if the piece is at least 3 away from the top edge
-        if (y + 2 <= tableSize)
+        if (y + 2 < tableSize)
         {
-            if (gems [x, y].CompareTag(gems [x, y + 1].tag) &&
-			    (gems [x, y].tag == gems [x, y + 2].tag ||
-                gems[x, y].tag == gems[x, y - 1].tag)) 
+            if (handPiece.CompareTag(gems [x, y + 1].tag) &&
+                handPiece.CompareTag(gems [x, y + 2].tag)) 
 			{
-                //CompareTag()
-                returnValue = true;
+                return true;
 			}
 		}
 
-        return returnValue;
+        return false;
 
 	}
 
-	// Resets gems back to starting position and writes out warning to player
-	void CancelSwap()
+    #endregion
+
+    // Resets gems back to starting position and writes out warning to player
+    void CancelSwap()
 	{
         // reset pieces selected to starting positions
         boardPiece.transform.position = boardPos;
