@@ -224,17 +224,19 @@ public class GameControllerScript : MonoBehaviour {
     /// </summary>
     void ResolveGrid()
     {
+        #region Fields
         // MoveScript is a container for holding lists of cells
-        
         // currColor is the current tag for checking matches
         string currColor = "";
         // currCell is the current cell being checked
         GameObject currCell;
         // leftMove is a movesGrid at [row, column - 1]
-        
         //aboveColor is the tag of the gem above the current gem
         string aboveColor = "";
         // aboveMove is the move above the currMove [row - 1, column]
+        #endregion
+
+        #region Find all possible solutions
 
         // movesGrid is an empty 2D array of size [tablesize, tablesize]
         MoveScript[,] movesGrid = new MoveScript[tableSize, tableSize];
@@ -298,8 +300,7 @@ public class GameControllerScript : MonoBehaviour {
                 prevColor = currColor;
             }
         }
-
-        // NOTE: Add in checking for all unique chains and destroying them than calling the refill method
+        #endregion
 
         #region Prevent Duplicate "Moves"
 
@@ -317,6 +318,19 @@ public class GameControllerScript : MonoBehaviour {
                     // If criteria is met, add this solution
                     nonDuplicate.Add(move);
                 }
+            }
+        }
+
+        #endregion
+
+        #region Delete Gems in Solutions
+
+        // Iterate through each unique solution and delete all gems contained within
+        foreach (MoveScript move in nonDuplicate)
+        {
+            foreach (GameObject go in move.GetList)
+            {
+                Destroy(go);
             }
         }
 
@@ -436,7 +450,7 @@ public class GameControllerScript : MonoBehaviour {
         boardPiece.transform.position = boardPos;
         handPiece.transform.position = handPos;
 
-        // Tell Player that swap was invalid
+        //NOTE: Tell Player that swap was invalid
 	}
 
     /// <summary>
@@ -445,10 +459,64 @@ public class GameControllerScript : MonoBehaviour {
     /// </summary>
     void RefillGrid()
     {
-        // NOTE: Drop gems above empty grid spaces until Grid is full
         // First, drop all the gems as low as they can go
-        //for (int i = )
+        for (int i = 1; i < tableSize; i++)
+        {
+            for (int k = 0; k < tableSize; ++k)
+            {
+                CheckFalling(i,k);
+            }
+        }
+
+        // Now fill empty spaces with new gems
+        for (int i = 1; i < tableSize; i++)
+        {
+            for (int k = 0; k < tableSize; ++k)
+            {
+                if (gems[i,k] == null)
+                {
+                    FillGaps(i, k);
+                }
+            }
+        }
+
     }
+
+    #region CheckFalling
+
+    // Checks if there is a gem beneath this one and moves it
+    // if there isn't one
+    void CheckFalling(int x, int y)
+    {
+        // check if the space below this is null
+        if (gems[x, y - 1] == null)
+        {
+            // move gem to new position
+            gems[x, y].transform.position = new Vector3(x, y - 1, 0);
+            // set gem to new grid position
+            gems[x, y - 1] = gems[x, y];
+            // set old position to null
+            gems[x, y] = null;
+            // check below this new position
+            CheckFalling(x, y - 1);
+        }
+    }
+
+    #endregion
+
+    #region Fill Gaps
+
+    /// <summary>
+    ///  fill empty grid cell with new cell
+    /// </summary>
+    void FillGaps(int x, int y)
+    {
+        GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(x, y, 0), Quaternion.identity);
+        go.GetComponent<GemScript>().isHand = false;
+        gems[x, y] = go;
+    }
+
+    #endregion
 
     #endregion
 }
