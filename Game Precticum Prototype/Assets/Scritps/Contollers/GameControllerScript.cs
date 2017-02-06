@@ -57,12 +57,12 @@ public class GameControllerScript : MonoBehaviour {
 
         #region Load Assets
         // Load Gems
-        whiteGem = Resources.Load<GameObject>("Prefabs/PyramidWhite");
-        redGem = Resources.Load<GameObject>("Prefabs/PyramidRed");
-        yellowGem = Resources.Load<GameObject>("Prefabs/PyramidYellow");
-        greenGem = Resources.Load<GameObject>("Prefabs/PyramidGreen");
-        blueGem = Resources.Load<GameObject>("Prefabs/PyramidBlue");
-        purpleGem = Resources.Load<GameObject>("Prefabs/PyramidPurple");
+        whiteGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidWhite");
+        redGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidRed");
+        yellowGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidYellow");
+        greenGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidGreen");
+        blueGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidBlue");
+        purpleGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidPurple");
         // Load Sprites
         gridBackground = Resources.Load<Sprite>("Sprites/GridBackground");
         #endregion
