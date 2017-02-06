@@ -45,6 +45,9 @@ public class GameControllerScript : MonoBehaviour {
     bool handLocked = false;
     bool gridLocked = false;
 
+    // List of moves for checking state of board
+    List<MoveScript> resolveBoard;
+
     #endregion
 
     #region Start Method
@@ -79,11 +82,11 @@ public class GameControllerScript : MonoBehaviour {
 		// fill table and create game board
 		CreateGameBoard();
 
-		#endregion
+        #endregion
 
-		#region Create Player Hand
-		// Create Player Hand Empty
-		playerHand = new GameObject[3];
+        #region Create Player Hand
+        // Create Player Hand Empty
+        playerHand = new GameObject[3];
 		// Fill Player Hand with random gems
 		for (int i = 0; i < 3; ++i)
 		{
@@ -110,6 +113,17 @@ public class GameControllerScript : MonoBehaviour {
         // add method for when a gem is selected
         GemScript.gridSelected += lockGridGems;
         GemScript.handSelected += lockHandGems;
+
+        #endregion
+
+        #region Check Grid
+        // Prevent start board from having chains
+        // Make sure the board starts without any chains in it
+        resolveBoard = CheckGrid();
+        if (resolveBoard.Count > 0)
+        {
+            ResolveGrid(resolveBoard);
+        }
 
         #endregion
 
@@ -245,6 +259,42 @@ public class GameControllerScript : MonoBehaviour {
     /// </summary>
     void ResolveGrid()
     {
+        // List for storing all chains created
+        List<MoveScript> chains;
+
+        // FInd all possible Chains created
+        chains = CheckGrid();
+
+        // Remove all chians of 3 or more
+        DeleteChains(chains);
+
+        // Fill all holes in grid
+        RefillGrid();
+    }
+
+    /// <summary>
+    /// Resolves board with given list of chains
+    /// </summary>
+    /// <param name="list"></param>
+    void ResolveGrid(List<MoveScript> list)
+    {
+        // Remove all gems that form chains of 3 or more 
+        DeleteChains(list);
+
+        // Fill all holes in grid
+        RefillGrid();
+    }
+    #endregion
+
+    #region CheckGrid
+
+    /// <summary>
+    /// Finds all possible Chains in grid and returns a list of all unique chains
+    /// </summary>
+    /// <returns></returns>
+    List<MoveScript> CheckGrid()
+    {
+
         #region Fields
         // MoveScript is a container for holding lists of cells
         // currColor is the current tag for checking matches
@@ -289,7 +339,7 @@ public class GameControllerScript : MonoBehaviour {
                         else
                         {
                             // create a new empty move
-                            movesGrid[i,k] = new MoveScript();
+                            movesGrid[i, k] = new MoveScript();
                         }
                     }
                     else
@@ -342,12 +392,21 @@ public class GameControllerScript : MonoBehaviour {
             }
         }
 
+        return nonDuplicate;
+
         #endregion
 
-        #region Delete Gems in Solutions
 
+    }
+
+    #endregion
+
+    #region Delete Chains
+
+    void DeleteChains(List<MoveScript> list)
+    {
         // Iterate through each unique solution and delete all gems contained within
-        foreach (MoveScript move in nonDuplicate)
+        foreach (MoveScript move in list)
         {
             foreach (GameObject go in move.GetList)
             {
@@ -355,11 +414,8 @@ public class GameControllerScript : MonoBehaviour {
                 Destroy(go);
             }
         }
-
-        #endregion
-
-        RefillGrid();
     }
+
     #endregion
 
     #region Swap Pieces
