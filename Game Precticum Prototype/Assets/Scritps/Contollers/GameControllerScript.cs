@@ -57,12 +57,12 @@ public class GameControllerScript : MonoBehaviour {
 
         #region Load Assets
         // Load Gems
-        whiteGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidWhite");
-        redGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidRed");
-        yellowGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidYellow");
-        greenGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidGreen");
-        blueGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidBlue");
-        purpleGem = Resources.Load<GameObject>("Prefabs/Gems/PyramidPurple");
+        whiteGem = Resources.Load<GameObject>("Prefabs/Gems/WhiteD20");
+        redGem = Resources.Load<GameObject>("Prefabs/Gems/RedD12");
+        yellowGem = Resources.Load<GameObject>("Prefabs/Gems/YellowD9");
+        greenGem = Resources.Load<GameObject>("Prefabs/Gems/GreenD8");
+        blueGem = Resources.Load<GameObject>("Prefabs/Gems/BlueD6");
+        purpleGem = Resources.Load<GameObject>("Prefabs/Gems/PurpleD10");
         // Load Sprites
         gridBackground = Resources.Load<Sprite>("Sprites/GridBackground");
         #endregion
@@ -131,6 +131,14 @@ public class GameControllerScript : MonoBehaviour {
 
     #endregion
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
+    }
+
     #region Instantiation Methods
 
     /// <summary>
@@ -158,6 +166,7 @@ public class GameControllerScript : MonoBehaviour {
         GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(x, y, 0), Quaternion.identity);
         go.GetComponent<GemScript>().isHand = false;
         gems[x, y] = go;
+
     }
 
     /// <summary>
@@ -265,11 +274,13 @@ public class GameControllerScript : MonoBehaviour {
         // FInd all possible Chains created
         chains = CheckGrid();
 
-        // Remove all chians of 3 or more
-        DeleteChains(chains);
-
-        // Fill all holes in grid
-        RefillGrid();
+        if (chains.Count > 0)
+        {
+            // Delete Chains and reset grid
+            ResolveGrid(chains);
+            // Make sure grid doesn't have any more chains
+            ResolveGrid();
+        }
     }
 
     /// <summary>
@@ -303,7 +314,6 @@ public class GameControllerScript : MonoBehaviour {
         GameObject currCell;
         // leftMove is a movesGrid at [row, column - 1]
         //aboveColor is the tag of the gem above the current gem
-        string aboveColor = "";
         // aboveMove is the move above the currMove [row - 1, column]
         #endregion
 
@@ -331,7 +341,7 @@ public class GameControllerScript : MonoBehaviour {
                     if (currColor != prevColor)
                     {
                         // check if currColor is equal to above color
-                        if (i > 0 && aboveColor == currColor)
+                        if (i > 0 && gems[i - 1, k].tag == currColor)
                         {
                             // mave current move equal move above it
                             movesGrid[i, k] = movesGrid[i - 1, k];
@@ -345,7 +355,7 @@ public class GameControllerScript : MonoBehaviour {
                     else
                     {
                         // if left move and above move are not equal
-                        if (i > 0 && aboveColor == currColor &&
+                        if (i > 0 && gems[i - 1, k].tag == currColor &&
                             movesGrid[i - 1, k] != movesGrid[i, k - 1])
                         {
                             // combine left and above moves into one move
@@ -358,6 +368,7 @@ public class GameControllerScript : MonoBehaviour {
                             // set current move equal to combines moves
                             movesGrid[i, k] = combinedMoves;
                         }
+
                         else
                         {
                             // set currMove to leftMove
@@ -431,23 +442,34 @@ public class GameControllerScript : MonoBehaviour {
         // check if it's a valid swap
         if (CheckValidSwap((int)boardPos.x, (int)boardPos.y))
         {
-            // set new positions to hand Piece
-            handPiece.transform.position = boardPos;
-            // set handPiece into gem array
-            gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
-            // make handPiece a board piece
-            handPiece.GetComponent<GemScript>().isHand = false;
-
+            #region Move Board Piece
             // Move board piece to hand position
             boardPiece.transform.position = handPos;
             // Add board piece to player hand
             playerHand[((int)handPos.y - 7)] = boardPiece;
             // Turn board piece into hand piece
             boardPiece.GetComponent<GemScript>().isHand = true;
+            #endregion
+
+            #region Move Hand Piece
+            // set new positions to hand Piece
+            handPiece.transform.position = boardPos;
+            // set handPiece into gem array
+            gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
+            // make handPiece a board piece
+            handPiece.GetComponent<GemScript>().isHand = false;
+            #endregion
 
             // reset swapping objects
             boardPiece.GetComponent<GemScript>().Reset();
             handPiece.GetComponent<GemScript>().Reset();
+
+            // reset hand and board pieces
+            boardPiece = null;
+            handPiece = null;
+            handPos = Vector3.zero;
+            boardPos = Vector3.zero;
+
 
             // resolve all possible solutions on board
             ResolveGrid();
@@ -456,6 +478,10 @@ public class GameControllerScript : MonoBehaviour {
         {
             // Reset board so payer can pick again
             ResetBoard();
+
+            // reset nad and board pieces
+            boardPiece = null;
+            handPiece = null;
         }
         
     }
@@ -492,7 +518,7 @@ public class GameControllerScript : MonoBehaviour {
         if (y - 2 >= 0) 
 		{
 			if (handPiece.tag == gems [x, y - 1].tag &&
-                handPiece.tag == gems [x, y - 1].tag)
+                handPiece.tag == gems [x, y - 2].tag)
 			{
                 return  true;
 			}
@@ -550,7 +576,7 @@ public class GameControllerScript : MonoBehaviour {
             {
                 if (gems[j,l] == null)
                 {
-                    FillGaps(j, l);
+                    FillGap(j, l);
                 }
             }
         }
@@ -586,12 +612,12 @@ public class GameControllerScript : MonoBehaviour {
 
     #endregion
 
-    #region Fill Gaps
+    #region Fill Gap
 
     /// <summary>
     ///  fill empty grid cell with new cell
     /// </summary>
-    void FillGaps(int x, int y)
+    void FillGap(int x, int y)
     {
         GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(x, y, 0), Quaternion.identity);
         go.GetComponent<GemScript>().isHand = false;
