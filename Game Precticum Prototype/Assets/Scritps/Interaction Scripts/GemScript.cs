@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class GemScript : NetworkBehaviour
+public class GemScript : MonoBehaviour
 {
 
     #region Fields
@@ -37,10 +37,10 @@ public class GemScript : NetworkBehaviour
     public void OnMouseDown()
     {
         // Check if this is the local Player object and not a networked agent
-        if (!isLocalPlayer)
-        {
-            return;
-        }
+        //if (!isLocalPlayer)
+        //{
+        //    return;
+        //}
 
         // Flips between selected and unselected states
         ChangeState();

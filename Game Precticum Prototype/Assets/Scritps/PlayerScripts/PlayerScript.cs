@@ -112,6 +112,11 @@ public class PlayerScript : NetworkBehaviour
         #endregion
     }
 
+    //public override void OnStartLocalPlayer()
+    //{
+        
+    //}
+
     #region Methods
 
     #region Instantiation Methods
