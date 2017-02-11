@@ -10,12 +10,6 @@ public class MoveScript {
 
     #endregion
 
-    #region Constructor
-
-
-
-    #endregion
-
     #region Methods
 
     /// <summary>
