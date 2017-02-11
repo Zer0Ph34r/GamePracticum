@@ -12,7 +12,7 @@ public class GameControllerScript : MonoBehaviour {
     // table size int X int
     int tableSize = GlobalVariables.TABLE_SIZE;
 
-    PlayerScript player1 = new PlayerScript();
+    GameObject player1;
 
     #endregion
 
@@ -30,7 +30,7 @@ public class GameControllerScript : MonoBehaviour {
         mainCamera.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
         #endregion
 
-
+        player1 = GameObject.FindGameObjectWithTag("Player");
 
     }
 

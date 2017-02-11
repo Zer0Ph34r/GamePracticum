@@ -49,10 +49,8 @@ public class PlayerScript : MonoBehaviour
 
     #endregion
 
-    // Create Board of Gems and Hand
-    public PlayerScript()
+    private void Start()
     {
-
         #region Load Assets
         // Load Gems
         whiteGem = Resources.Load<GameObject>("Prefabs/Gems/WhiteD20");
@@ -108,14 +106,9 @@ public class PlayerScript : MonoBehaviour
         #region Check Grid
         // Prevent start board from having chains
         // Make sure the board starts without any chains in it
-        resolveBoard = CheckGrid();
-        if (resolveBoard.Count > 0)
-        {
-            ResolveGrid(resolveBoard);
-        }
-
+        ResolveGrid();
+        
         #endregion
-
     }
 
     #region Methods
