@@ -145,13 +145,24 @@ public class PlayerScript : NetworkBehaviour
     void CreateBoardPiece(int x, int y)
     {
         GameObject go = Instantiate(RandomizeObject(), 
-            new Vector3((int)transform.position.x + x, y, 0), Quaternion.identity/*, transform*/);
+            new Vector3((int)transform.position.x + x, y, 0), Quaternion.identity, transform);
         go.GetComponent<GemScript>().isHand = false;
         go.GetComponent<GemScript>().xPos = (x);
         go.GetComponent<GemScript>().yPos = (y);
         gems[x, y] = go;
 
     }
+
+    //void RefillGrid(int x, int y)
+    //{
+    //    GameObject go = Instantiate(RandomizeObject(),
+    //        new Vector3(x, y, 0), Quaternion.identity);
+    //    go.GetComponent<GemScript>().isHand = false;
+    //    go.GetComponent<GemScript>().xPos = (x);
+    //    go.GetComponent<GemScript>().yPos = (y);
+    //    gems[x, y] = go;
+
+    //}
 
     /// <summary>
     /// Returns random gem color to create
