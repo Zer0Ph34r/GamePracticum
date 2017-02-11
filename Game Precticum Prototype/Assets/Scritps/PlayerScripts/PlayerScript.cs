@@ -79,7 +79,7 @@ public class PlayerScript : NetworkBehaviour
         for (int i = 0; i < 3; ++i)
         {
             // Add gem to hand array for checking later on
-            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(11, i + 7, 0), Quaternion.identity);
+            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.position.x + 11, i + 7, 0), Quaternion.identity);
             go.GetComponent<GemScript>().isHand = true;
             playerHand[i] = go;
         }
@@ -131,7 +131,7 @@ public class PlayerScript : NetworkBehaviour
         {
             for (int k = 0; k < tableSize; ++k)
             {
-                CreateBoardPiece(i, k);
+                CreateBoardPiece((int)transform.position.x + i, k);
             }
         }
     }
