@@ -507,6 +507,26 @@ public class PlayerScript : MonoBehaviour
                 return true;
             }
         }
+        // Check for Middle gem swap validity up and down
+        if (y + 1 < tableSize ||
+            y -1 > 0)
+        {
+            if(handPiece.CompareTag(gems[x, y + 1].tag) &&
+                handPiece.CompareTag(gems[x, y - 1].tag))
+            {
+                return true;
+            }
+        }
+        // Check for Middle gem swap validity left and right
+        if (x + 1 < tableSize ||
+            x - 1 > 0)
+        {
+            if (handPiece.CompareTag(gems[x + 1, y].tag) &&
+                handPiece.CompareTag(gems[x - 1, y].tag))
+            {
+                return true;
+            }
+        }
 
         return false;
 
