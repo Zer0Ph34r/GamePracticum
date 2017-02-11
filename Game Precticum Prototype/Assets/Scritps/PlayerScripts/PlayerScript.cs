@@ -145,7 +145,7 @@ public class PlayerScript : NetworkBehaviour
     void CreateBoardPiece(int x, int y)
     {
         GameObject go = Instantiate(RandomizeObject(), 
-            new Vector3((int)transform.position.x + x, y, 0), Quaternion.identity, transform);
+            new Vector3((int)transform.position.x + x, y, 0), Quaternion.identity/*, transform*/);
         go.GetComponent<GemScript>().isHand = false;
         go.GetComponent<GemScript>().xPos = (x);
         go.GetComponent<GemScript>().yPos = (y);
@@ -580,7 +580,7 @@ public class PlayerScript : NetworkBehaviour
             {
                 if (gems[j, l] == null)
                 {
-                    FillGap(j, l);
+                    CreateBoardPiece(j, l);
                 }
             }
         }
@@ -612,23 +612,6 @@ public class PlayerScript : NetworkBehaviour
             // check below this new position
             CheckFalling(x, y - 1);
         }
-    }
-
-    #endregion
-
-    #region Fill Gap
-
-    /// <summary>
-    ///  fill empty grid cell with new cell
-    /// </summary>
-    void FillGap(int x, int y)
-    {
-        GameObject go = Instantiate(RandomizeObject(), 
-            new Vector3((int)transform.position.x + x, y, 0), Quaternion.identity, transform);
-        go.GetComponent<GemScript>().isHand = false;
-        go.GetComponent<GemScript>().xPos = (x);
-        go.GetComponent<GemScript>().yPos = (y);
-        gems[x, y] = go;
     }
 
     #endregion
