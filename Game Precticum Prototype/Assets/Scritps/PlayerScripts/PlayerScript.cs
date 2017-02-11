@@ -91,7 +91,7 @@ public class PlayerScript : MonoBehaviour
         background.AddComponent<SpriteRenderer>();
         background.GetComponent<SpriteRenderer>().sprite = gridBackground;
         // Move game object behind gems
-        background.transform.position = new Vector3(4.6f, 4.6f, -1);
+        background.transform.position = new Vector3(4.5f, 4.5f, -1);
 
         #endregion
 
