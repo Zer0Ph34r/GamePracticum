@@ -145,7 +145,7 @@ public class PlayerScript : NetworkBehaviour
     void CreateBoardPiece(int x, int y)
     {
         GameObject go = (GameObject)Instantiate(RandomizeObject(), 
-            new Vector3(/*(int)transform.position.x + */x, y, 0), Quaternion.identity);
+            new Vector3(/*(int)transform.position.x + */x, y, 0), Quaternion.identity, transform);
         go.GetComponent<GemScript>().isHand = false;
         go.GetComponent<GemScript>().xPos = (x);
         go.GetComponent<GemScript>().yPos = (y);
@@ -623,8 +623,10 @@ public class PlayerScript : NetworkBehaviour
     /// </summary>
     void FillGap(int x, int y)
     {
-        GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(/*(int)transform.position.x +*/ x, y, 0), Quaternion.identity, transform);
+        GameObject go = Instantiate(RandomizeObject(), new Vector3(x, y, 0), Quaternion.identity, transform);
         go.GetComponent<GemScript>().isHand = false;
+        go.GetComponent<GemScript>().xPos = (x);
+        go.GetComponent<GemScript>().yPos = (y);
         gems[x, y] = go;
     }
 
