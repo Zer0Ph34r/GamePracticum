@@ -19,9 +19,9 @@ public class MenuButtonScript : MonoBehaviour {
     /// <summary>
     /// Change scene to Main Scene
     /// </summary>
-    public void StartButton()
+    public void LoadSceneButton(string sceneName)
     {
-        SceneManager.LoadScene("MainScene");
+        SceneManager.LoadScene(sceneName);
     }
 
     /// <summary>
