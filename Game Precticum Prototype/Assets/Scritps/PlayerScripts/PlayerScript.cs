@@ -147,8 +147,8 @@ public class PlayerScript : NetworkBehaviour
         GameObject go = Instantiate(RandomizeObject(), 
             new Vector3((int)transform.position.x + x, y, 0), Quaternion.identity, transform);
         go.GetComponent<GemScript>().isHand = false;
-        go.GetComponent<GemScript>().xPos = (x);
-        go.GetComponent<GemScript>().yPos = (y);
+        go.GetComponent<GemScript>().xPos = x;
+        go.GetComponent<GemScript>().yPos = y;
         gems[x, y] = go;
 
     }
@@ -615,7 +615,7 @@ public class PlayerScript : NetworkBehaviour
             gems[x, y - 1] == null)
         {
             // move gem to new position
-            gems[x, y].transform.position = new Vector3(x, y - 1, 0);
+            gems[x, y].transform.position = new Vector3((int)transform.position.x + x, y - 1, 0);
             // set gem to new grid position
             gems[x, y - 1] = gems[x, y];
             // set old position to null
