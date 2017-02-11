@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class GemScript : MonoBehaviour {
+public class GemScript : NetworkBehaviour
+{
 
     #region Fields
 
@@ -34,6 +36,12 @@ public class GemScript : MonoBehaviour {
     // When the Mouse clicks on a gem
     public void OnMouseDown()
     {
+        // Check if this is the local Player object and not a networked agent
+        if (!isLocalPlayer)
+        {
+            return;
+        }
+
         // Flips between selected and unselected states
         ChangeState();
     }

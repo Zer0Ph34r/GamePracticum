@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class PlayerScript : MonoBehaviour
+public class PlayerScript : NetworkBehaviour
 {
 
     #region Fields
