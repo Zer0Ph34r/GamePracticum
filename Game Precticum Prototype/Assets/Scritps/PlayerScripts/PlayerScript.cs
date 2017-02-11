@@ -92,7 +92,7 @@ public class PlayerScript : NetworkBehaviour
         background.AddComponent<SpriteRenderer>();
         background.GetComponent<SpriteRenderer>().sprite = gridBackground;
         // Move game object behind gems
-        background.transform.position = new Vector3(4.5f, 4.5f, -1);
+        background.transform.position = new Vector3((int)transform.position.x + 4.5f, 4.5f, -1);
 
         #endregion
 
@@ -131,7 +131,7 @@ public class PlayerScript : NetworkBehaviour
         {
             for (int k = 0; k < tableSize; ++k)
             {
-                CreateBoardPiece((int)transform.position.x + i, k);
+                CreateBoardPiece( i, k);
             }
         }
     }
@@ -144,9 +144,12 @@ public class PlayerScript : NetworkBehaviour
     /// <param name="y"></param>
     void CreateBoardPiece(int x, int y)
     {
-        GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(x, y, 0), Quaternion.identity);
+        GameObject go = (GameObject)Instantiate(RandomizeObject(), 
+            new Vector3(/*(int)transform.position.x + */x, y, 0), Quaternion.identity);
         go.GetComponent<GemScript>().isHand = false;
-        gems[x - tableSize, y] = go;
+        go.GetComponent<GemScript>().xPos = (x);
+        go.GetComponent<GemScript>().yPos = (y);
+        gems[x, y] = go;
 
     }
 
@@ -344,7 +347,7 @@ public class PlayerScript : NetworkBehaviour
                             combinedMoves.AddMoves(movesGrid[i - 1, k], movesGrid[i, k - 1]);
                             foreach (GameObject go in combinedMoves.GetList)
                             {
-                                movesGrid[(int)go.transform.position.x, (int)go.transform.position.y] = combinedMoves;
+                                movesGrid[(int)go.GetComponent<GemScript>().xPos, (int)go.GetComponent<GemScript>().yPos] = combinedMoves;
                             }
                             // set current move equal to combines moves
                             movesGrid[i, k] = combinedMoves;
@@ -402,7 +405,7 @@ public class PlayerScript : NetworkBehaviour
         {
             foreach (GameObject go in move.GetList)
             {
-                gems[(int)go.transform.position.x, (int)go.transform.position.y] = null;
+                gems[(int)go.GetComponent<GemScript>().xPos, (int)go.GetComponent<GemScript>().yPos] = null;
                 Destroy(go);
             }
         }
@@ -620,7 +623,7 @@ public class PlayerScript : NetworkBehaviour
     /// </summary>
     void FillGap(int x, int y)
     {
-        GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(x, y, 0), Quaternion.identity);
+        GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(/*(int)transform.position.x +*/ x, y, 0), Quaternion.identity, transform);
         go.GetComponent<GemScript>().isHand = false;
         gems[x, y] = go;
     }

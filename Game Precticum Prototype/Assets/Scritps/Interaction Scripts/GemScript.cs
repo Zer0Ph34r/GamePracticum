@@ -13,6 +13,10 @@ public class GemScript : MonoBehaviour
     public bool canSelect { get; set; }
     public bool isHand { get; set; }
 
+    // x and y positions for array usage
+    public int xPos { get; set; }
+    public int yPos { get; set; }
+
     #region EventFields
 
     // Create delegate for adding in method calls
