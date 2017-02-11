@@ -146,7 +146,7 @@ public class PlayerScript : NetworkBehaviour
     {
         GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(x, y, 0), Quaternion.identity);
         go.GetComponent<GemScript>().isHand = false;
-        gems[x, y] = go;
+        gems[x - tableSize, y] = go;
 
     }
 
