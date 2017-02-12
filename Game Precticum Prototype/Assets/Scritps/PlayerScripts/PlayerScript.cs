@@ -45,8 +45,7 @@ public class PlayerScript : NetworkBehaviour
 
     #endregion
 
-    // List of moves for checking state of board
-    List<MoveScript> resolveBoard;
+    List<GameObject> tempCheck;
 
     #endregion
 
@@ -63,6 +62,8 @@ public class PlayerScript : NetworkBehaviour
         // Load Sprites
         gridBackground = Resources.Load<Sprite>("Sprites/GridBackground");
         #endregion
+
+        tempCheck = new List<GameObject>();
 
         #region Create Game Board
         // create table
@@ -144,25 +145,34 @@ public class PlayerScript : NetworkBehaviour
     /// <param name="y"></param>
     void CreateBoardPiece(int x, int y)
     {
-        GameObject go = Instantiate(RandomizeObject(), 
+        GameObject go = Instantiate(RandomizeObject(),
             new Vector3((int)transform.position.x + x, y, 0), Quaternion.identity, transform);
         go.GetComponent<GemScript>().isHand = false;
         go.GetComponent<GemScript>().xPos = x;
         go.GetComponent<GemScript>().yPos = y;
         gems[x, y] = go;
-
     }
 
-    //void RefillGrid(int x, int y)
-    //{
-    //    GameObject go = Instantiate(RandomizeObject(),
-    //        new Vector3(x, y, 0), Quaternion.identity);
-    //    go.GetComponent<GemScript>().isHand = false;
-    //    go.GetComponent<GemScript>().xPos = (x);
-    //    go.GetComponent<GemScript>().yPos = (y);
-    //    gems[x, y] = go;
-
-    //}
+    /// <summary>
+    /// Creates Random Piece and adds it ot the board of gems
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    void FillBoardPiece(int x, int y)
+    {
+        GameObject go = Instantiate(RandomizeObject(),
+            new Vector3((int)transform.position.x + x, y, 0), Quaternion.identity, transform);
+        handPiece = go;
+        go.GetComponent<GemScript>().isHand = false;
+        go.GetComponent<GemScript>().xPos = x;
+        go.GetComponent<GemScript>().yPos = y;
+        gems[x, y] = go;
+        if (CheckValidSwap(x, y))
+        {
+            CreateBoardPiece(x, y);
+        }
+        handPiece = null;
+    }
 
     /// <summary>
     /// Returns random gem color to create
@@ -273,8 +283,6 @@ public class PlayerScript : NetworkBehaviour
         {
             // Delete Chains and reset grid
             ResolveGrid(chains);
-            // Make sure grid doesn't have any more chains
-            ResolveGrid();
         }
     }
 
@@ -489,13 +497,13 @@ public class PlayerScript : NetworkBehaviour
     /// </summary>
     bool CheckValidSwap(int x, int y)
     {
-        //NOTE: Add in 0X0 checks
-
         // check if the piece is at least 3 away from the left edge
         if (x - 2 >= 0)
         {
-            if (handPiece.tag == gems[x - 1, y].tag &&
-                handPiece.tag == gems[x - 2, y].tag)
+            if (gems[x - 1, y] != null &&
+                gems[x - 2, y] != null &&
+                handPiece.CompareTag(gems[x - 1, y].tag) &&
+                handPiece.CompareTag(gems[x - 2, y].tag))
             {
                 return true;
             }
@@ -503,8 +511,10 @@ public class PlayerScript : NetworkBehaviour
         // check if the piece is at least 3 away from the right edge
         if (x + 2 < tableSize)
         {
-            if (handPiece.tag == gems[x + 1, y].tag &&
-                handPiece.tag == gems[x + 2, y].tag)
+            if (gems[x + 1, y] != null &&
+                gems[x + 2, y] != null &&
+                handPiece.CompareTag(gems[x + 1, y].tag) &&
+                handPiece.CompareTag(gems[x + 2, y].tag))
             {
                 return true;
             }
@@ -512,8 +522,10 @@ public class PlayerScript : NetworkBehaviour
         // check if the piece is at least 3 away from the bottom edge
         if (y - 2 >= 0)
         {
-            if (handPiece.tag == gems[x, y - 1].tag &&
-                handPiece.tag == gems[x, y - 2].tag)
+            if (gems[x, y - 1] != null &&
+                gems[x, y - 2] != null &&
+                handPiece.CompareTag(gems[x, y - 1].tag) &&
+                handPiece.CompareTag(gems[x, y - 2].tag))
             {
                 return true;
             }
@@ -521,27 +533,33 @@ public class PlayerScript : NetworkBehaviour
         // check if the piece is at least 3 away from the top edge
         if (y + 2 < tableSize)
         {
-            if (handPiece.CompareTag(gems[x, y + 1].tag) &&
+            if (gems[x, y + 1] != null &&
+                gems[x, y + 2] != null &&
+                handPiece.CompareTag(gems[x, y + 1].tag) &&
                 handPiece.CompareTag(gems[x, y + 2].tag))
             {
                 return true;
             }
         }
         // Check for Middle gem swap validity up and down
-        if (y + 1 < tableSize ||
+        if (y + 1 < tableSize &&
             y -1 > 0)
         {
-            if(handPiece.CompareTag(gems[x, y + 1].tag) &&
+            if(gems[x, y + 1] != null &&
+                gems[x, y - 1] != null &&
+                handPiece.CompareTag(gems[x, y + 1].tag) &&
                 handPiece.CompareTag(gems[x, y - 1].tag))
             {
                 return true;
             }
         }
         // Check for Middle gem swap validity left and right
-        if (x + 1 < tableSize ||
+        if (x + 1 < tableSize &&
             x - 1 > 0)
         {
-            if (handPiece.CompareTag(gems[x + 1, y].tag) &&
+            if (gems[x + 1, y] != null &&
+                gems[x - 1, y] != null &&
+                handPiece.CompareTag(gems[x + 1, y].tag) &&
                 handPiece.CompareTag(gems[x - 1, y].tag))
             {
                 return true;
@@ -591,7 +609,7 @@ public class PlayerScript : NetworkBehaviour
             {
                 if (gems[j, l] == null)
                 {
-                    CreateBoardPiece(j, l);
+                    FillBoardPiece(j, l);
                 }
             }
         }
