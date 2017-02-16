@@ -28,7 +28,7 @@ public class PlayerScript : NetworkBehaviour
     int tableSize = GlobalVariables.TABLE_SIZE;
 
     // 2D array of table contents
-    public GameObject[,] gems { get; set; }
+    public GameObject[,] gems; /*{ get; set; }*/
     GameObject[] playerHand;
 
     // save object positions for swapping
@@ -154,7 +154,7 @@ public class PlayerScript : NetworkBehaviour
     }
     #endregion
 
-    #region RefillBoard
+    #region Refill Board
 
     /// <summary>
     /// Creates Random Piece and adds it ot the board of gems
@@ -170,6 +170,7 @@ public class PlayerScript : NetworkBehaviour
         go.GetComponent<GemScript>().xPos = x;
         go.GetComponent<GemScript>().yPos = y;
         gems[x, y] = go;
+        // Check if this new gem creates a chain
         if (CheckValidSwap(x, y))
         {
             Destroy(gems[x, y]);
@@ -334,7 +335,8 @@ public class PlayerScript : NetworkBehaviour
         #region Find all possible solutions
 
         // movesGrid is an empty 2D array of size [tablesize, tablesize]
-        MoveScript[,] movesGrid = new MoveScript[tableSize, tableSize];
+        //MoveScript[,] movesGrid = new MoveScript[tableSize, tableSize];
+        List<MoveScript> moves = new List<MoveScript>();
         // This loop will look through the whole 
         // table and find all possible matches
         #region Old Code
@@ -400,73 +402,44 @@ public class PlayerScript : NetworkBehaviour
         #endregion
 
         #region Two Nested loops for finding all straight Chains
-        // check rows
+        // check Columns
+        int moveCount = -1;
         for (int i = 0; i < tableSize; ++i)
         {
             // prevColor is the last color checked
             string prevColor = "";
             for (int k = 0; k < tableSize; ++k)
             {
-                // set currCell and currColor
                 currCell = gems[i, k];
                 currColor = currCell.tag;
-                // Check for null references
-                if (currColor != "")
+                if (currColor != prevColor)
                 {
-                    // check currColor against prevColor
-                    if (currColor != prevColor)
-                    {
-                        // check if currColor is equal to above color
-                        if (i > 0 && gems[i - 1, k].tag == currColor)
-                        {
-                            // mave current move equal move above it
-                            movesGrid[i, k] = movesGrid[i - 1, k];
-                        }
-                        else
-                        {
-                            // create a new empty move
-                            movesGrid[i, k] = new MoveScript();
-                        }
-                        // set prevColor to currColor for next iteration
-                        prevColor = currColor;
-                    }
+                    moves.Add(new MoveScript());
+                    moveCount++;
                 }
+                moves[moveCount].AddMove(currCell);
+                prevColor = currColor;
             }
         }
 
-        // check columns
         for (int i = 0; i < tableSize; ++i)
         {
             // prevColor is the last color checked
             string prevColor = "";
             for (int k = 0; k < tableSize; ++k)
             {
-                // set currCell and currColor
                 currCell = gems[k, i];
                 currColor = currCell.tag;
-                // Check for null references
-                if (currColor != "")
+                if (currColor != prevColor)
                 {
-                    // check currColor against prevColor
-                    if (currColor != prevColor)
-                    {
-                        // check if currColor is equal to above color
-                        if (i > 0 && gems[k - 1, i].tag == currColor)
-                        {
-                            // mave current move equal move above it
-                            movesGrid[k, i] = movesGrid[k - 1, i];
-                        }
-                        else
-                        {
-                            // create a new empty move
-                            movesGrid[k, i] = new MoveScript();
-                        }
-                        // set prevColor to currColor for next iteration
-                        prevColor = currColor;
-                    }
+                    moves.Add(new MoveScript());
+                    moveCount++;
                 }
+                moves[moveCount].AddMove(currCell);
+                prevColor = currColor;
             }
         }
+
 
         #endregion
         #endregion
@@ -476,7 +449,7 @@ public class PlayerScript : NetworkBehaviour
         // Create a new list to house unique solutions
         List<MoveScript> nonDuplicate = new List<MoveScript>();
         // iterate through each movescript in movesGrid
-        foreach (MoveScript move in movesGrid)
+        foreach (MoveScript move in moves)
         {
             // check if solution is longer than 2
             if (move.GetList.Count > 2)
@@ -674,7 +647,7 @@ public class PlayerScript : NetworkBehaviour
 
     #endregion
 
-    #region Refill Method
+    #region Move and Refill Board
     /// <summary>
     /// Has pieces "fall" into place, then creates new gems above the holes to 
     /// fill in grid completely
@@ -682,9 +655,9 @@ public class PlayerScript : NetworkBehaviour
     void RefillGrid()
     {
         // First, drop all the gems as low as they can go
-        for (int i = 0; i < tableSize; i++)
+        for (int i = tableSize; i < 0; i--)
         {
-            for (int k = 1; k < tableSize; k++)
+            for (int k = tableSize; k < 1; k--)
             {
                 CheckFalling(i, k);
             }
@@ -718,16 +691,16 @@ public class PlayerScript : NetworkBehaviour
         // check if the space below this is null
         if (y >= 1 &&
             gems[x, y] != null &&
-            gems[x, y - 1] == null)
+            gems[x, y + 1] == null)
         {
             // move gem to new position
-            gems[x, y].transform.position = new Vector3((int)transform.position.x + x, y - 1, 0);
+            gems[x, y].transform.position = new Vector3((int)transform.position.x + x, y + 1, 0);
             // set gem to new grid position
-            gems[x, y - 1] = gems[x, y];
+            gems[x, y + 1] = gems[x, y];
             // set old position to null
             gems[x, y] = null;
             // check below this new position
-            CheckFalling(x, y - 1);
+            CheckFalling(x, y + 1);
         }
     }
 
