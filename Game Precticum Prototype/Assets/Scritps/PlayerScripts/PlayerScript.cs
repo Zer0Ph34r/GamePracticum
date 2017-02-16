@@ -49,6 +49,7 @@ public class PlayerScript : NetworkBehaviour
 
     #endregion
 
+    #region Start
     private void Start()
     {
         #region Load Assets
@@ -88,12 +89,12 @@ public class PlayerScript : NetworkBehaviour
         #endregion
 
         #region Create Background
-        // creat game object , add spreite renderer and set the background sprite as the render sprite
-        GameObject background = new GameObject();
-        background.AddComponent<SpriteRenderer>();
-        background.GetComponent<SpriteRenderer>().sprite = gridBackground;
-        // Move game object behind gems
-        background.transform.position = new Vector3((int)transform.position.x + 4.5f, 4.5f, -1);
+        //// creat game object , add spreite renderer and set the background sprite as the render sprite
+        //GameObject background = new GameObject();
+        //background.AddComponent<SpriteRenderer>();
+        //background.GetComponent<SpriteRenderer>().sprite = gridBackground;
+        //// Move game object behind gems
+        //background.transform.position = new Vector3((int)transform.position.x + 4.5f, 4.5f, -1);
 
         #endregion
 
@@ -112,16 +113,13 @@ public class PlayerScript : NetworkBehaviour
         
         #endregion
     }
-
-    //public override void OnStartLocalPlayer()
-    //{
-        
-    //}
+    #endregion
 
     #region Methods
 
     #region Instantiation Methods
 
+    #region Create Board
     /// <summary>
     /// Creates game board according to game board size
     /// </summary>
@@ -136,7 +134,9 @@ public class PlayerScript : NetworkBehaviour
             }
         }
     }
+    #endregion
 
+    #region Create Piece
 
     /// <summary>
     /// Creates Random Piece and adds it ot the board of gems
@@ -152,6 +152,9 @@ public class PlayerScript : NetworkBehaviour
         go.GetComponent<GemScript>().yPos = y;
         gems[x, y] = go;
     }
+    #endregion
+
+    #region RefillBoard
 
     /// <summary>
     /// Creates Random Piece and adds it ot the board of gems
@@ -169,10 +172,16 @@ public class PlayerScript : NetworkBehaviour
         gems[x, y] = go;
         if (CheckValidSwap(x, y))
         {
+            Destroy(gems[x, y]);
+            gems[x, y] = null;
             CreateBoardPiece(x, y);
         }
         handPiece = null;
     }
+
+    #endregion
+
+    #region Randomize Object
 
     /// <summary>
     /// Returns random gem color to create
@@ -208,6 +217,8 @@ public class PlayerScript : NetworkBehaviour
         // returns randomly generated gem
         return returnGem;
     }
+
+    #endregion
 
     #endregion
 
@@ -326,12 +337,74 @@ public class PlayerScript : NetworkBehaviour
         MoveScript[,] movesGrid = new MoveScript[tableSize, tableSize];
         // This loop will look through the whole 
         // table and find all possible matches
-        //  - Loop through each row
+        #region Old Code
+        ////  - Loop through each row
+        //for (int i = 0; i < tableSize; ++i)
+        //{
+        //    // prevColor is the last color checked
+        //    string prevColor = "";
+        //    //  - Loop through each column
+        //    for (int k = 0; k < tableSize; ++k)
+        //    {
+        //        // set currCell and currColor
+        //        currCell = gems[i, k];
+        //        currColor = currCell.tag;
+        //        // Check for null references
+        //        if (currColor != "")
+        //        {
+        //            // check currColor against prevColor
+        //            if (currColor != prevColor)
+        //            {
+        //                // check if currColor is equal to above color
+        //                if (i > 0 && gems[i - 1, k].tag == currColor)
+        //                {
+        //                    // mave current move equal move above it
+        //                    movesGrid[i, k] = movesGrid[i - 1, k];
+        //                }
+        //                else
+        //                {
+        //                    // create a new empty move
+        //                    movesGrid[i, k] = new MoveScript();
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // if left move and above move are not equal
+        //                if (i > 0 && gems[i - 1, k].tag == currColor &&
+        //                    movesGrid[i - 1, k] != movesGrid[i, k - 1])
+        //                {
+        //                    // combine left and above moves into one move
+        //                    MoveScript combinedMoves = new MoveScript();
+        //                    combinedMoves.AddMoves(movesGrid[i - 1, k], movesGrid[i, k - 1]);
+        //                    foreach (GameObject go in combinedMoves.GetList)
+        //                    {
+        //                        movesGrid[(int)go.GetComponent<GemScript>().xPos, (int)go.GetComponent<GemScript>().yPos] = combinedMoves;
+        //                    }
+        //                    // set current move equal to combines moves
+        //                    movesGrid[i, k] = combinedMoves;
+        //                }
+
+        //                else
+        //                {
+        //                    // set currMove to leftMove
+        //                    movesGrid[i, k] = movesGrid[i, k - 1];
+        //                }
+        //            }
+        //            // add currCell to currMove
+        //            movesGrid[i, k].AddMove(currCell);
+        //        }
+        //        // set prevColor to currColor for next iteration
+        //        prevColor = currColor;
+        //    }
+        //}
+        #endregion
+
+        #region Two Nested loops for finding all straight Chains
+        // check rows
         for (int i = 0; i < tableSize; ++i)
         {
             // prevColor is the last color checked
             string prevColor = "";
-            //  - Loop through each column
             for (int k = 0; k < tableSize; ++k)
             {
                 // set currCell and currColor
@@ -354,37 +427,48 @@ public class PlayerScript : NetworkBehaviour
                             // create a new empty move
                             movesGrid[i, k] = new MoveScript();
                         }
+                        // set prevColor to currColor for next iteration
+                        prevColor = currColor;
                     }
-                    else
-                    {
-                        // if left move and above move are not equal
-                        if (i > 0 && gems[i - 1, k].tag == currColor &&
-                            movesGrid[i - 1, k] != movesGrid[i, k - 1])
-                        {
-                            // combine left and above moves into one move
-                            MoveScript combinedMoves = new MoveScript();
-                            combinedMoves.AddMoves(movesGrid[i - 1, k], movesGrid[i, k - 1]);
-                            foreach (GameObject go in combinedMoves.GetList)
-                            {
-                                movesGrid[(int)go.GetComponent<GemScript>().xPos, (int)go.GetComponent<GemScript>().yPos] = combinedMoves;
-                            }
-                            // set current move equal to combines moves
-                            movesGrid[i, k] = combinedMoves;
-                        }
-
-                        else
-                        {
-                            // set currMove to leftMove
-                            movesGrid[i, k] = movesGrid[i, k - 1];
-                        }
-                    }
-                    // add currCell to currMove
-                    movesGrid[i, k].AddMove(currCell);
                 }
-                // set prevColor to currColor for next iteration
-                prevColor = currColor;
             }
         }
+
+        // check columns
+        for (int i = 0; i < tableSize; ++i)
+        {
+            // prevColor is the last color checked
+            string prevColor = "";
+            for (int k = 0; k < tableSize; ++k)
+            {
+                // set currCell and currColor
+                currCell = gems[k, i];
+                currColor = currCell.tag;
+                // Check for null references
+                if (currColor != "")
+                {
+                    // check currColor against prevColor
+                    if (currColor != prevColor)
+                    {
+                        // check if currColor is equal to above color
+                        if (i > 0 && gems[k - 1, i].tag == currColor)
+                        {
+                            // mave current move equal move above it
+                            movesGrid[k, i] = movesGrid[k - 1, i];
+                        }
+                        else
+                        {
+                            // create a new empty move
+                            movesGrid[k, i] = new MoveScript();
+                        }
+                        // set prevColor to currColor for next iteration
+                        prevColor = currColor;
+                    }
+                }
+            }
+        }
+
+        #endregion
         #endregion
 
         #region Prevent Duplicate "Moves"
@@ -424,8 +508,12 @@ public class PlayerScript : NetworkBehaviour
         {
             foreach (GameObject go in move.GetList)
             {
-                gems[(int)go.GetComponent<GemScript>().xPos, (int)go.GetComponent<GemScript>().yPos] = null;
-                Destroy(go);
+                // Check for null objects
+                if (go)
+                {
+                    gems[(int)go.GetComponent<GemScript>().xPos, (int)go.GetComponent<GemScript>().yPos] = null;
+                    Destroy(go);
+                }
             }
         }
     }
@@ -490,7 +578,7 @@ public class PlayerScript : NetworkBehaviour
     }
     #endregion
 
-    #region CheckSwap
+    #region Check Swap
 
     /// <summary>
     /// Checks if a swap of tiles is valid of not based on which gem in the grid is being swapped
