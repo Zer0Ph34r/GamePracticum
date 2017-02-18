@@ -81,7 +81,7 @@ public class PlayerScript : NetworkBehaviour
         for (int i = 0; i < 3; ++i)
         {
             // Add gem to hand array for checking later on
-            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.position.x + 11, i + 7, 0), Quaternion.identity);
+            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + 11, i + 7, 0), Quaternion.identity);
             go.GetComponent<GemScript>().isHand = true;
             playerHand[i] = go;
         }
@@ -146,12 +146,13 @@ public class PlayerScript : NetworkBehaviour
     void CreateBoardPiece(int x, int y)
     {
         GameObject go = Instantiate(RandomizeObject(),
-            new Vector3((int)transform.position.x + x, y, 0), Quaternion.identity, transform);
+            new Vector3((int)transform.localPosition.x + x, y, 0), Quaternion.identity, transform);
         go.GetComponent<GemScript>().isHand = false;
         go.GetComponent<GemScript>().xPos = x;
         go.GetComponent<GemScript>().yPos = y;
         gems[x, y] = go;
     }
+
     #endregion
 
     #region Refill Board
@@ -163,8 +164,10 @@ public class PlayerScript : NetworkBehaviour
     /// <param name="y"></param>
     void FillBoardPiece(int x, int y)
     {
+        // create new piece at array position plus parent transform
+        
         GameObject go = Instantiate(RandomizeObject(),
-            new Vector3((int)transform.position.x + x, y, 0), Quaternion.identity, transform);
+            new Vector3((int)transform.localPosition.x + x, y, 0), Quaternion.identity, transform);
         handPiece = go;
         go.GetComponent<GemScript>().isHand = false;
         go.GetComponent<GemScript>().xPos = x;
@@ -175,7 +178,7 @@ public class PlayerScript : NetworkBehaviour
         {
             Destroy(gems[x, y]);
             gems[x, y] = null;
-            CreateBoardPiece(x, y);
+            FillBoardPiece(x, y);
         }
         handPiece = null;
     }
@@ -467,13 +470,13 @@ public class PlayerScript : NetworkBehaviour
 
         #endregion
 
-
     }
 
     #endregion
 
     #region Delete Chains
 
+    // deletes all gems in every chain
     void DeleteChains(List<MoveScript> list)
     {
         // Iterate through each unique solution and delete all gems contained within
@@ -484,7 +487,7 @@ public class PlayerScript : NetworkBehaviour
                 // Check for null objects
                 if (go)
                 {
-                    gems[(int)go.GetComponent<GemScript>().xPos, (int)go.GetComponent<GemScript>().yPos] = null;
+                    gems[(int)(go.GetComponent<GemScript>().xPos - transform.localPosition.x), (int)go.GetComponent<GemScript>().yPos] = null;
                     Destroy(go);
                 }
             }
@@ -511,6 +514,8 @@ public class PlayerScript : NetworkBehaviour
             boardPiece.transform.position = handPos;
             // Add board piece to player hand
             playerHand[((int)handPos.y - 7)] = boardPiece;
+            boardPiece.GetComponent<GemScript>().xPos = (int)handPos.x;
+            boardPiece.GetComponent<GemScript>().yPos = (int)handPos.y;
             // Turn board piece into hand piece
             boardPiece.GetComponent<GemScript>().isHand = true;
             #endregion
@@ -520,6 +525,8 @@ public class PlayerScript : NetworkBehaviour
             handPiece.transform.position = boardPos;
             // set handPiece into gem array
             gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
+            handPiece.GetComponent<GemScript>().xPos = (int)boardPos.x;
+            handPiece.GetComponent<GemScript>().yPos = (int)boardPos.y;
             // make handPiece a board piece
             handPiece.GetComponent<GemScript>().isHand = false;
             #endregion
@@ -655,9 +662,9 @@ public class PlayerScript : NetworkBehaviour
     void RefillGrid()
     {
         // First, drop all the gems as low as they can go
-        for (int i = tableSize; i < 0; i--)
+        for (int i = 0; i < tableSize; i++)
         {
-            for (int k = tableSize; k < 1; k--)
+            for (int k = 1; k < tableSize; k++)
             {
                 CheckFalling(i, k);
             }
@@ -691,16 +698,17 @@ public class PlayerScript : NetworkBehaviour
         // check if the space below this is null
         if (y >= 1 &&
             gems[x, y] != null &&
-            gems[x, y + 1] == null)
+            gems[x, y - 1] == null)
         {
             // move gem to new position
-            gems[x, y].transform.position = new Vector3((int)transform.position.x + x, y + 1, 0);
+            gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
             // set gem to new grid position
-            gems[x, y + 1] = gems[x, y];
+            gems[x, y - 1] = gems[x, y];
+            gems[x, y - 1].GetComponent<GemScript>().yPos--; 
             // set old position to null
             gems[x, y] = null;
             // check below this new position
-            CheckFalling(x, y + 1);
+            CheckFalling(x, y - 1);
         }
     }
 
