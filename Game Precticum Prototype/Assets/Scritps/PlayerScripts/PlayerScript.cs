@@ -81,20 +81,10 @@ public class PlayerScript : NetworkBehaviour
         for (int i = 0; i < 3; ++i)
         {
             // Add gem to hand array for checking later on
-            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + 11, i + 7, 0), Quaternion.identity);
+            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + 11, i + 7, 0), Quaternion.identity, transform);
             go.GetComponent<GemScript>().isHand = true;
             playerHand[i] = go;
         }
-
-        #endregion
-
-        #region Create Background
-        //// creat game object , add spreite renderer and set the background sprite as the render sprite
-        //GameObject background = new GameObject();
-        //background.AddComponent<SpriteRenderer>();
-        //background.GetComponent<SpriteRenderer>().sprite = gridBackground;
-        //// Move game object behind gems
-        //background.transform.position = new Vector3((int)transform.position.x + 4.5f, 4.5f, -1);
 
         #endregion
 
@@ -146,10 +136,10 @@ public class PlayerScript : NetworkBehaviour
     void CreateBoardPiece(int x, int y)
     {
         GameObject go = Instantiate(RandomizeObject(),
-            new Vector3((int)transform.localPosition.x + x, y, 0), Quaternion.identity, transform);
+            new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y,
+            0), Quaternion.identity, transform);
         go.GetComponent<GemScript>().isHand = false;
-        go.GetComponent<GemScript>().xPos = x;
-        go.GetComponent<GemScript>().yPos = y;
         gems[x, y] = go;
     }
 
@@ -167,11 +157,11 @@ public class PlayerScript : NetworkBehaviour
         // create new piece at array position plus parent transform
         
         GameObject go = Instantiate(RandomizeObject(),
-            new Vector3((int)transform.localPosition.x + x, y, 0), Quaternion.identity, transform);
+            new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y,
+            0), Quaternion.identity, transform);
         handPiece = go;
         go.GetComponent<GemScript>().isHand = false;
-        go.GetComponent<GemScript>().xPos = x;
-        go.GetComponent<GemScript>().yPos = y;
         gems[x, y] = go;
         // Check if this new gem creates a chain
         if (CheckValidSwap(x, y))
@@ -487,7 +477,8 @@ public class PlayerScript : NetworkBehaviour
                 // Check for null objects
                 if (go)
                 {
-                    gems[(int)(go.GetComponent<GemScript>().xPos - transform.localPosition.x), (int)go.GetComponent<GemScript>().yPos] = null;
+                    gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
+                        (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
                     Destroy(go);
                 }
             }
@@ -503,30 +494,26 @@ public class PlayerScript : NetworkBehaviour
     void SwapPieces()
     {
         // set positions
-        handPos = handPiece.transform.position;
-        boardPos = boardPiece.transform.position;
+        handPos = handPiece.transform.localPosition;
+        boardPos = boardPiece.transform.localPosition;
 
         // check if it's a valid swap
         if (CheckValidSwap((int)boardPos.x, (int)boardPos.y))
         {
             #region Move Board Piece
             // Move board piece to hand position
-            boardPiece.transform.position = handPos;
+            boardPiece.transform.localPosition = handPos;
             // Add board piece to player hand
             playerHand[((int)handPos.y - 7)] = boardPiece;
-            boardPiece.GetComponent<GemScript>().xPos = (int)handPos.x;
-            boardPiece.GetComponent<GemScript>().yPos = (int)handPos.y;
             // Turn board piece into hand piece
             boardPiece.GetComponent<GemScript>().isHand = true;
             #endregion
 
             #region Move Hand Piece
             // set new positions to hand Piece
-            handPiece.transform.position = boardPos;
+            handPiece.transform.localPosition = boardPos;
             // set handPiece into gem array
             gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
-            handPiece.GetComponent<GemScript>().xPos = (int)boardPos.x;
-            handPiece.GetComponent<GemScript>().yPos = (int)boardPos.y;
             // make handPiece a board piece
             handPiece.GetComponent<GemScript>().isHand = false;
             #endregion
@@ -611,7 +598,7 @@ public class PlayerScript : NetworkBehaviour
         }
         // Check for Middle gem swap validity up and down
         if (y + 1 < tableSize &&
-            y -1 > 0)
+            y -1 >= 0)
         {
             if(gems[x, y + 1] != null &&
                 gems[x, y - 1] != null &&
@@ -623,7 +610,7 @@ public class PlayerScript : NetworkBehaviour
         }
         // Check for Middle gem swap validity left and right
         if (x + 1 < tableSize &&
-            x - 1 > 0)
+            x - 1 >= 0)
         {
             if (gems[x + 1, y] != null &&
                 gems[x - 1, y] != null &&
@@ -646,8 +633,8 @@ public class PlayerScript : NetworkBehaviour
     void CancelSwap()
     {
         // reset pieces selected to starting positions
-        boardPiece.transform.position = boardPos;
-        handPiece.transform.position = handPos;
+        boardPiece.transform.localPosition = boardPos;
+        handPiece.transform.localPosition = handPos;
 
         //NOTE: Tell Player that swap was invalid
     }
@@ -703,8 +690,7 @@ public class PlayerScript : NetworkBehaviour
             // move gem to new position
             gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
             // set gem to new grid position
-            gems[x, y - 1] = gems[x, y];
-            gems[x, y - 1].GetComponent<GemScript>().yPos--; 
+            gems[x, y - 1] = gems[x, y]; 
             // set old position to null
             gems[x, y] = null;
             // check below this new position
