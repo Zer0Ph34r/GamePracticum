@@ -68,7 +68,6 @@ public class NetworkPlayerScript : NetworkBehaviour
         purpleGem = Resources.Load<GameObject>("Prefabs/Gems/PurpleD10");
         // Load Sprites
         gridBackground = Resources.Load<Sprite>("Sprites/GridBackground");
-        background = Resources.Load<Sprite>("Sprites/Gembg2");
         #endregion
 
         tempCheck = new List<GameObject>();
@@ -122,14 +121,19 @@ public class NetworkPlayerScript : NetworkBehaviour
         // set camera's position according to table size
         mainCamera.transform.position = new Vector3(tableSize / 2 + transform.position.x,
             tableSize * (7 / 8f) + transform.position.y,
-            tableSize * 6);
+            tableSize * 2);
         // Move Camera to face the gems instantiated
         mainCamera.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
         #endregion
 
         #region Create Background
-
-        Instantiate<Sprite>(background, new Vector3(0, 0, 0), Quaternion.identity, transform);
+        // Load in Sprite
+        background = Resources.Load<Sprite>("Sprites/Gembg2");
+        // create empty object, set parent and then add sprite renderer
+        GameObject bg = new GameObject();
+        bg.transform.SetParent(transform);
+        bg.AddComponent<SpriteRenderer>().sprite = background;
+        bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -10);
 
         #endregion
     }
