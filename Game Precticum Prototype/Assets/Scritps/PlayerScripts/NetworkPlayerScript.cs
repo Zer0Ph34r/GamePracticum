@@ -108,7 +108,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         #region Check Grid
         // Prevent start board from having chains
         // Make sure the board starts without any chains in it
-        RelolveOnStart();
+        ResolveOnStart();
         
         #endregion
     }
@@ -311,14 +311,12 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
-    #region Grid Methods
-
     #region OnStart Grid Resolution
 
     /// <summary>
     /// Used for starting the game board with no pieces without seeing them move or earning score
     /// </summary>
-    void RelolveOnStart()
+    void ResolveOnStart()
     {
         // List for storing all chains created
         List<MoveScript> chains;
@@ -335,7 +333,7 @@ public class NetworkPlayerScript : NetworkBehaviour
             RefillOnStart();
 
             // check for any chains made after grid has fallen and been refilled
-            ResolveGrid();
+            ResolveOnStart();
         }
     }
 
@@ -358,7 +356,7 @@ public class NetworkPlayerScript : NetworkBehaviour
             // set old position to null
             gems[x, y] = null;
             // check below this new position
-            CheckFalling(x, y - 1);
+            CheckEmptyStart(x, y - 1);
         }
     }
 
@@ -395,6 +393,8 @@ public class NetworkPlayerScript : NetworkBehaviour
     }
 
     #endregion
+
+    #region Grid Methods
 
     #region Resolve Method
     /// <summary>
@@ -821,8 +821,8 @@ public class NetworkPlayerScript : NetworkBehaviour
             gems[x, y - 1] == null)
         {
             // tell gem to move and where to move to
-            //gems[x, y].GetComponent<GemScript>().endPos = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
-            //gems[x, y].GetComponent<GemScript>().moving = true;
+            gems[x, y].GetComponent<GemScript>().endPos = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
+            gems[x, y].GetComponent<GemScript>().moving = true;
 
             gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
             // set gem to new grid position

@@ -43,7 +43,7 @@ public class GemScript : MonoBehaviour
     {
         if (moving)
         {
-            LerpPosition(endPos);
+            LerpPosition();
         }
     }
 
@@ -110,15 +110,15 @@ public class GemScript : MonoBehaviour
 
     #region Co-Routines
 
-    public IEnumerator LerpPosition(Vector3 newPos)
+    public IEnumerator LerpPosition()
     {
         // loops for learping between positions
         for (float t = 0; t <= 1; t += speed)
         {
-            transform.position = Vector3.Lerp(transform.position, newPos, t);
+            transform.position = Vector3.Lerp(transform.position, endPos, t);
             yield return null;
         }
-        
+        moving = false;
     }
 
     #endregion
