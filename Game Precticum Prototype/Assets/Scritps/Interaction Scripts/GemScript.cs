@@ -12,8 +12,14 @@ public class GemScript : MonoBehaviour
     public bool isSelected { get; set; }
     public bool canSelect { get; set; }
     public bool isHand { get; set; }
-
+   
+    #region lerp
+    // all variables needed for movement lerping
     float speed = GlobalVariables.LERP_SPEED;
+    public bool moving { get; set; }
+    public Vector3 endPos { get; set; }
+
+    #endregion
 
     #region EventFields
 
@@ -30,7 +36,15 @@ public class GemScript : MonoBehaviour
     private void Start()
     {
         isSelected = false;
-        canSelect = true;
+        canSelect = true;        
+    }
+
+    private void Update()
+    {
+        if (moving)
+        {
+            LerpPosition(endPos);
+        }
     }
 
     #region Methods
@@ -94,12 +108,17 @@ public class GemScript : MonoBehaviour
 
     #endregion
 
-    #region Co Routines
+    #region Co-Routines
 
     public IEnumerator LerpPosition(Vector3 newPos)
     {
-        transform.position = Vector3.Lerp(transform.position, newPos, speed);
-        yield return null;
+        // loops for learping between positions
+        for (float t = 0; t <= 1; t += speed)
+        {
+            transform.position = Vector3.Lerp(transform.position, newPos, t);
+            yield return null;
+        }
+        
     }
 
     #endregion

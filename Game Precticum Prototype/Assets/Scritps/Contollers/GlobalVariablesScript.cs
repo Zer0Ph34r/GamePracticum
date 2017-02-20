@@ -7,7 +7,7 @@ public class GlobalVariables {
     #region Feilds
 
     public static int TABLE_SIZE = 10;
-    public static float LERP_SPEED = 0.4f;
+    public static float LERP_SPEED = 0.2f;
 
     #endregion
 }

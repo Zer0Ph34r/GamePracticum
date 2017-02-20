@@ -108,7 +108,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         #region Check Grid
         // Prevent start board from having chains
         // Make sure the board starts without any chains in it
-        ResolveGrid();
+        RelolveOnStart();
         
         #endregion
     }
@@ -313,6 +313,89 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #region Grid Methods
 
+    #region OnStart Grid Resolution
+
+    /// <summary>
+    /// Used for starting the game board with no pieces without seeing them move or earning score
+    /// </summary>
+    void RelolveOnStart()
+    {
+        // List for storing all chains created
+        List<MoveScript> chains;
+
+        // FInd all possible Chains created
+        chains = CheckGrid();
+
+        if (chains.Count > 0)
+        {
+            // Remove all gems that form chains of 3 or more 
+            DeleteChains(chains);
+
+            // Fill all holes in grid
+            RefillOnStart();
+
+            // check for any chains made after grid has fallen and been refilled
+            ResolveGrid();
+        }
+    }
+
+    /// <summary>
+    /// Moves pieces down the board if there are any matching chains
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    void CheckEmptyStart(int x, int y)
+    {
+        // check if the space below this is null
+        if (y >= 1 &&
+            gems[x, y] != null &&
+            gems[x, y - 1] == null)
+        {
+            // Move gem into correct position
+            gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
+            // set gem to new grid position
+            gems[x, y - 1] = gems[x, y];
+            // set old position to null
+            gems[x, y] = null;
+            // check below this new position
+            CheckFalling(x, y - 1);
+        }
+    }
+
+    /// <summary>
+    /// Has pieces "fall" into place, then creates new gems above the holes to 
+    /// fill in grid completely
+    /// </summary>
+    void RefillOnStart()
+    {
+        // First, drop all the gems as low as they can go
+        for (int i = 0; i < tableSize; i++)
+        {
+            for (int k = 1; k < tableSize; k++)
+            {
+                CheckEmptyStart(i, k);
+            }
+        }
+
+        // Now fill empty spaces with new gems
+        for (int j = 0; j < tableSize; j++)
+        {
+            for (int l = 0; l < tableSize; ++l)
+            {
+                if (gems[j, l] == null)
+                {
+                    FillBoardPiece(j, l);
+                }
+            }
+        }
+
+        // reset game for next round
+        ResetBoard();
+
+    }
+
+    #endregion
+
     #region Resolve Method
     /// <summary>
     /// Creates a new 2D array "Moves" which list all possible chains
@@ -328,23 +411,31 @@ public class NetworkPlayerScript : NetworkBehaviour
 
         if (chains.Count > 0)
         {
-            // Delete Chains and reset grid
-            ResolveGrid(chains);
+            // Remove all gems that form chains of 3 or more 
+            DeleteChains(chains);
+
+            // Fill all holes in grid
+            RefillGrid();
+
+            // check for any chains made after grid has fallen and been refilled
+            ResolveGrid();
         }
     }
 
-    /// <summary>
-    /// Resolves board with given list of chains
-    /// </summary>
-    /// <param name="list"></param>
-    void ResolveGrid(List<MoveScript> list)
-    {
-        // Remove all gems that form chains of 3 or more 
-        DeleteChains(list);
+    
+    //NOTE: Not Used Anymore
+    ///// <summary>
+    ///// Resolves board with given list of chains
+    ///// </summary>
+    ///// <param name="list"></param>
+    //void ResolveGrid(List<MoveScript> list)
+    //{
+    //    // Remove all gems that form chains of 3 or more 
+    //    DeleteChains(list);
 
-        // Fill all holes in grid
-        RefillGrid();
-    }
+    //    // Fill all holes in grid
+    //    RefillGrid();
+    //}
     #endregion
 
     #region CheckGrid
@@ -729,9 +820,11 @@ public class NetworkPlayerScript : NetworkBehaviour
             gems[x, y] != null &&
             gems[x, y - 1] == null)
         {
-            // move gem to new position
-            gems[x, y].GetComponent<GemScript>().LerpPosition(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
-            //gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
+            // tell gem to move and where to move to
+            //gems[x, y].GetComponent<GemScript>().endPos = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
+            //gems[x, y].GetComponent<GemScript>().moving = true;
+
+            gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
             // set gem to new grid position
             gems[x, y - 1] = gems[x, y]; 
             // set old position to null
