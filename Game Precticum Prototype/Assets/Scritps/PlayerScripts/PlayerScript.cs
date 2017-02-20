@@ -28,7 +28,7 @@ public class PlayerScript : NetworkBehaviour
     int tableSize = GlobalVariables.TABLE_SIZE;
 
     // 2D array of table contents
-    public GameObject[,] gems; /*{ get; set; }*/
+    public GameObject[,] gems;
     GameObject[] playerHand;
 
     // save object positions for swapping
@@ -46,6 +46,9 @@ public class PlayerScript : NetworkBehaviour
     #endregion
 
     List<GameObject> tempCheck;
+
+    // Main Cemera
+    Camera mainCamera;
 
     #endregion
 
@@ -103,6 +106,24 @@ public class PlayerScript : NetworkBehaviour
         
         #endregion
     }
+    #endregion
+
+    #region OnLocalPlayer
+
+    public override void OnStartLocalPlayer()
+    {
+        #region Set Camera
+        //get main camera
+        mainCamera = Camera.main;
+        // set camera's position according to table size
+        mainCamera.transform.position = new Vector3(tableSize / 2 + transform.position.x,
+            tableSize * (7 / 8f) + transform.position.y,
+            tableSize * 2);
+        // Move Camera to face the gems instantiated
+        mainCamera.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
+        #endregion
+    }
+
     #endregion
 
     #region Methods
