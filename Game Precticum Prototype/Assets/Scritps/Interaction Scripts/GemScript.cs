@@ -13,6 +13,8 @@ public class GemScript : MonoBehaviour
     public bool canSelect { get; set; }
     public bool isHand { get; set; }
 
+    float speed = GlobalVariables.LERP_SPEED;
+
     #region EventFields
 
     // Create delegate for adding in method calls
@@ -36,12 +38,6 @@ public class GemScript : MonoBehaviour
     // When the Mouse clicks on a gem
     public void OnMouseDown()
     {
-        // Check if this is the local Player object and not a networked agent
-        //if (!isLocalPlayer)
-        //{
-        //    return;
-        //}
-
         // Flips between selected and unselected states
         ChangeState();
     }
@@ -94,6 +90,16 @@ public class GemScript : MonoBehaviour
     GameObject ReturnThis()
     {
         return gameObject;
+    }
+
+    #endregion
+
+    #region Co Routines
+
+    public IEnumerator LerpPosition(Vector3 newPos)
+    {
+        transform.position = Vector3.Lerp(transform.position, newPos, speed);
+        yield return null;
     }
 
     #endregion

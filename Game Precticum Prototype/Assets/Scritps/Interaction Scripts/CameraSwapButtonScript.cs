@@ -35,7 +35,6 @@ public class CameraSwapButtonScript : MonoBehaviour {
     /// </summary>
     public void SwapCameraView()
     {
-       
         // check swapped state
         if (swapped)
         {

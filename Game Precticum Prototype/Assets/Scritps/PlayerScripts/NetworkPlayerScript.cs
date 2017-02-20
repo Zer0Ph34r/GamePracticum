@@ -285,8 +285,6 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
-    #endregion
-
     #region Lock Grid
     /// <summary>
     /// Prevents multiple gems from being selected or swapped
@@ -308,6 +306,8 @@ public class NetworkPlayerScript : NetworkBehaviour
             SwapPieces();
         }
     }
+
+    #endregion
 
     #endregion
 
@@ -730,7 +730,8 @@ public class NetworkPlayerScript : NetworkBehaviour
             gems[x, y - 1] == null)
         {
             // move gem to new position
-            gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
+            gems[x, y].GetComponent<GemScript>().LerpPosition(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
+            //gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
             // set gem to new grid position
             gems[x, y - 1] = gems[x, y]; 
             // set old position to null
