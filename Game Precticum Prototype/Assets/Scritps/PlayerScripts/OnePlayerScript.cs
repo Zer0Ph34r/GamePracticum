@@ -1,10 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 
-public class PlayerScript : NetworkBehaviour
-{
+public class OnePlayerScript : MonoBehaviour {
 
     #region Fields
 
@@ -20,6 +18,9 @@ public class PlayerScript : NetworkBehaviour
     // grid for gems on table
     Sprite gridBackground;
 
+    // background for making it easier to see everything
+    Sprite background;
+
     #endregion
 
     #region Table/Hand Stuff
@@ -32,8 +33,8 @@ public class PlayerScript : NetworkBehaviour
     GameObject[] playerHand;
 
     // save object positions for swapping
-    public Vector3 handPos;
-    public Vector3 boardPos;
+    Vector3 handPos;
+    Vector3 boardPos;
 
     // Objects to swap
     GameObject handPiece;
@@ -65,6 +66,7 @@ public class PlayerScript : NetworkBehaviour
         purpleGem = Resources.Load<GameObject>("Prefabs/Gems/PurpleD10");
         // Load Sprites
         gridBackground = Resources.Load<Sprite>("Sprites/GridBackground");
+        background = Resources.Load<Sprite>("Sprites/Gembg2");
         #endregion
 
         tempCheck = new List<GameObject>();
@@ -103,27 +105,30 @@ public class PlayerScript : NetworkBehaviour
         // Prevent start board from having chains
         // Make sure the board starts without any chains in it
         ResolveGrid();
-        
+
         #endregion
-    }
-    #endregion
 
-    #region OnLocalPlayer
-
-    public override void OnStartLocalPlayer()
-    {
         #region Set Camera
         //get main camera
         mainCamera = Camera.main;
         // set camera's position according to table size
         mainCamera.transform.position = new Vector3(tableSize / 2 + transform.position.x,
             tableSize * (7 / 8f) + transform.position.y,
-            tableSize * 2);
+            tableSize * 6);
         // Move Camera to face the gems instantiated
         mainCamera.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
         #endregion
-    }
 
+        #region Create Background
+
+        GameObject bg = new GameObject();
+        bg.transform.SetParent(transform);
+        bg.AddComponent<SpriteRenderer>().sprite = background;
+        bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -45);
+
+
+        #endregion
+    }
     #endregion
 
     #region Methods
@@ -141,7 +146,7 @@ public class PlayerScript : NetworkBehaviour
         {
             for (int k = 0; k < tableSize; ++k)
             {
-                CreateBoardPiece( i, k);
+                CreateBoardPiece(i, k);
             }
         }
     }
@@ -176,7 +181,7 @@ public class PlayerScript : NetworkBehaviour
     void FillBoardPiece(int x, int y)
     {
         // create new piece at array position plus parent transform
-        
+
         GameObject go = Instantiate(RandomizeObject(),
             new Vector3((int)transform.localPosition.x + x,
             (int)transform.localPosition.y + y,
@@ -264,8 +269,6 @@ public class PlayerScript : NetworkBehaviour
 
     #endregion
 
-    #endregion
-
     #region Lock Grid
     /// <summary>
     /// Prevents multiple gems from being selected or swapped
@@ -287,6 +290,8 @@ public class PlayerScript : NetworkBehaviour
             SwapPieces();
         }
     }
+
+    #endregion
 
     #endregion
 
@@ -619,9 +624,9 @@ public class PlayerScript : NetworkBehaviour
         }
         // Check for Middle gem swap validity up and down
         if (y + 1 < tableSize &&
-            y -1 >= 0)
+            y - 1 >= 0)
         {
-            if(gems[x, y + 1] != null &&
+            if (gems[x, y + 1] != null &&
                 gems[x, y - 1] != null &&
                 handPiece.CompareTag(gems[x, y + 1].tag) &&
                 handPiece.CompareTag(gems[x, y - 1].tag))
@@ -711,7 +716,7 @@ public class PlayerScript : NetworkBehaviour
             // move gem to new position
             gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
             // set gem to new grid position
-            gems[x, y - 1] = gems[x, y]; 
+            gems[x, y - 1] = gems[x, y];
             // set old position to null
             gems[x, y] = null;
             // check below this new position
