@@ -56,9 +56,11 @@ public class NetworkPlayerScript : NetworkBehaviour
     #endregion
 
     #region Start
+
     private void Start()
     {
         #region Load Assets
+
         // Load Gems
         whiteGem = Resources.Load<GameObject>("Prefabs/Gems/WhiteD20");
         redGem = Resources.Load<GameObject>("Prefabs/Gems/RedD12");
@@ -68,6 +70,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         purpleGem = Resources.Load<GameObject>("Prefabs/Gems/PurpleD10");
         // Load Sprites
         gridBackground = Resources.Load<Sprite>("Sprites/GridBackground");
+
         #endregion
 
         tempCheck = new List<GameObject>();
@@ -109,21 +112,25 @@ public class NetworkPlayerScript : NetworkBehaviour
         
         #endregion
     }
+
     #endregion
 
     #region OnLocalPlayer
 
     public override void OnStartLocalPlayer()
     {
+
         #region Set Camera
+
         //get main camera
         mainCamera = Camera.main;
         // set camera's position according to table size
-        mainCamera.transform.position = new Vector3(tableSize / 2 + transform.position.x,
+        mainCamera.transform.localPosition = new Vector3(tableSize / 2 + transform.position.x,
             tableSize * (7 / 8f) + transform.position.y,
             tableSize * 2);
         // Move Camera to face the gems instantiated
         mainCamera.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
+
         #endregion
 
         #region Create Background

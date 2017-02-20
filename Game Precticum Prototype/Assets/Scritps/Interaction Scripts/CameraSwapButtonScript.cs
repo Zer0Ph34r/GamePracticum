@@ -10,13 +10,17 @@ public class CameraSwapButtonScript : MonoBehaviour {
     // This button prevents players from interacting on the other players screen
     [SerializeField]
     Button overayButton;
+    [SerializeField]
+    GameObject Pos1;
+    [SerializeField]
+    GameObject Pos2;
 
     // bool for checking swap state
     bool swapped = false;
 
     // Main Camera
     Camera mainCamera;
-    Camera otherCamera;
+    int tableSize = GlobalVariables.TABLE_SIZE;
 
     #endregion
 
@@ -31,27 +35,30 @@ public class CameraSwapButtonScript : MonoBehaviour {
     /// </summary>
     public void SwapCameraView()
     {
-        // get the other camera in the scene
-        otherCamera = FindObjectOfType<Camera>();
-        // check for null
-        if (otherCamera != null)
+       
+        // check swapped state
+        if (swapped)
         {
-            // if the second camera is active
-            if (swapped)
-            {
-                // set main camera active and deactivate the other camera
-                mainCamera.enabled = true;
-                otherCamera.enabled = false;
-                overayButton.enabled = false;
-            }
-            else
-            {
-                mainCamera.enabled = false;
-                otherCamera.enabled = true;
-                overayButton.enabled = true;
-            }
+            // set main camera active and deactivate the other camera
+            SetCamera(Pos1);
+            overayButton.gameObject.SetActive(false);
+            swapped = false;
         }
-        
+        else
+        {
+            SetCamera(Pos2);
+            overayButton.gameObject.SetActive(true);
+            swapped = true;
+        }
+
     }
     #endregion
+
+    void SetCamera(GameObject go)
+    {
+        // set camera's position according to given object and table size
+        mainCamera.transform.localPosition = new Vector3(tableSize / 2 + go.transform.position.x,
+            tableSize * (7 / 8f) + go.transform.position.y,
+            tableSize * 2);
+    }
 }
