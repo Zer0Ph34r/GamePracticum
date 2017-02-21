@@ -55,12 +55,6 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
-    #region Events
-
-    
-
-    #endregion
-
     #region Start
 
     private void Start()
@@ -122,8 +116,8 @@ public class NetworkPlayerScript : NetworkBehaviour
         mainCamera = Camera.main;
         // set camera's position according to table size
         mainCamera.transform.localPosition = new Vector3(tableSize / 2 + transform.position.x,
-            tableSize * (7 / 8f) + transform.position.y,
-            tableSize * 2);
+            tableSize * (6 / 8f) + transform.position.y,
+            tableSize * 1.5f);
         // Move Camera to face the gems instantiated
         mainCamera.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
 
