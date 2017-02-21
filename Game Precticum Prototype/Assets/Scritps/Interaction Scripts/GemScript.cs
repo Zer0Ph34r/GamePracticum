@@ -12,12 +12,16 @@ public class GemScript : MonoBehaviour
     public bool isSelected { get; set; }
     public bool canSelect { get; set; }
     public bool isHand { get; set; }
+
+    // particle effect for destruction
+    [SerializeField]
+    ParticleSystem particles;
    
     #region lerp
     // all variables needed for movement lerping
     float speed = GlobalVariables.LERP_SPEED;
-    public bool moving { get; set; }
-    public Vector3 endPos { get; set; }
+    bool moving = false;
+    Vector3 endPos = Vector3.zero;
 
     #endregion
 
@@ -29,14 +33,21 @@ public class GemScript : MonoBehaviour
     public static event callMethod handSelected;
     public static event callMethod gridSelected;
 
+    // event for finishing coroutines
+    public delegate void runNext();
+    public static event runNext runNextMethod;
+
+
     #endregion
 
     #endregion
 
     private void Start()
     {
+        // set initial state
         isSelected = false;
-        canSelect = true;        
+        canSelect = true;
+
     }
 
     private void Update()
@@ -45,6 +56,7 @@ public class GemScript : MonoBehaviour
         {
             LerpPosition();
         }
+        
     }
 
     #region Methods
@@ -101,16 +113,22 @@ public class GemScript : MonoBehaviour
         }
 	}
 
-    GameObject ReturnThis()
+    public void BlowUp()
     {
-        return gameObject;
+        ParticleSystem.EmissionModule em = particles.emission;
+        em.enabled = true;
+        Destroy(gameObject);
     }
 
     #endregion
 
     #region Co-Routines
 
-    public IEnumerator LerpPosition()
+    /// <summary>
+    /// Coroutine for moving gems to different positions
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator LerpPosition()
     {
         // loops for learping between positions
         for (float t = 0; t <= 1; t += speed)
@@ -119,6 +137,21 @@ public class GemScript : MonoBehaviour
             yield return null;
         }
         moving = false;
+        if (runNextMethod != null)
+        {
+            runNextMethod();
+        }
+    }
+
+    /// <summary>
+    /// public method for calling coroutine
+    /// </summary>
+    /// <param name="endPos"></param>
+    public void RunMotion(Vector3 endPos)
+    {
+        this.endPos = endPos;
+        moving = true;
+        StartCoroutine(LerpPosition());
     }
 
     #endregion
