@@ -31,8 +31,8 @@ public class OnePlayerScript : NetworkBehaviour
     int tableSize = GlobalVariables.TABLE_SIZE;
 
     // 2D array of table contents
-    public GameObject[,] gems;
-    GameObject[] playerHand;
+    GameObject[,] gems;
+    public GameObject[] playerHand;
 
     // save object positions for swapping
     Vector3 handPos;
@@ -105,8 +105,7 @@ public class OnePlayerScript : NetworkBehaviour
         #region Add Event Methods
 
         // add method for when a gem is selected
-        GemScript.gridSelected += lockGridGems;
-        GemScript.handSelected += lockHandGems;
+        GemScript.Selected += lockGems;
 
         #endregion
 
@@ -262,46 +261,46 @@ public class OnePlayerScript : NetworkBehaviour
 
     #region Events
 
-    #region Lock Hand
+    #region Lock Gems
 
     /// <summary>
     /// Prevents multiple gems from being selected or swapped
     /// </summary>
-    void lockHandGems(bool tf, GameObject go)
+    void lockGems(GameObject go)
     {
-        // set handPiece to go
-        handPiece = go;
-        // lock each peice
-        foreach (GameObject gem in playerHand)
+        GemScript gs = go.GetComponent<GemScript>();
+        if (gs.isHand)
         {
-            gem.GetComponent<GemScript>().canSelect = tf;
+            // set handPiece to go
+            handPiece = go;
+            // lock each peice
+            foreach (GameObject gem in playerHand)
+            {
+                if (gem != go)
+                {
+                    gem.GetComponent<GemScript>().isSelected = false;
+                    gem.GetComponent<GemScript>().transform.GetChild(0).gameObject.SetActive(false);
+                }
+            }
+            // Show hand is locked
+            handLocked = true;
         }
-        // Show hand is locked
-        handLocked = true;
-        // check if both grid and hand are locked
-        if (handLocked && gridLocked)
+        else
         {
-            SwapPieces();
+            // set board piece to go
+            boardPiece = go;
+            // lock each peice
+            foreach (GameObject gem in gems)
+            {
+                if (gem != go)
+                {
+                    gem.GetComponent<GemScript>().isSelected = false;
+                    gem.GetComponent<GemScript>().transform.GetChild(0).gameObject.SetActive(false);
+                }
+            }
+            // Show hand is locked
+            gridLocked = true;
         }
-    }
-
-    #endregion
-
-    #region Lock Grid
-    /// <summary>
-    /// Prevents multiple gems from being selected or swapped
-    /// </summary>
-    void lockGridGems(bool tf, GameObject go)
-    {
-        // set board piece to go
-        boardPiece = go;
-        // lock each peice
-        foreach (GameObject gem in gems)
-        {
-            gem.GetComponent<GemScript>().canSelect = tf;
-        }
-        // Show hand is locked
-        gridLocked = true;
         // check if both grid and hand are locked
         if (handLocked && gridLocked)
         {
@@ -643,7 +642,7 @@ public class OnePlayerScript : NetworkBehaviour
             // Move board piece to hand position
             boardPiece.GetComponent<GemScript>().RunMotion(handPos);
             // Add board piece to player hand
-            playerHand[((int)handPos.y - 7)] = boardPiece;
+            playerHand[(int)handPos.x] = boardPiece;
             // Turn board piece into hand piece
             boardPiece.GetComponent<GemScript>().isHand = true;
             #endregion

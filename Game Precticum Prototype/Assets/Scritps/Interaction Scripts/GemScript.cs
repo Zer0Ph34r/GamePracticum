@@ -10,7 +10,6 @@ public class GemScript : MonoBehaviour
 
     // bool for being selected
     public bool isSelected { get; set; }
-    public bool canSelect { get; set; }
     public bool isHand { get; set; }
 
     // particle effect for destruction
@@ -27,10 +26,9 @@ public class GemScript : MonoBehaviour
     #region EventFields
 
     // Create delegate for adding in method calls
-    public delegate void callMethod(bool TF, GameObject go);
+    public delegate void callMethod(GameObject go);
     // create event for calling that delegate
-    public static event callMethod handSelected;
-    public static event callMethod gridSelected;
+    public static event callMethod Selected;
 
     // event for finishing coroutines
     public delegate void runNext();
@@ -45,7 +43,6 @@ public class GemScript : MonoBehaviour
     {
         // set initial state
         isSelected = false;
-        canSelect = true;
 
     }
 
@@ -55,7 +52,19 @@ public class GemScript : MonoBehaviour
     public void OnMouseDown()
     {
         // Flips between selected and unselected states
-        ChangeState();
+        if (isSelected)
+        {
+            isSelected = false;
+            transform.GetChild(0).gameObject.SetActive(false);
+        }
+        else
+        {
+            isSelected = true;
+            transform.GetChild(0).gameObject.SetActive(true);
+        }
+        
+        // fire selected Event
+        Selected(gameObject);
     }
 
     /// <summary>
@@ -65,43 +74,9 @@ public class GemScript : MonoBehaviour
     {
         // reset piece to starting conditions
         isSelected = false;
-        canSelect = true;
         transform.GetChild(0).gameObject.SetActive(false);
 
     }
-
-	// changes gem state so only one gem can be selected at a time
-	public void ChangeState()
-	{
-		if (!isSelected && canSelect) 
-		{
-            isSelected = true;
-            transform.GetChild(0).gameObject.SetActive(true);
-            // locks hand or grid
-            if (isHand)
-            {
-                handSelected(false , gameObject);
-            }
-            else
-            {
-                gridSelected(false, gameObject);
-            }
-            
-        }
-		else if (isSelected && !canSelect)
-		{
-            isSelected = false;
-            transform.GetChild(0).gameObject.SetActive(false);
-            if (isHand)
-            {
-                handSelected(true, gameObject);
-            }
-            else
-            {
-                gridSelected(true, gameObject);
-            }
-        }
-	}
 
     public void BlowUp()
     {
@@ -127,11 +102,15 @@ public class GemScript : MonoBehaviour
             transform.position = Vector3.MoveTowards(transform.position, endPos, speed);
             yield return null;
         }
+        // perfectly align gem
         transform.position = endPos;
+        //Fire Event after coroutine ends
         if (runNextMethod != null)
         {
             runNextMethod();
         }
+        
+        
     }
 
     /// <summary>
