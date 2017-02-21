@@ -1,8 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
-public class OnePlayerScript : MonoBehaviour {
+public class OnePlayerScript : NetworkBehaviour
+{
 
     #region Fields
 
@@ -54,9 +56,11 @@ public class OnePlayerScript : MonoBehaviour {
     #endregion
 
     #region Start
+
     private void Start()
     {
         #region Load Assets
+
         // Load Gems
         whiteGem = Resources.Load<GameObject>("Prefabs/Gems/WhiteD20");
         redGem = Resources.Load<GameObject>("Prefabs/Gems/RedD12");
@@ -66,7 +70,7 @@ public class OnePlayerScript : MonoBehaviour {
         purpleGem = Resources.Load<GameObject>("Prefabs/Gems/PurpleD10");
         // Load Sprites
         gridBackground = Resources.Load<Sprite>("Sprites/GridBackground");
-        background = Resources.Load<Sprite>("Sprites/Gembg2");
+
         #endregion
 
         tempCheck = new List<GameObject>();
@@ -101,34 +105,38 @@ public class OnePlayerScript : MonoBehaviour {
 
         #endregion
 
-        #region Check Grid
-        // Prevent start board from having chains
-        // Make sure the board starts without any chains in it
-        ResolveGrid();
-
-        #endregion
-
         #region Set Camera
+
         //get main camera
         mainCamera = Camera.main;
         // set camera's position according to table size
-        mainCamera.transform.position = new Vector3(tableSize / 2 + transform.position.x,
+        mainCamera.transform.localPosition = new Vector3(tableSize / 2 + transform.position.x,
             tableSize * (7 / 8f) + transform.position.y,
             tableSize * 6);
         // Move Camera to face the gems instantiated
         mainCamera.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
+
         #endregion
 
         #region Create Background
-
+        // Load in Sprite
+        background = Resources.Load<Sprite>("Sprites/Gembg2");
+        // create empty object, set parent and then add sprite renderer
         GameObject bg = new GameObject();
         bg.transform.SetParent(transform);
         bg.AddComponent<SpriteRenderer>().sprite = background;
-        bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -45);
+        bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -10);
 
+        #endregion
+
+        #region Check Grid
+        // Prevent start board from having chains
+        // Make sure the board starts without any chains in it
+        ResolveOnStart();
 
         #endregion
     }
+
     #endregion
 
     #region Methods
@@ -295,14 +303,12 @@ public class OnePlayerScript : MonoBehaviour {
 
     #endregion
 
-    #region Grid Methods
+    #region OnStart Grid Resolution
 
-    #region Resolve Method
     /// <summary>
-    /// Creates a new 2D array "Moves" which list all possible chains
-    /// then sorts for unique chians and destroys all gems in those chains
+    /// Used for starting the game board with no pieces without seeing them move or earning score
     /// </summary>
-    void ResolveGrid()
+    void ResolveOnStart()
     {
         // List for storing all chains created
         List<MoveScript> chains;
@@ -312,23 +318,120 @@ public class OnePlayerScript : MonoBehaviour {
 
         if (chains.Count > 0)
         {
-            // Delete Chains and reset grid
-            ResolveGrid(chains);
+            // Remove all gems that form chains of 3 or more 
+            DeleteChains(chains);
+
+            // Fill all holes in grid
+            RefillOnStart();
+
+            // check for any chains made after grid has fallen and been refilled
+            ResolveOnStart();
         }
     }
 
     /// <summary>
-    /// Resolves board with given list of chains
+    /// Moves pieces down the board if there are any matching chains
     /// </summary>
-    /// <param name="list"></param>
-    void ResolveGrid(List<MoveScript> list)
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    void CheckEmptyStart(int x, int y)
     {
-        // Remove all gems that form chains of 3 or more 
-        DeleteChains(list);
-
-        // Fill all holes in grid
-        RefillGrid();
+        // check if the space below this is null
+        if (y >= 1 &&
+            gems[x, y] != null &&
+            gems[x, y - 1] == null)
+        {
+            // Move gem into correct position
+            gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
+            // set gem to new grid position
+            gems[x, y - 1] = gems[x, y];
+            // set old position to null
+            gems[x, y] = null;
+            // check below this new position
+            CheckEmptyStart(x, y - 1);
+        }
     }
+
+    /// <summary>
+    /// Has pieces "fall" into place, then creates new gems above the holes to 
+    /// fill in grid completely
+    /// </summary>
+    void RefillOnStart()
+    {
+        // First, drop all the gems as low as they can go
+        for (int i = 0; i < tableSize; i++)
+        {
+            for (int k = 1; k < tableSize; k++)
+            {
+                CheckEmptyStart(i, k);
+            }
+        }
+
+        // Now fill empty spaces with new gems
+        for (int j = 0; j < tableSize; j++)
+        {
+            for (int l = 0; l < tableSize; ++l)
+            {
+                if (gems[j, l] == null)
+                {
+                    FillBoardPiece(j, l);
+                }
+            }
+        }
+
+        // reset game for next round
+        ResetBoard();
+
+    }
+
+    #endregion
+
+    #region Grid Methods
+
+    #region Resolve Method
+    /// <summary>
+    /// Creates a new 2D array "Moves" which list all possible chains
+    /// then sorts for unique chians and destroys all gems in those chains
+    /// </summary>
+    void ResolveGrid()
+    {
+        // remove method from event
+        GemScript.runNextMethod -= ContinueSwap;
+
+        // List for storing all chains created
+        List<MoveScript> chains;
+
+        // FInd all possible Chains created
+        chains = CheckGrid();
+
+        if (chains.Count > 0)
+        {
+            // Remove all gems that form chains of 3 or more 
+            DeleteChains(chains);
+
+            // Fill all holes in grid
+            RefillGrid();
+
+            // check for any chains made after grid has fallen and been refilled
+            GemScript.runNextMethod += ResolveGrid;
+        }
+        GemScript.runNextMethod -= ResolveGrid;
+    }
+
+
+    //NOTE: Not Used Anymore
+    ///// <summary>
+    ///// Resolves board with given list of chains
+    ///// </summary>
+    ///// <param name="list"></param>
+    //void ResolveGrid(List<MoveScript> list)
+    //{
+    //    // Remove all gems that form chains of 3 or more 
+    //    DeleteChains(list);
+
+    //    // Fill all holes in grid
+    //    RefillGrid();
+    //}
     #endregion
 
     #region CheckGrid
@@ -505,7 +608,7 @@ public class OnePlayerScript : MonoBehaviour {
                 {
                     gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
                         (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
-                    Destroy(go);
+                    go.GetComponent<GemScript>().BlowUp();
                 }
             }
         }
@@ -528,7 +631,7 @@ public class OnePlayerScript : MonoBehaviour {
         {
             #region Move Board Piece
             // Move board piece to hand position
-            boardPiece.transform.localPosition = handPos;
+            boardPiece.GetComponent<GemScript>().RunMotion(handPos);
             // Add board piece to player hand
             playerHand[((int)handPos.y - 7)] = boardPiece;
             // Turn board piece into hand piece
@@ -537,26 +640,16 @@ public class OnePlayerScript : MonoBehaviour {
 
             #region Move Hand Piece
             // set new positions to hand Piece
-            handPiece.transform.localPosition = boardPos;
+            handPiece.GetComponent<GemScript>().RunMotion(boardPos);
             // set handPiece into gem array
             gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
             // make handPiece a board piece
             handPiece.GetComponent<GemScript>().isHand = false;
             #endregion
 
-            // reset swapping objects
-            boardPiece.GetComponent<GemScript>().Reset();
-            handPiece.GetComponent<GemScript>().Reset();
+            // this will be called when swapping the pieces is finished
+            GemScript.runNextMethod += ContinueSwap;
 
-            // reset hand and board pieces
-            boardPiece = null;
-            handPiece = null;
-            handPos = Vector3.zero;
-            boardPos = Vector3.zero;
-
-
-            // resolve all possible solutions on board
-            ResolveGrid();
         }
         else
         {
@@ -567,7 +660,22 @@ public class OnePlayerScript : MonoBehaviour {
             boardPiece = null;
             handPiece = null;
         }
+    }
 
+    void ContinueSwap()
+    {
+        // reset swapping objects
+        boardPiece.GetComponent<GemScript>().Reset();
+        handPiece.GetComponent<GemScript>().Reset();
+
+        // reset hand and board pieces
+        boardPiece = null;
+        handPiece = null;
+        handPos = Vector3.zero;
+        boardPos = Vector3.zero;
+
+        // resolve all possible solutions on board
+        ResolveGrid();
     }
     #endregion
 
@@ -674,6 +782,7 @@ public class OnePlayerScript : MonoBehaviour {
     /// </summary>
     void RefillGrid()
     {
+
         // First, drop all the gems as low as they can go
         for (int i = 0; i < tableSize; i++)
         {
@@ -683,6 +792,18 @@ public class OnePlayerScript : MonoBehaviour {
             }
         }
 
+        // run FillEmpty script once all gems have fallen
+        GemScript.runNextMethod += FillEmpty;
+
+    }
+
+    /// <summary>
+    /// Fills all empty grid cells
+    /// </summary>
+    void FillEmpty()
+    {
+        // remove Fill Empty Event registration
+        GemScript.runNextMethod -= FillEmpty;
         // Now fill empty spaces with new gems
         for (int j = 0; j < tableSize; j++)
         {
@@ -697,7 +818,6 @@ public class OnePlayerScript : MonoBehaviour {
 
         // reset game for next round
         ResetBoard();
-
     }
 
     #endregion
@@ -713,8 +833,8 @@ public class OnePlayerScript : MonoBehaviour {
             gems[x, y] != null &&
             gems[x, y - 1] == null)
         {
-            // move gem to new position
-            gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
+            // tell gem to move and where to move to
+            gems[x, y].GetComponent<GemScript>().RunMotion(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
             // set gem to new grid position
             gems[x, y - 1] = gems[x, y];
             // set old position to null
