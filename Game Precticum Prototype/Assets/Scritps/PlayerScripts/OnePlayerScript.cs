@@ -69,7 +69,7 @@ public class OnePlayerScript : NetworkBehaviour
         blueGem = Resources.Load<GameObject>("Prefabs/Gems/BlueD6");
         purpleGem = Resources.Load<GameObject>("Prefabs/Gems/PurpleD10");
         // Load Sprites
-        gridBackground = Resources.Load<Sprite>("Sprites/GridBackground");
+        gridBackground = Resources.Load<Sprite>("Sprites/GridBacking");
 
         #endregion
 
@@ -93,6 +93,11 @@ public class OnePlayerScript : NetworkBehaviour
             GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + 11, i + 7, 0), Quaternion.identity, transform);
             go.GetComponent<GemScript>().isHand = true;
             playerHand[i] = go;
+            GameObject handBG = new GameObject();
+            handBG.transform.SetParent(transform);
+            handBG.AddComponent<SpriteRenderer>();
+            handBG.GetComponent<SpriteRenderer>().sprite = gridBackground;
+            handBG.transform.position = new Vector3(transform.localPosition.x + 11, i + 7, -0.5f);
         }
 
         #endregion
@@ -155,6 +160,11 @@ public class OnePlayerScript : NetworkBehaviour
             for (int k = 0; k < tableSize; ++k)
             {
                 CreateBoardPiece(i, k);
+                GameObject go = new GameObject();
+                go.transform.SetParent(transform);
+                go.AddComponent<SpriteRenderer>();
+                go.GetComponent<SpriteRenderer>().sprite = gridBackground;
+                go.transform.position = new Vector3(i, k , -0.5f);
             }
         }
     }

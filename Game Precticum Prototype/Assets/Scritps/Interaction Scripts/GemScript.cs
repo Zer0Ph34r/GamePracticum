@@ -20,7 +20,6 @@ public class GemScript : MonoBehaviour
     #region lerp
     // all variables needed for movement lerping
     float speed = GlobalVariables.LERP_SPEED;
-    bool moving = false;
     Vector3 endPos = Vector3.zero;
 
     #endregion
@@ -48,15 +47,6 @@ public class GemScript : MonoBehaviour
         isSelected = false;
         canSelect = true;
 
-    }
-
-    private void Update()
-    {
-        if (moving)
-        {
-            LerpPosition();
-        }
-        
     }
 
     #region Methods
@@ -131,12 +121,13 @@ public class GemScript : MonoBehaviour
     IEnumerator LerpPosition()
     {
         // loops for learping between positions
-        for (float t = 0; t < 1; t += speed)
+        while (Vector3.Distance(transform.position, endPos) > 0.1)
         {
-            transform.position = Vector3.Lerp(transform.position, endPos, t);
+            //float step = speed * Time.deltaTime;
+            transform.position = Vector3.MoveTowards(transform.position, endPos, speed);
             yield return null;
         }
-        moving = false;
+        transform.position = endPos;
         if (runNextMethod != null)
         {
             runNextMethod();
@@ -150,7 +141,6 @@ public class GemScript : MonoBehaviour
     public void RunMotion(Vector3 endPos)
     {
         this.endPos = endPos;
-        moving = true;
         StartCoroutine(LerpPosition());
     }
 
