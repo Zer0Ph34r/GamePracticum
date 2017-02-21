@@ -75,7 +75,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         blueGem = Resources.Load<GameObject>("Prefabs/Gems/BlueD6");
         purpleGem = Resources.Load<GameObject>("Prefabs/Gems/PurpleD10");
         // Load Sprites
-        gridBackground = Resources.Load<Sprite>("Sprites/GridBackground");
+        gridBackground = Resources.Load<Sprite>("Sprites/GridBacking");
 
         #endregion
 
@@ -96,9 +96,14 @@ public class NetworkPlayerScript : NetworkBehaviour
         for (int i = 0; i < 3; ++i)
         {
             // Add gem to hand array for checking later on
-            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + 11, i + 7, 0), Quaternion.identity, transform);
+            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + i, tableSize + 1, 0), Quaternion.identity, transform);
             go.GetComponent<GemScript>().isHand = true;
             playerHand[i] = go;
+            GameObject handBG = new GameObject();
+            handBG.transform.SetParent(transform);
+            handBG.AddComponent<SpriteRenderer>();
+            handBG.GetComponent<SpriteRenderer>().sprite = gridBackground;
+            handBG.transform.position = new Vector3(transform.localPosition.x + i, tableSize + 1, -0.5f);
         }
 
         #endregion
@@ -110,21 +115,6 @@ public class NetworkPlayerScript : NetworkBehaviour
 
 
         #endregion
-
-        #region Check Grid
-        // Prevent start board from having chains
-        // Make sure the board starts without any chains in it
-        ResolveOnStart();
-        
-        #endregion
-    }
-
-    #endregion
-
-    #region OnLocalPlayer
-
-    public override void OnStartLocalPlayer()
-    {
 
         #region Set Camera
 
@@ -149,6 +139,13 @@ public class NetworkPlayerScript : NetworkBehaviour
         bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -10);
 
         #endregion
+
+        #region Check Grid
+        // Prevent start board from having chains
+        // Make sure the board starts without any chains in it
+        ResolveOnStart();
+        
+        #endregion
     }
 
     #endregion
@@ -168,7 +165,12 @@ public class NetworkPlayerScript : NetworkBehaviour
         {
             for (int k = 0; k < tableSize; ++k)
             {
-                CreateBoardPiece( i, k);
+                CreateBoardPiece(i, k);
+                GameObject go = new GameObject();
+                go.transform.SetParent(transform);
+                go.AddComponent<SpriteRenderer>();
+                go.GetComponent<SpriteRenderer>().sprite = gridBackground;
+                go.transform.position = new Vector3(i, k, -0.5f);
             }
         }
     }
@@ -647,7 +649,7 @@ public class NetworkPlayerScript : NetworkBehaviour
             // Move board piece to hand position
             boardPiece.GetComponent<GemScript>().RunMotion(handPos);
             // Add board piece to player hand
-            playerHand[((int)handPos.y - 7)] = boardPiece;
+            playerHand[((int)handPos.x)] = boardPiece;
             // Turn board piece into hand piece
             boardPiece.GetComponent<GemScript>().isHand = true;
             #endregion
