@@ -131,7 +131,7 @@ public class GemScript : MonoBehaviour
     IEnumerator LerpPosition()
     {
         // loops for learping between positions
-        for (float t = 0; t <= 1; t += speed)
+        for (float t = 0; t < 1; t += speed)
         {
             transform.position = Vector3.Lerp(transform.position, endPos, t);
             yield return null;
