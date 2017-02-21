@@ -90,14 +90,14 @@ public class OnePlayerScript : NetworkBehaviour
         for (int i = 0; i < 3; ++i)
         {
             // Add gem to hand array for checking later on
-            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + 11, i + 7, 0), Quaternion.identity, transform);
+            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + i, tableSize + 1, 0), Quaternion.identity, transform);
             go.GetComponent<GemScript>().isHand = true;
             playerHand[i] = go;
             GameObject handBG = new GameObject();
             handBG.transform.SetParent(transform);
             handBG.AddComponent<SpriteRenderer>();
             handBG.GetComponent<SpriteRenderer>().sprite = gridBackground;
-            handBG.transform.position = new Vector3(transform.localPosition.x + 11, i + 7, -0.5f);
+            handBG.transform.position = new Vector3(transform.localPosition.x + i, tableSize + 1, -0.5f);
         }
 
         #endregion
@@ -116,8 +116,8 @@ public class OnePlayerScript : NetworkBehaviour
         mainCamera = Camera.main;
         // set camera's position according to table size
         mainCamera.transform.localPosition = new Vector3(tableSize / 2 + transform.position.x,
-            tableSize * (7 / 8f) + transform.position.y,
-            tableSize * 6);
+            tableSize * (6 / 8f) + transform.position.y,
+            tableSize * 5);
         // Move Camera to face the gems instantiated
         mainCamera.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
 
@@ -130,7 +130,7 @@ public class OnePlayerScript : NetworkBehaviour
         GameObject bg = new GameObject();
         bg.transform.SetParent(transform);
         bg.AddComponent<SpriteRenderer>().sprite = background;
-        bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -10);
+        bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -40);
 
         #endregion
 
