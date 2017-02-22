@@ -15,6 +15,9 @@ public class GemScript : MonoBehaviour
     // particle effect for destruction
     [SerializeField]
     ParticleSystem particles;
+
+    // Timer for destroying gem
+    TimerScript timer;
    
     #region lerp
     // all variables needed for movement lerping
@@ -53,6 +56,7 @@ public class GemScript : MonoBehaviour
 
     #region Methods
 
+    #region Select
     // When the Mouse clicks on a gem
     public void OnMouseDown()
     {
@@ -71,7 +75,9 @@ public class GemScript : MonoBehaviour
         // fire selected Event
         Selected(gameObject);
     }
+    #endregion
 
+    #region Reset Gem
     /// <summary>
     /// Reset a Piece to how it began it's life
     /// </summary>
@@ -82,13 +88,16 @@ public class GemScript : MonoBehaviour
         transform.GetChild(0).gameObject.SetActive(false);
 
     }
+    #endregion
 
+    #region Destory Gem
     public void BlowUp()
     {
         ParticleSystem.EmissionModule em = particles.emission;
         em.enabled = true;
-        Destroy(gameObject);
+        gameObject.GetComponent<MeshRenderer>().enabled = false;
     }
+    #endregion
 
     #endregion
 
