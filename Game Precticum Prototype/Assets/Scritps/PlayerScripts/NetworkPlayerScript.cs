@@ -130,7 +130,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         GameObject bg = new GameObject();
         bg.transform.SetParent(transform);
         bg.AddComponent<SpriteRenderer>().sprite = background;
-        bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -10);
+        bg.transform.position = new Vector3(tableSize / 2 + transform.position.x, tableSize / 2, -10);
 
         #endregion
 
@@ -164,7 +164,7 @@ public class NetworkPlayerScript : NetworkBehaviour
                 go.transform.SetParent(transform);
                 go.AddComponent<SpriteRenderer>();
                 go.GetComponent<SpriteRenderer>().sprite = gridBackground;
-                go.transform.position = new Vector3(i, k, -0.5f);
+                go.transform.position = new Vector3(i + transform.position.x, k, -0.5f);
             }
         }
     }

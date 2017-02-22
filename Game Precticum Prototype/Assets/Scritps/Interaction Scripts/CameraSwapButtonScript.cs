@@ -10,10 +10,7 @@ public class CameraSwapButtonScript : MonoBehaviour {
     // This button prevents players from interacting on the other players screen
     [SerializeField]
     Button overayButton;
-    [SerializeField]
-    GameObject Pos1;
-    [SerializeField]
-    GameObject Pos2;
+    GameObject opponant;
 
     // bool for checking swap state
     bool swapped = false;
@@ -27,6 +24,16 @@ public class CameraSwapButtonScript : MonoBehaviour {
     private void Start()
     {
         mainCamera = Camera.main;
+        // find the opponants position
+        GameObject[] positions = new GameObject[2];
+        positions = GameObject.FindGameObjectsWithTag("Position");
+        foreach (GameObject go in positions)
+        {
+            if (go.transform.position != transform.parent.position)
+            {
+                opponant = go;
+            }
+        }
     }
 
     #region Swap Camera View
@@ -39,13 +46,13 @@ public class CameraSwapButtonScript : MonoBehaviour {
         if (swapped)
         {
             // set main camera active and deactivate the other camera
-            SetCamera(Pos1);
+            SetCamera(gameObject.transform.parent.gameObject);
             overayButton.gameObject.SetActive(false);
             swapped = false;
         }
         else
         {
-            SetCamera(Pos2);
+            SetCamera(opponant);
             overayButton.gameObject.SetActive(true);
             swapped = true;
         }
