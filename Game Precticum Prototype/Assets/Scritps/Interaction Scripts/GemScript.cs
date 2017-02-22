@@ -8,11 +8,15 @@ public class GemScript : MonoBehaviour
 
     // bool for being selected
     public bool isSelected { get; set; }
+    // Bool for hand pieces
     public bool isHand { get; set; }
+
+    // Bool to prevent gem selectoin while gem is moving
+    bool canSelect = true;
 
     // particle effect for destruction
     [SerializeField]
-    ParticleSystem particles;
+    ParticleSystem particleSystem;
    
     #region Move
     // all variables needed for movement lerping
@@ -54,20 +58,23 @@ public class GemScript : MonoBehaviour
     // When the Mouse clicks on a gem
     public void OnMouseDown()
     {
-        // Flips between selected and unselected states
-        if (isSelected)
+        if (canSelect)
         {
-            isSelected = false;
-            transform.GetChild(0).gameObject.SetActive(false);
+            // Flips between selected and unselected states
+            if (isSelected)
+            {
+                isSelected = false;
+                transform.GetChild(0).gameObject.SetActive(false);
+            }
+            else
+            {
+                isSelected = true;
+                transform.GetChild(0).gameObject.SetActive(true);
+            }
+
+            // fire selected Event
+            Selected(gameObject);
         }
-        else
-        {
-            isSelected = true;
-            transform.GetChild(0).gameObject.SetActive(true);
-        }
-        
-        // fire selected Event
-        Selected(gameObject);
     }
     #endregion
 
@@ -87,7 +94,9 @@ public class GemScript : MonoBehaviour
     #region Destory Gem
     public void BlowUp()
     {
-        ParticleSystem.EmissionModule em = particles.emission;
+        ParticleSystem ps = Instantiate<ParticleSystem>(particleSystem);
+        ps.transform.position = transform.position;
+        ParticleSystem.EmissionModule em = ps.emission;
         em.enabled = true;
         gameObject.GetComponent<MeshRenderer>().enabled = false;
         Destroy(gameObject);
@@ -104,6 +113,7 @@ public class GemScript : MonoBehaviour
     /// <returns></returns>
     IEnumerator SwapPieces()
     {
+        canSelect = false;
         // loops for learping between positions
         while (Vector3.Distance(transform.position, endPos) > 0.1)
         {
@@ -113,6 +123,7 @@ public class GemScript : MonoBehaviour
         }
         // perfectly align gem
         transform.position = endPos;
+        canSelect = true;
         //Fire Event after coroutine ends
         if (runNextMethod != null)
         {
@@ -126,6 +137,7 @@ public class GemScript : MonoBehaviour
     /// <returns></returns>
     IEnumerator Fall()
     {
+        canSelect = false;
         // loops for learping between positions
         while (Vector3.Distance(transform.position, endPos) > 0.1)
         {
@@ -135,6 +147,7 @@ public class GemScript : MonoBehaviour
         }
         // perfectly align gem
         transform.position = endPos;
+        canSelect = true;
         //Fire Event after coroutine ends
         if (runNextMethod != null)
         {
