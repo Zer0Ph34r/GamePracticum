@@ -885,6 +885,86 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
+    #region Rotate Board
+
+    /// <summary>
+    /// Rotates board visually while just saving gems into a new array that is "rotated" 90 deg 
+    /// </summary>
+    public void RotateRight()
+    {
+        // Rotate peices using a simple temp object to not lose any gems
+        for (int x = 0; x < tableSize / 2; x++)
+        {
+            // Consider elements in group of 4 in 
+            // current square
+            for (int y = x; y < tableSize - x - 1; y++)
+            {
+                // store current cell in temp variable
+                GameObject temp = gems[x, y];
+
+                // move values from right to top
+                gems[x, y] = gems[y, tableSize - 1 - x];
+
+                // move values from bottom to right
+                gems[y, tableSize - 1 - x] = gems[tableSize - 1 - x, tableSize - 1 - y];
+
+                // move values from left to bottom
+                gems[tableSize - 1 - x, tableSize - 1 - y] = gems[tableSize - 1 - y, x];
+
+                // assign temp to left
+                gems[tableSize - 1 - y, x] = temp;
+            }
+        }
+
+        //Now that we have our array rotated we need to move all gems to reflect their new rotation
+        for (int i = 0; i < tableSize; ++i)
+        {
+            for (int k = 0; k < tableSize; ++k)
+            {
+                gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+            }
+        }
+    }
+
+    public void RotateLeft()
+    {
+        // Rotate peices using a simple temp object to not lose any gems
+        for (int x = 0; x < tableSize / 2; x++)
+        {
+            // Consider elements in group of 4 in 
+            // current square
+            for (int y = x; y < tableSize - x - 1; y++)
+            {
+                // store current cell in temp variable
+                GameObject temp = gems[x, y];
+
+                // move values from right to top
+                gems[x, y] = gems[tableSize - 1 - y, x];
+
+                // move values from bottom to right
+                gems[tableSize - 1 - y, x] = gems[tableSize - 1 - x, tableSize - 1 - y];
+
+                // move values from left to bottom
+                gems[tableSize - 1 - x, tableSize - 1 - y] = gems[y, tableSize - 1 - x];
+
+                // assign temp to left
+                gems[y, tableSize - 1 - x] = temp;
+            }
+        }
+
+        //Now that we have our array rotated we need to move all gems to reflect their new rotation
+        for (int i = 0; i < tableSize; ++i)
+        {
+            for (int k = 0; k < tableSize; ++k)
+            {
+                gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+            }
+        }
+    }
+
+    #endregion
+
+
     #endregion
 
     #endregion

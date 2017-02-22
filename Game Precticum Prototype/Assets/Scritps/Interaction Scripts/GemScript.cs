@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Networking;
 
 public class GemScript : MonoBehaviour
 {
@@ -15,13 +13,10 @@ public class GemScript : MonoBehaviour
     // particle effect for destruction
     [SerializeField]
     ParticleSystem particles;
-
-    // Timer for destroying gem
-    TimerScript timer;
    
-    #region lerp
+    #region Move
     // all variables needed for movement lerping
-    float speed = GlobalVariables.LERP_SPEED;
+    float speed = GlobalVariables.MOVE_SPEED;
     Vector3 endPos = Vector3.zero;
 
     #endregion
@@ -48,7 +43,6 @@ public class GemScript : MonoBehaviour
     {
         // set initial state
         isSelected = false;
-
     }
 
 
@@ -96,6 +90,7 @@ public class GemScript : MonoBehaviour
         ParticleSystem.EmissionModule em = particles.emission;
         em.enabled = true;
         gameObject.GetComponent<MeshRenderer>().enabled = false;
+        Destroy(gameObject);
     }
     #endregion
 

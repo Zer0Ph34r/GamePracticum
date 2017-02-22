@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿
 public class TimerScript {
 
     #region Fields
@@ -43,13 +40,14 @@ public class TimerScript {
     }
 
     /// <summary>
-    /// Changes amount of time in given timer
+    /// Changes amount of time in given timer and resets timer
     /// WARNING: If you need different times, you should use different timers in most cases
     /// </summary>
     /// <param name="newTime"></param>
     public void ChangeTime(int newTime)
     {
         m_time = newTime;
+        currTime = 0;
     }
 
     /// <summary>
@@ -66,10 +64,17 @@ public class TimerScript {
     /// <param name="deltaTime"></param>
     public void Update(float deltaTime)
     {
-        currTime += deltaTime;
+        // update only if timer has started
+        if (started)
+        {
+            currTime += deltaTime;
+        }
+        // check if timer has reached it's max time
         if (currTime >= m_time)
         {
             timerEnded();
+            started = false;
+            currTime = 0;
         }
     }
     
