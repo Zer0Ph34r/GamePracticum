@@ -419,28 +419,12 @@ public class OnePlayerScript : NetworkBehaviour
             DeleteChains(chains);
 
             // Fill all holes in grid
-            RefillGrid();
+            GemScript.runNextMethod += RefillGrid;
 
-            // check for any chains made after grid has fallen and been refilled
-            GemScript.runNextMethod += ResolveGrid;
         }
         GemScript.runNextMethod -= ResolveGrid;
     }
 
-
-    //NOTE: Not Used Anymore
-    ///// <summary>
-    ///// Resolves board with given list of chains
-    ///// </summary>
-    ///// <param name="list"></param>
-    //void ResolveGrid(List<MoveScript> list)
-    //{
-    //    // Remove all gems that form chains of 3 or more 
-    //    DeleteChains(list);
-
-    //    // Fill all holes in grid
-    //    RefillGrid();
-    //}
     #endregion
 
     #region CheckGrid
@@ -640,7 +624,7 @@ public class OnePlayerScript : NetworkBehaviour
         {
             #region Move Board Piece
             // Move board piece to hand position
-            boardPiece.GetComponent<GemScript>().RunMotion(handPos);
+            boardPiece.GetComponent<GemScript>().RunSwap(handPos);
             // Add board piece to player hand
             playerHand[(int)handPos.x] = boardPiece;
             // Turn board piece into hand piece
@@ -649,7 +633,7 @@ public class OnePlayerScript : NetworkBehaviour
 
             #region Move Hand Piece
             // set new positions to hand Piece
-            handPiece.GetComponent<GemScript>().RunMotion(boardPos);
+            handPiece.GetComponent<GemScript>().RunSwap(boardPos);
             // set handPiece into gem array
             gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
             // make handPiece a board piece
@@ -791,6 +775,11 @@ public class OnePlayerScript : NetworkBehaviour
     /// </summary>
     void RefillGrid()
     {
+        // remove called event
+        GemScript.runNextMethod -= RefillGrid;
+
+        // run FillEmpty script once all gems have fallen
+        GemScript.runNextMethod += FillEmpty;
 
         // First, drop all the gems as low as they can go
         for (int i = 0; i < tableSize; i++)
@@ -800,10 +789,6 @@ public class OnePlayerScript : NetworkBehaviour
                 CheckFalling(i, k);
             }
         }
-
-        // run FillEmpty script once all gems have fallen
-        GemScript.runNextMethod += FillEmpty;
-
     }
 
     /// <summary>
@@ -813,6 +798,7 @@ public class OnePlayerScript : NetworkBehaviour
     {
         // remove Fill Empty Event registration
         GemScript.runNextMethod -= FillEmpty;
+
         // Now fill empty spaces with new gems
         for (int j = 0; j < tableSize; j++)
         {
@@ -827,6 +813,9 @@ public class OnePlayerScript : NetworkBehaviour
 
         // reset game for next round
         ResetBoard();
+
+        // check for any more gems to delete
+        GemScript.runNextMethod += ResolveGrid;
     }
 
     #endregion
@@ -843,7 +832,7 @@ public class OnePlayerScript : NetworkBehaviour
             gems[x, y - 1] == null)
         {
             // tell gem to move and where to move to
-            gems[x, y].GetComponent<GemScript>().RunMotion(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
+            gems[x, y].GetComponent<GemScript>().RunFall(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
             // set gem to new grid position
             gems[x, y - 1] = gems[x, y];
             // set old position to null

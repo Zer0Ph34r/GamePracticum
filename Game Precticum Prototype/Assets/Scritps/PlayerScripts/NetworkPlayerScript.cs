@@ -641,7 +641,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         {
             #region Move Board Piece
             // Move board piece to hand position
-            boardPiece.GetComponent<GemScript>().RunMotion(handPos);
+            boardPiece.GetComponent<GemScript>().RunSwap(handPos);
             // Add board piece to player hand
             playerHand[((int)handPos.x)] = boardPiece;
             // Turn board piece into hand piece
@@ -650,7 +650,7 @@ public class NetworkPlayerScript : NetworkBehaviour
 
             #region Move Hand Piece
             // set new positions to hand Piece
-            handPiece.GetComponent<GemScript>().RunMotion(boardPos);
+            handPiece.GetComponent<GemScript>().RunSwap(boardPos);
             // set handPiece into gem array
             gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
             // make handPiece a board piece
@@ -844,7 +844,7 @@ public class NetworkPlayerScript : NetworkBehaviour
             gems[x, y - 1] == null)
         {
             // tell gem to move and where to move to
-            gems[x,y].GetComponent<GemScript>().RunMotion(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
+            gems[x,y].GetComponent<GemScript>().RunSwap(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
             // set gem to new grid position
             gems[x, y - 1] = gems[x, y]; 
             // set old position to null

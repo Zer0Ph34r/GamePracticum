@@ -39,12 +39,17 @@ public class GemScript : MonoBehaviour
 
     #endregion
 
+    #region Start
+
     private void Start()
     {
         // set initial state
         isSelected = false;
 
     }
+
+
+    #endregion
 
     #region Methods
 
@@ -90,10 +95,10 @@ public class GemScript : MonoBehaviour
     #region Co-Routines
 
     /// <summary>
-    /// Coroutine for moving gems to different positions
+    /// Coroutine for swapping gems
     /// </summary>
     /// <returns></returns>
-    IEnumerator LerpPosition()
+    IEnumerator SwapPieces()
     {
         // loops for learping between positions
         while (Vector3.Distance(transform.position, endPos) > 0.1)
@@ -109,19 +114,51 @@ public class GemScript : MonoBehaviour
         {
             runNextMethod();
         }
-        
-        
+    }
+
+    /// <summary>
+    /// Coroutine for falling gems
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator Fall()
+    {
+        // loops for learping between positions
+        while (Vector3.Distance(transform.position, endPos) > 0.1)
+        {
+            //float step = speed * Time.deltaTime;
+            transform.position = Vector3.MoveTowards(transform.position, endPos, 0.05f);
+            yield return null;
+        }
+        // perfectly align gem
+        transform.position = endPos;
+        //Fire Event after coroutine ends
+        if (runNextMethod != null)
+        {
+            runNextMethod();
+        }
+    }
+
+    #region Call Coroutines
+    /// <summary>
+    /// public method for calling coroutine
+    /// </summary>
+    /// <param name="endPos"></param>
+    public void RunSwap(Vector3 endPos)
+    {
+        this.endPos = endPos;
+        StartCoroutine(SwapPieces());
     }
 
     /// <summary>
     /// public method for calling coroutine
     /// </summary>
     /// <param name="endPos"></param>
-    public void RunMotion(Vector3 endPos)
+    public void RunFall(Vector3 endPos)
     {
         this.endPos = endPos;
-        StartCoroutine(LerpPosition());
+        StartCoroutine(Fall());
     }
+    #endregion
 
     #endregion
 }
