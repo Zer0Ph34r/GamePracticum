@@ -159,7 +159,8 @@ public class GemScript : MonoBehaviour
         transform.position = endPos;
         canSelect = true;
         //Fire Event after coroutine ends
-        if (runNextMethod != null)
+        if (runNextMethod != null &&
+            checkGems())
         {
             runNextMethod();
         }
