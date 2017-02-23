@@ -11,7 +11,7 @@ public class GemScript : MonoBehaviour
     public bool isHand { get; set; }
 
     // Bool to prevent gem selectoin while gem is moving
-    bool canSelect = true;
+    public bool canSelect { get; set; }
 
     // particle effect for destruction
     [SerializeField]
@@ -40,6 +40,9 @@ public class GemScript : MonoBehaviour
     public delegate void runNext();
     public static event runNext runNextMethod;
 
+    //Check falling state event
+    public delegate bool check();
+    public static event check checkGems;
 
     #endregion
 
@@ -51,6 +54,7 @@ public class GemScript : MonoBehaviour
     {
         // set initial state
         isSelected = false;
+        canSelect = true;
 
         // get the color fo the particle effects based on gem tag
         switch(gameObject.tag)
@@ -179,7 +183,8 @@ public class GemScript : MonoBehaviour
         transform.position = endPos;
         canSelect = true;
         //Fire Event after coroutine ends
-        if (runNextMethod != null)
+        if (runNextMethod != null &&
+            checkGems())
         {
             runNextMethod();
         }

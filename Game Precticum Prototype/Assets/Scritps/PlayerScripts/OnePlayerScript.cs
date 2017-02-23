@@ -142,11 +142,40 @@ public class OnePlayerScript : NetworkBehaviour
         ResolveOnStart();
 
         #endregion
+
+        // Add event for checking if gems are falling
+        GemScript.checkGems += CheckGems;
     }
 
     #endregion
 
     #region Methods
+
+    #region Check Gem State
+
+    bool CheckGems()
+    {
+        int falling = 0;
+        foreach (GameObject gem in gems)
+        {
+            if (gem !=null &&
+                !gem.GetComponent<GemScript>().canSelect)
+            {
+                falling++;
+            }
+        }
+        if (falling > 1)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+        
+    }
+
+    #endregion
 
     #region Instantiation Methods
 
@@ -471,11 +500,9 @@ public class OnePlayerScript : NetworkBehaviour
 
         #region Find all possible solutions
 
-        // movesGrid is an empty 2D array of size [tablesize, tablesize]
-        //MoveScript[,] movesGrid = new MoveScript[tableSize, tableSize];
+        // moves is a list of all valid moves (move is a chain of two or more)
         List<MoveScript> moves = new List<MoveScript>();
-        // This loop will look through the whole 
-        // table and find all possible matches
+
         #region Old Code
         ////  - Loop through each row
         //for (int i = 0; i < tableSize; ++i)
@@ -539,6 +566,8 @@ public class OnePlayerScript : NetworkBehaviour
         #endregion
 
         #region Two Nested loops for finding all straight Chains
+        // This loop will look through the whole 
+        // table and find all possible matches
         // check Columns
         int moveCount = -1;
         for (int i = 0; i < tableSize; ++i)
@@ -579,6 +608,7 @@ public class OnePlayerScript : NetworkBehaviour
 
 
         #endregion
+
         #endregion
 
         #region Prevent Duplicate "Moves"
@@ -905,72 +935,78 @@ public class OnePlayerScript : NetworkBehaviour
     /// </summary>
     public void RotateRight()
     {
-        // Rotate peices using a simple temp object to not lose any gems
-        for (int x = 0; x < tableSize / 2; x++)
+        if (CheckGems())
         {
-            // Consider elements in group of 4 in 
-            // current square
-            for (int y = x; y < tableSize - x - 1; y++)
+            // Rotate peices using a simple temp object to not lose any gems
+            for (int x = 0; x < tableSize / 2; x++)
             {
-                // store current cell in temp variable
-                GameObject temp = gems[x,y];
+                // Consider elements in group of 4 in 
+                // current square
+                for (int y = x; y < tableSize - x - 1; y++)
+                {
+                    // store current cell in temp variable
+                    GameObject temp = gems[x, y];
 
-                // move values from right to top
-                gems[x,y] = gems[y, tableSize - 1 - x];
+                    // move values from right to top
+                    gems[x, y] = gems[y, tableSize - 1 - x];
 
-                // move values from bottom to right
-                gems[y, tableSize - 1 - x] = gems[tableSize - 1 - x, tableSize - 1 - y];
+                    // move values from bottom to right
+                    gems[y, tableSize - 1 - x] = gems[tableSize - 1 - x, tableSize - 1 - y];
 
-                // move values from left to bottom
-                gems[tableSize - 1 - x, tableSize - 1 - y] = gems[tableSize - 1 - y, x];
+                    // move values from left to bottom
+                    gems[tableSize - 1 - x, tableSize - 1 - y] = gems[tableSize - 1 - y, x];
 
-                // assign temp to left
-                gems[tableSize - 1 - y, x] = temp;
+                    // assign temp to left
+                    gems[tableSize - 1 - y, x] = temp;
+                }
             }
-        }
 
-        //Now that we have our array rotated we need to move all gems to reflect their new rotation
-        for (int i = 0; i < tableSize; ++i)
-        {
-            for (int k = 0; k < tableSize; ++k)
+            //Now that we have our array rotated we need to move all gems to reflect their new rotation
+            for (int i = 0; i < tableSize; ++i)
             {
-                gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                for (int k = 0; k < tableSize; ++k)
+                {
+                    gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                }
             }
         }
     }
 
     public void RotateLeft()
     {
-        // Rotate peices using a simple temp object to not lose any gems
-        for (int x = 0; x < tableSize / 2; x++)
+        if (CheckGems())
         {
-            // Consider elements in group of 4 in 
-            // current square
-            for (int y = x; y < tableSize - x - 1; y++)
+            // Rotate peices using a simple temp object to not lose any gems
+            for (int x = 0; x < tableSize / 2; x++)
             {
-                // store current cell in temp variable
-                GameObject temp = gems[x, y];
+                // Consider elements in group of 4 in 
+                // current square
+                for (int y = x; y < tableSize - x - 1; y++)
+                {
+                    // store current cell in temp variable
+                    GameObject temp = gems[x, y];
 
-                // move values from right to top
-                gems[x, y] = gems[tableSize - 1 - y, x];
+                    // move values from right to top
+                    gems[x, y] = gems[tableSize - 1 - y, x];
 
-                // move values from bottom to right
-                gems[tableSize - 1 - y, x] = gems[tableSize - 1 - x, tableSize - 1 - y];
+                    // move values from bottom to right
+                    gems[tableSize - 1 - y, x] = gems[tableSize - 1 - x, tableSize - 1 - y];
 
-                // move values from left to bottom
-                gems[tableSize - 1 - x, tableSize - 1 - y] = gems[y, tableSize - 1 - x];
+                    // move values from left to bottom
+                    gems[tableSize - 1 - x, tableSize - 1 - y] = gems[y, tableSize - 1 - x];
 
-                // assign temp to left
-                gems[y, tableSize - 1 - x] = temp;
+                    // assign temp to left
+                    gems[y, tableSize - 1 - x] = temp;
+                }
             }
-        }
 
-        //Now that we have our array rotated we need to move all gems to reflect their new rotation
-        for (int i = 0; i < tableSize; ++i)
-        {
-            for (int k = 0; k < tableSize; ++k)
+            //Now that we have our array rotated we need to move all gems to reflect their new rotation
+            for (int i = 0; i < tableSize; ++i)
             {
-                gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                for (int k = 0; k < tableSize; ++k)
+                {
+                    gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                }
             }
         }
     }
