@@ -151,21 +151,29 @@ public class OnePlayerScript : NetworkBehaviour
 
     #region Methods
 
-    #region Check Gem State
+    #region Check Gems
 
+    /// <summary>
+    /// Checks all gems to see how many are currently falling
+    /// returns true if one or fewer are falling
+    /// </summary>
+    /// <returns></returns>
     bool CheckGems()
     {
+        // set falling to 0
         int falling = 0;
         foreach (GameObject gem in gems)
         {
+            // Add 1 if a gem cannot be selected, which means it is falling
             if (gem !=null &&
                 !gem.GetComponent<GemScript>().canSelect)
             {
                 falling++;
             }
         }
-        if (falling > 1)
+        if (falling > 0)
         {
+            // If all gems are in their place
             return false;
         }
         else
@@ -230,11 +238,11 @@ public class OnePlayerScript : NetworkBehaviour
     void FillBoardPiece(int x, int y)
     {
         // create new piece at array position plus parent transform
-
         GameObject go = Instantiate(RandomizeObject(),
             new Vector3((int)transform.localPosition.x + x,
             (int)transform.localPosition.y + y,
             0), Quaternion.identity, transform);
+        // set handpiece to new game object for checking 
         handPiece = go;
         go.GetComponent<GemScript>().isHand = false;
         gems[x, y] = go;
@@ -291,8 +299,6 @@ public class OnePlayerScript : NetworkBehaviour
 
     #endregion
 
-    #region Events
-
     #region Lock Gems
 
     /// <summary>
@@ -303,8 +309,16 @@ public class OnePlayerScript : NetworkBehaviour
         GemScript gs = go.GetComponent<GemScript>();
         if (gs.isHand)
         {
-            // set handPiece to go
-            handPiece = go;
+            if (go.GetComponent<GemScript>().isSelected)
+            {
+                // set handPiece to go
+                handPiece = go;
+            }
+            else
+            {
+                handPiece = null;
+            }
+            
             // lock each peice
             foreach (GameObject gem in playerHand)
             {
@@ -319,8 +333,16 @@ public class OnePlayerScript : NetworkBehaviour
         }
         else
         {
-            // set board piece to go
-            boardPiece = go;
+            if (go.GetComponent<GemScript>().isSelected)
+            {
+                // set handPiece to go
+                boardPiece = go;
+            }
+            else
+            {
+                boardPiece = null;
+            }
+
             // lock each peice
             foreach (GameObject gem in gems)
             {
@@ -334,13 +356,13 @@ public class OnePlayerScript : NetworkBehaviour
             gridLocked = true;
         }
         // check if both grid and hand are locked
-        if (handLocked && gridLocked)
+        if (boardPiece != null &&
+            handPiece != null &&
+            handLocked && gridLocked)
         {
             SwapPieces();
         }
     }
-
-    #endregion
 
     #endregion
 
@@ -400,13 +422,13 @@ public class OnePlayerScript : NetworkBehaviour
     void RefillOnStart()
     {
         // First, drop all the gems as low as they can go
-        for (int i = 0; i < tableSize; i++)
-        {
-            for (int k = 1; k < tableSize; k++)
-            {
-                CheckEmptyStart(i, k);
-            }
-        }
+        //for (int i = 0; i < tableSize; i++)
+        //{
+        //    for (int k = 1; k < tableSize; k++)
+        //    {
+        //        CheckEmptyStart(i, k);
+        //    }
+        //}
 
         // Now fill empty spaces with new gems
         for (int j = 0; j < tableSize; j++)
@@ -470,15 +492,13 @@ public class OnePlayerScript : NetworkBehaviour
             DeleteChains(chains);
 
             // Fill all holes in grid
-            GemScript.runNextMethod += RefillGrid;
-
+            RefillGrid();
         }
-        GemScript.runNextMethod -= ResolveGrid;
     }
 
     #endregion
 
-    #region CheckGrid
+    #region Check Grid
 
     /// <summary>
     /// Finds all possible Chains in grid and returns a list of all unique chains
@@ -676,25 +696,37 @@ public class OnePlayerScript : NetworkBehaviour
         if (CheckValidSwap((int)boardPos.x, (int)boardPos.y))
         {
             #region Move Board Piece
-            // Move board piece to hand position
-            boardPiece.GetComponent<GemScript>().RunSwap(handPos);
+
             // Add board piece to player hand
             playerHand[(int)handPos.x] = boardPiece;
             // Turn board piece into hand piece
             boardPiece.GetComponent<GemScript>().isHand = true;
+            // Move board piece to hand position
+            boardPiece.GetComponent<GemScript>().RunSwap(handPos);
+            
             #endregion
 
             #region Move Hand Piece
-            // set new positions to hand Piece
-            handPiece.GetComponent<GemScript>().RunSwap(boardPos);
-            // set handPiece into gem array
-            gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
+
             // make handPiece a board piece
             handPiece.GetComponent<GemScript>().isHand = false;
+            // set handPiece into gem array
+            gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
+            // set new positions to hand Piece
+            handPiece.GetComponent<GemScript>().RunSwap(boardPos);
+
             #endregion
 
-            // this will be called when swapping the pieces is finished
-            GemScript.runNextMethod += ContinueSwap;
+            // If swap was on tob of the grid, no gems will fall
+            if (boardPos.y == tableSize - 1)
+            {
+                ContinueSwap();
+            }
+            else
+            {
+                // this will be called when swapping the pieces is finished
+                GemScript.runNextMethod += ContinueSwap;
+            }
 
         }
         else
@@ -821,7 +853,7 @@ public class OnePlayerScript : NetworkBehaviour
 
     #endregion
 
-    #region Move and Refill Board
+    #region Refill Grid
     /// <summary>
     /// Has pieces "fall" into place, then creates new gems above the holes to 
     /// fill in grid completely
@@ -831,9 +863,6 @@ public class OnePlayerScript : NetworkBehaviour
         // remove called event
         GemScript.runNextMethod -= RefillGrid;
 
-        // run FillEmpty script once all gems have fallen
-        GemScript.runNextMethod += FillEmpty;
-
         // First, drop all the gems as low as they can go
         for (int i = 0; i < tableSize; i++)
         {
@@ -842,8 +871,15 @@ public class OnePlayerScript : NetworkBehaviour
                 CheckFalling(i, k);
             }
         }
+
+        // run FillEmpty script once all gems have fallen
+        GemScript.runNextMethod += FillEmpty;
     }
 
+
+    #endregion
+
+    #region Fill Empty
     /// <summary>
     /// Fills all empty grid cells
     /// </summary>
@@ -853,13 +889,13 @@ public class OnePlayerScript : NetworkBehaviour
         GemScript.runNextMethod -= FillEmpty;
 
         // Now fill empty spaces with new gems
-        for (int j = 0; j < tableSize; j++)
+        for (int i = 0; i < tableSize; i++)
         {
-            for (int l = 0; l < tableSize; ++l)
+            for (int k = 0; k < tableSize; ++k)
             {
-                if (gems[j, l] == null)
+                if (gems[i, k] == null)
                 {
-                    FillBoardPiece(j, l);
+                    FillBoardPiece(i, k);
                 }
             }
         }
@@ -868,12 +904,11 @@ public class OnePlayerScript : NetworkBehaviour
         ResetBoard();
 
         // check for any more gems to delete
-        GemScript.runNextMethod += ResolveGrid;
+        ResolveGrid();
     }
-
     #endregion
 
-    #region CheckFalling
+    #region Check Falling
 
     // Checks if there is a gem beneath this one and moves it
     // if there isn't one
@@ -884,12 +919,16 @@ public class OnePlayerScript : NetworkBehaviour
             gems[x, y] != null &&
             gems[x, y - 1] == null)
         {
+
             // tell gem to move and where to move to
             gems[x, y].GetComponent<GemScript>().RunFall(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
+
             // set gem to new grid position
             gems[x, y - 1] = gems[x, y];
+            
             // set old position to null
             gems[x, y] = null;
+
             // check below this new position
             CheckFalling(x, y - 1);
         }
@@ -924,6 +963,7 @@ public class OnePlayerScript : NetworkBehaviour
         // reset locked status
         gridLocked = false;
         handLocked = false;
+
     }
 
     #endregion

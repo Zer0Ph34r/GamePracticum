@@ -5,6 +5,7 @@ public class GemScript : MonoBehaviour
 {
     #region Fields
 
+    #region Regular Fields 
     // bool for being selected
     public bool isSelected { get; set; }
     // Bool for hand pieces
@@ -17,7 +18,8 @@ public class GemScript : MonoBehaviour
     [SerializeField]
     ParticleSystem particleSystem;
     Color color;
-   
+    #endregion
+
     #region Move
     // all variables needed for movement lerping
     float speed = GlobalVariables.MOVE_SPEED;
@@ -27,9 +29,8 @@ public class GemScript : MonoBehaviour
 
     #region EventFields
 
-    // Create delegate for adding in method calls
+    // Create delegate for locking gems
     public delegate void callMethod(GameObject go);
-    // create event for calling that delegate
     public static event callMethod Selected;
 
     // Create delegate and event for playing sounds during the game
@@ -157,6 +158,7 @@ public class GemScript : MonoBehaviour
         }
         // perfectly align gem
         transform.position = endPos;
+        // No longer moving, can select gem
         canSelect = true;
         //Fire Event after coroutine ends
         if (runNextMethod != null &&
@@ -182,6 +184,7 @@ public class GemScript : MonoBehaviour
         }
         // perfectly align gem
         transform.position = endPos;
+        // No longer moving, can select gem
         canSelect = true;
         //Fire Event after coroutine ends
         if (runNextMethod != null &&
@@ -189,6 +192,7 @@ public class GemScript : MonoBehaviour
         {
             runNextMethod();
         }
+
     }
 
     #region Call Coroutines
