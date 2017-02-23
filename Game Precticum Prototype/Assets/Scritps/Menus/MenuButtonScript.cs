@@ -20,6 +20,8 @@ public class MenuButtonScript : MonoBehaviour {
 
     #endregion
 
+    #region Button Methods
+
     private void Start()
     {
         click = Resources.Load<AudioClip>("Sounds/Click");
@@ -55,6 +57,12 @@ public class MenuButtonScript : MonoBehaviour {
         gameObject.SetActive(false);
     }
 
+    public void Disable()
+    {
+        audioSource.PlayOneShot(click);
+        gameObject.SetActive(false);
+    }
+
     /// <summary>
     /// Exit game
     /// </summary>
@@ -63,4 +71,6 @@ public class MenuButtonScript : MonoBehaviour {
         audioSource.PlayOneShot(click);
         Application.Quit();
     }
+
+    #endregion
 }

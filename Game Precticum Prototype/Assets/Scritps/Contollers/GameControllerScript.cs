@@ -12,6 +12,8 @@ public class GameControllerScript : MonoBehaviour {
     int score = 0;
     Text scoreText;
 
+    GameObject pauseMenu;
+
     #region Sound Effect Fields
     // Sound Stuff
     AudioSource audioSource;
@@ -34,6 +36,9 @@ public class GameControllerScript : MonoBehaviour {
 
         // Save reference to audio source
         audioSource = GetComponent<AudioSource>();
+        // Save reference ot pause canvas
+        pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
+        pauseMenu.gameObject.SetActive(false);
 
         // Load in sound effects
         break1 = Resources.Load<AudioClip>("Sounds/Break1");
@@ -93,9 +98,15 @@ public class GameControllerScript : MonoBehaviour {
     private void Update()
     {
         // Allow exiting of application
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) &&
+            !pauseMenu.gameObject.activeSelf)
         {
-            Application.Quit();
+            pauseMenu.gameObject.SetActive(true);
+        }
+        else if (Input.GetKeyDown(KeyCode.Escape) &&
+            pauseMenu.gameObject.activeSelf)
+        {
+            pauseMenu.gameObject.SetActive(false);
         }
 
         // Update Players Score
