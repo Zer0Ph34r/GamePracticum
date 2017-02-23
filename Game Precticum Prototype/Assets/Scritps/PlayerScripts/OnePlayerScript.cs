@@ -329,7 +329,7 @@ public class OnePlayerScript : NetworkBehaviour
         if (chains.Count > 0)
         {
             // Remove all gems that form chains of 3 or more 
-            DeleteChains(chains);
+            DeleteOnStart(chains);
 
             // Fill all holes in grid
             RefillOnStart();
@@ -392,6 +392,25 @@ public class OnePlayerScript : NetworkBehaviour
         // reset game for next round
         ResetBoard();
 
+    }
+
+    // deletes all gems in every chain
+    void DeleteOnStart(List<MoveScript> list)
+    {
+        // Iterate through each unique solution and delete all gems contained within
+        foreach (MoveScript move in list)
+        {
+            foreach (GameObject go in move.GetList)
+            {
+                // Check for null objects
+                if (go)
+                {
+                    gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
+                        (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
+                    Destroy(go);
+                }
+            }
+        }
     }
 
     #endregion

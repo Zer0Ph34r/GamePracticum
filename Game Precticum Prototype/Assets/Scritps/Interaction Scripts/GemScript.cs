@@ -17,6 +17,7 @@ public class GemScript : MonoBehaviour
     // particle effect for destruction
     [SerializeField]
     ParticleSystem particleSystem;
+    Color color;
    
     #region Move
     // all variables needed for movement lerping
@@ -31,6 +32,10 @@ public class GemScript : MonoBehaviour
     public delegate void callMethod(GameObject go);
     // create event for calling that delegate
     public static event callMethod Selected;
+
+    // Create delegate and event for playing sounds during the game
+    public delegate void playSound();
+    public static event playSound fireSoundEvent;
 
     // event for finishing coroutines
     public delegate void runNext();
@@ -47,6 +52,29 @@ public class GemScript : MonoBehaviour
     {
         // set initial state
         isSelected = false;
+
+        // get the color fo the particle effects based on gem tag
+        switch(gameObject.tag)
+        {
+            case "White":
+                color = Color.white;
+                break;
+            case "Red":
+                color = Color.red;
+                break;
+            case "Green":
+                color = Color.green;
+                break;
+            case "Purple":
+                color = Color.magenta;
+                break;
+            case "Yellow":
+                color = Color.yellow;
+                break;
+            case "Blue":
+                color = Color.blue;
+                break;
+        }
     }
 
 
@@ -94,8 +122,11 @@ public class GemScript : MonoBehaviour
     #region Destory Gem
     public void BlowUp()
     {
+        fireSoundEvent();
         ParticleSystem ps = Instantiate<ParticleSystem>(particleSystem);
         ps.transform.position = transform.position;
+        ParticleSystem.MainModule mm = ps.main;
+        mm.startColor = color;
         ParticleSystem.EmissionModule em = ps.emission;
         em.enabled = true;
         gameObject.GetComponent<MeshRenderer>().enabled = false;
