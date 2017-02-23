@@ -37,6 +37,8 @@ public class GameControllerScript : MonoBehaviour {
     // Use this for initialization
     void Start () {
 
+        #region Get / Save Objects
+
         // save instance of player
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<OnePlayerScript>();
 
@@ -56,6 +58,12 @@ public class GameControllerScript : MonoBehaviour {
         break2 = Resources.Load<AudioClip>("Sounds/Break2");
         break3 = Resources.Load<AudioClip>("Sounds/Break3");
         break4 = Resources.Load<AudioClip>("Sounds/Break4");
+
+        // Score Display
+        scoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
+        scoreText.text = "Score: " + score;
+
+        #endregion
 
         #region Load BGM
 
@@ -93,43 +101,23 @@ public class GameControllerScript : MonoBehaviour {
         // Play Loaded Music
         audioSource.PlayOneShot(BGMusic);
 
-        // Score Display
-        scoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
-        scoreText.text = "Score: " + score;
+        #region Set Event Methods
 
         // add method to event call
         GemScript.fireSoundEvent += PlaySound;
+        OnePlayerScript.fireScore += SetScore;
 
-    }
-
-    #endregion
-
-    #region Update
-
-    private void Update()
-    {
-        // Allow exiting of application
-        if (Input.GetKeyDown(KeyCode.Escape) &&
-            !pauseMenu.gameObject.activeSelf)
-        {
-            pauseMenu.gameObject.SetActive(true);
-        }
-        else if (Input.GetKeyDown(KeyCode.Escape) &&
-            pauseMenu.gameObject.activeSelf)
-        {
-            pauseMenu.gameObject.SetActive(false);
-        }
-
-        // Update Players Score
-        score = player.score * 100;
-        scoreText.text = "Score: " + score;
-
+        #endregion
     }
 
     #endregion
 
     #region Methods
 
+    #region Play Sound
+    /// <summary>
+    /// Plays random crash sound
+    /// </summary>
     void PlaySound()
     {
         // Play random sound effect
@@ -153,8 +141,30 @@ public class GameControllerScript : MonoBehaviour {
 
     #endregion
 
+    #region On Destroy
+    /// <summary>
+    /// Called when object is destroyd
+    /// </summary>
     private void OnDestroy()
     {
         GemScript.fireSoundEvent -= PlaySound;
+        OnePlayerScript.fireScore -= SetScore;
     }
+
+    #endregion
+
+    #region Set Score
+
+    void SetScore()
+    {
+        // Update Players Score
+        score = player.score * 100;
+        scoreText.text = "Score: " + score;
+    }
+
+    #endregion
+
+    #endregion
+
+
 }

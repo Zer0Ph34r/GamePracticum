@@ -17,7 +17,7 @@ public class MenuButtonScript : MonoBehaviour {
 
     // Set all static events to null
     GemScript.callMethod Selected = null;
-    GemScript.playSound fireSoundEvent = null;
+    GemScript.runNext fireSoundEvent = null;
     GemScript.runNext runNextMethod = null;
     GemScript.check checkGems = null;
 

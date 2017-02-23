@@ -56,6 +56,14 @@ public class OnePlayerScript : NetworkBehaviour
     // Score tracker
     public int score { get; set; }
 
+    #region Events
+
+    // Create event for setting score on gem destruction
+    public delegate void setScore();
+    public static event setScore fireScore;
+
+    #endregion
+
     #endregion
 
     #region Start
@@ -713,6 +721,7 @@ public class OnePlayerScript : NetworkBehaviour
                         (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
                     go.GetComponent<GemScript>().BlowUp();
                     score++;
+                    fireScore();
                 }
             }
         }
@@ -1097,7 +1106,7 @@ public class OnePlayerScript : NetworkBehaviour
 
     #endregion
 
-    #endregion
+    #region On Destroy
 
     private void OnDestroy()
     {
@@ -1105,5 +1114,9 @@ public class OnePlayerScript : NetworkBehaviour
         GemScript.Selected -= lockGems;
         GemScript.checkGems -= CheckGems;
     }
+
+    #endregion
+
+    #endregion
 
 }

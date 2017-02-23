@@ -34,11 +34,10 @@ public class GemScript : MonoBehaviour
     public static event callMethod Selected = null;
 
     // Create delegate and event for playing sounds during the game
-    public delegate void playSound();
-    public static event playSound fireSoundEvent = null;
+    public delegate void runNext();
+    public static event runNext fireSoundEvent = null;
 
     // event for finishing coroutines
-    public delegate void runNext();
     public static event runNext runNextMethod = null;
 
     //Check falling state event
