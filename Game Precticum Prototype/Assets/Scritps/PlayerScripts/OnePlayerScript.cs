@@ -47,7 +47,8 @@ public class OnePlayerScript : NetworkBehaviour
 
     #endregion
 
-    List<GameObject> tempCheck;
+    // bool for checking if the top row has been destroyed in a swap
+    bool topSwapped = false;
 
     // Main Cemera
     Camera mainCamera;
@@ -74,8 +75,6 @@ public class OnePlayerScript : NetworkBehaviour
         gridBackground = Resources.Load<Sprite>("Sprites/GridBacking");
 
         #endregion
-
-        tempCheck = new List<GameObject>();
 
         #region Create Game Board
         // create table
@@ -470,7 +469,7 @@ public class OnePlayerScript : NetworkBehaviour
 
     #region Grid Methods
 
-    #region Resolve Method
+    #region Resolve Grid
     /// <summary>
     /// Creates a new 2D array "Moves" which list all possible chains
     /// then sorts for unique chians and destroys all gems in those chains
@@ -650,6 +649,40 @@ public class OnePlayerScript : NetworkBehaviour
             }
         }
 
+        if (nonDuplicate.Count == 1 &&
+            nonDuplicate[0].GetList.Count == 3)
+        {
+            if (nonDuplicate[0].sameX() &&
+                nonDuplicate[0].returnPiece(2).
+                transform.position.y == tableSize - 1)
+            {
+                topSwapped = true;
+            }
+        }
+        else if (nonDuplicate.Count == 1 && 
+            nonDuplicate[0].GetList.Count == 4)
+        {
+            if (nonDuplicate.Count == 1 &&
+            nonDuplicate[0].sameX() &&
+            nonDuplicate[0].returnPiece(3).
+            transform.position.y == tableSize - 1)
+            {
+                topSwapped = true;
+            }
+        }
+        else if (nonDuplicate.Count == 1 &&
+            nonDuplicate[0].GetList.Count == 5)
+        {
+            if (nonDuplicate.Count == 1 &&
+            nonDuplicate[0].sameX() &&
+            nonDuplicate[0].returnPiece(4).
+            transform.position.y == tableSize - 1)
+            {
+                topSwapped = true;
+            }
+        }
+
+
         return nonDuplicate;
 
         #endregion
@@ -717,16 +750,12 @@ public class OnePlayerScript : NetworkBehaviour
 
             #endregion
 
-            // If swap was on tob of the grid, no gems will fall
             if (boardPos.y == tableSize - 1)
             {
-                ContinueSwap();
+                topSwapped = true;
             }
-            else
-            {
-                // this will be called when swapping the pieces is finished
-                GemScript.runNextMethod += ContinueSwap;
-            }
+
+            GemScript.runNextMethod += ContinueSwap;
 
         }
         else
@@ -872,8 +901,17 @@ public class OnePlayerScript : NetworkBehaviour
             }
         }
 
-        // run FillEmpty script once all gems have fallen
-        GemScript.runNextMethod += FillEmpty;
+        if (topSwapped)
+        {
+            FillEmpty();
+            topSwapped = false;
+        }
+        else
+        {
+            // run FillEmpty script once all gems have fallen
+            GemScript.runNextMethod += FillEmpty;
+        }
+        
     }
 
 
@@ -932,7 +970,6 @@ public class OnePlayerScript : NetworkBehaviour
             // check below this new position
             CheckFalling(x, y - 1);
         }
-        
     }
 
 
