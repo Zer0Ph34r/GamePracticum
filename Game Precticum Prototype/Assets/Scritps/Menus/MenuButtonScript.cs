@@ -57,10 +57,23 @@ public class MenuButtonScript : MonoBehaviour {
         gameObject.SetActive(false);
     }
 
+    /// <summary>
+    /// Disable given game object
+    /// </summary>
     public void Disable()
     {
         audioSource.PlayOneShot(click);
         gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// Set given object active
+    /// </summary>
+    /// <param name="go"></param>
+    public void Enable(GameObject go)
+    {
+        audioSource.PlayOneShot(click);
+        go.SetActive(true);
     }
 
     /// <summary>
