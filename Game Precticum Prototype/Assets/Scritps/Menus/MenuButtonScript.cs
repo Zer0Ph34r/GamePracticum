@@ -30,8 +30,12 @@ public class MenuButtonScript : MonoBehaviour {
         click = Resources.Load<AudioClip>("Sounds/Click");
 
         // Save reference to audio source
-        gameObject.AddComponent<AudioSource>();
-        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            gameObject.AddComponent<AudioSource>();
+            audioSource = GetComponent<AudioSource>();
+        }
+        
 
     }
 

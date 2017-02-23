@@ -41,8 +41,11 @@ public class GameControllerScript : MonoBehaviour {
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<OnePlayerScript>();
 
         // Save reference to audio source
-        gameObject.AddComponent<AudioSource>();
-        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            gameObject.AddComponent<AudioSource>();
+            audioSource = GetComponent<AudioSource>();
+        }
 
         // Save reference ot pause canvas
         pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
@@ -146,7 +149,12 @@ public class GameControllerScript : MonoBehaviour {
                 break;
         }
 
-    } 
+    }
 
     #endregion
+
+    private void OnDestroy()
+    {
+        GemScript.fireSoundEvent -= PlaySound;
+    }
 }
