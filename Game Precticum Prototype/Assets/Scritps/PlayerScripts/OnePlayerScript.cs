@@ -54,7 +54,7 @@ public class OnePlayerScript : NetworkBehaviour
     Camera mainCamera;
 
     // Score tracker
-    public static int score = 0;
+    public int score { get; set; }
 
     #endregion
 
@@ -62,6 +62,9 @@ public class OnePlayerScript : NetworkBehaviour
 
     private void Start()
     {
+        // initialize score
+        score = 0;
+
         #region Load Assets
 
         // Load Gems
@@ -109,6 +112,9 @@ public class OnePlayerScript : NetworkBehaviour
         // add method for when a gem is selected
         GemScript.Selected += lockGems;
 
+        // Add event for checking if gems are falling
+        GemScript.checkGems += CheckGems;
+
         #endregion
 
         #region Set Camera
@@ -142,8 +148,7 @@ public class OnePlayerScript : NetworkBehaviour
 
         #endregion
 
-        // Add event for checking if gems are falling
-        GemScript.checkGems += CheckGems;
+        
     }
 
     #endregion
@@ -1093,4 +1098,12 @@ public class OnePlayerScript : NetworkBehaviour
     #endregion
 
     #endregion
+
+    private void OnDestroy()
+    {
+        // Remove methods from events
+        GemScript.Selected -= lockGems;
+        GemScript.checkGems -= CheckGems;
+    }
+
 }

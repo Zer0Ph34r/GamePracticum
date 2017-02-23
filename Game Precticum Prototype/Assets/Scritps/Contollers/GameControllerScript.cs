@@ -12,6 +12,9 @@ public class GameControllerScript : MonoBehaviour {
     int score = 0;
     Text scoreText;
 
+    // Get reference to player 
+    OnePlayerScript player;
+
     GameObject pauseMenu;
 
     #region Sound Effect Fields
@@ -34,8 +37,13 @@ public class GameControllerScript : MonoBehaviour {
     // Use this for initialization
     void Start () {
 
+        // save instance of player
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<OnePlayerScript>();
+
         // Save reference to audio source
+        gameObject.AddComponent<AudioSource>();
         audioSource = GetComponent<AudioSource>();
+
         // Save reference ot pause canvas
         pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
         pauseMenu.gameObject.SetActive(false);
@@ -110,7 +118,7 @@ public class GameControllerScript : MonoBehaviour {
         }
 
         // Update Players Score
-        score = OnePlayerScript.score * 100;
+        score = player.score * 100;
         scoreText.text = "Score: " + score;
 
     }

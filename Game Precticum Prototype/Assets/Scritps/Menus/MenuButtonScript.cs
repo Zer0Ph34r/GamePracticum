@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class MenuButtonScript : MonoBehaviour {
 
@@ -18,6 +15,12 @@ public class MenuButtonScript : MonoBehaviour {
     AudioClip click;
     AudioSource audioSource;
 
+    // Set all static events to null
+    GemScript.callMethod Selected = null;
+    GemScript.playSound fireSoundEvent = null;
+    GemScript.runNext runNextMethod = null;
+    GemScript.check checkGems = null;
+
     #endregion
 
     #region Button Methods
@@ -25,7 +28,11 @@ public class MenuButtonScript : MonoBehaviour {
     private void Start()
     {
         click = Resources.Load<AudioClip>("Sounds/Click");
+
+        // Save reference to audio source
+        gameObject.AddComponent<AudioSource>();
         audioSource = GetComponent<AudioSource>();
+
     }
 
     /// <summary>

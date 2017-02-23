@@ -31,19 +31,19 @@ public class GemScript : MonoBehaviour
 
     // Create delegate for locking gems
     public delegate void callMethod(GameObject go);
-    public static event callMethod Selected;
+    public static event callMethod Selected = null;
 
     // Create delegate and event for playing sounds during the game
     public delegate void playSound();
-    public static event playSound fireSoundEvent;
+    public static event playSound fireSoundEvent = null;
 
     // event for finishing coroutines
     public delegate void runNext();
-    public static event runNext runNextMethod;
+    public static event runNext runNextMethod = null;
 
     //Check falling state event
     public delegate bool check();
-    public static event check checkGems;
+    public static event check checkGems = null;
 
     #endregion
 
