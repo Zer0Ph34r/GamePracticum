@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class GemScript : MonoBehaviour
 {
-
     #region Fields
 
     // bool for being selected

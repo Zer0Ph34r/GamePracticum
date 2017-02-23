@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.SceneManagement;
+﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class GameControllerScript : MonoBehaviour {
 
@@ -9,6 +7,10 @@ public class GameControllerScript : MonoBehaviour {
 
     // table size int X int
     int tableSize = GlobalVariables.TABLE_SIZE;
+
+    // Score Tracker
+    int score = 0;
+    Text scoreText;
 
     #region Sound Effect Fields
     // Sound Stuff
@@ -75,12 +77,18 @@ public class GameControllerScript : MonoBehaviour {
         // Play Loaded Music
         audioSource.PlayOneShot(BGMusic);
 
+        // Score Display
+        scoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
+        scoreText.text = "Score: " + score;
+
         // add method to event call
         GemScript.fireSoundEvent += PlaySound;
 
     }
 
     #endregion
+
+    #region Update
 
     private void Update()
     {
@@ -90,7 +98,13 @@ public class GameControllerScript : MonoBehaviour {
             Application.Quit();
         }
 
+        // Update Players Score
+        score = OnePlayerScript.score * 100;
+        scoreText.text = "Score: " + score;
+
     }
+
+    #endregion
 
     #region Methods
 

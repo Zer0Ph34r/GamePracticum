@@ -4,7 +4,6 @@ using UnityEngine.Networking;
 
 public class OnePlayerScript : NetworkBehaviour
 {
-
     #region Fields
 
     #region Load Objects
@@ -52,6 +51,9 @@ public class OnePlayerScript : NetworkBehaviour
 
     // Main Cemera
     Camera mainCamera;
+
+    // Score tracker
+    public static int score = 0;
 
     #endregion
 
@@ -622,6 +624,7 @@ public class OnePlayerScript : NetworkBehaviour
                     gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
                         (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
                     go.GetComponent<GemScript>().BlowUp();
+                    score++;
                 }
             }
         }
@@ -860,7 +863,9 @@ public class OnePlayerScript : NetworkBehaviour
             // check below this new position
             CheckFalling(x, y - 1);
         }
+        
     }
+
 
     #endregion
 
