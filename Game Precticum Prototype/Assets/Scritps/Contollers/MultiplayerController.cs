@@ -62,9 +62,9 @@ public class MultiplayerController : MonoBehaviour {
 
         // Score Display
         player1ScoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
-        player1ScoreText.text = "Score: " + player1Score;
+        player1ScoreText.text = "Player 1: " + player1Score;
         player2ScoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
-        player2ScoreText.text = "Score: " + player2Score;
+        player2ScoreText.text = "Player 2: " + player2Score;
 
         #endregion
 
@@ -157,14 +157,16 @@ public class MultiplayerController : MonoBehaviour {
     #endregion
 
     #region Set Score
-
+    /// <summary>
+    /// Updates current score values
+    /// </summary>
     void SetScore()
     {
         // Update Players Score
         player1Score = player1.score * 100;
-        player1ScoreText.text = "Score: " + player1Score;
+        player1ScoreText.text = "Player 1: " + player1Score;
         player2Score = player2.score * 100;
-        player2ScoreText.text = "Score: " + player2Score;
+        player2ScoreText.text = "Player 2: " + player2Score;
     }
 
     #endregion
