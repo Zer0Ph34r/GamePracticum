@@ -123,6 +123,7 @@ public class MultiplayerController : MonoBehaviour {
         NetworkPlayerScript.fireScore += SetScore;
 
         #endregion
+
     }
 
     #endregion
@@ -152,18 +153,6 @@ public class MultiplayerController : MonoBehaviour {
                 break;
         }
 
-    }
-
-    #endregion
-
-    #region On Destroy
-    /// <summary>
-    /// Called when object is destroyd
-    /// </summary>
-    private void OnDestroy()
-    {
-        GemScript.fireSoundEvent -= PlaySound;
-        NetworkPlayerScript.fireScore -= SetScore;
     }
 
     #endregion
@@ -221,6 +210,18 @@ public class MultiplayerController : MonoBehaviour {
             UI.gameObject.SetActive(true);
             networkHUD.showGUI = false;
         }
+    }
+
+    #endregion
+
+    #region On Destroy
+    /// <summary>
+    /// Called when object is destroyd
+    /// </summary>
+    private void OnDestroy()
+    {
+        GemScript.fireSoundEvent -= PlaySound;
+        NetworkPlayerScript.fireScore -= SetScore;
     }
 
     #endregion

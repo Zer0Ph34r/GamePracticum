@@ -11,6 +11,7 @@ public class GameControllerScript : MonoBehaviour {
     // Score Tracker
     int score = 0;
     Text scoreText;
+    Text turnText;
 
     // Get reference to player 
     OnePlayerScript player;
@@ -46,7 +47,6 @@ public class GameControllerScript : MonoBehaviour {
         // save instance of player
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<OnePlayerScript>();
 
-
         // Save reference to audio source
         gameObject.AddComponent<AudioSource>();
         audioSource = GetComponent<AudioSource>();
@@ -66,7 +66,9 @@ public class GameControllerScript : MonoBehaviour {
 
         // Score Display
         scoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
+        turnText = GameObject.FindGameObjectWithTag("Text2").GetComponent<Text>();
         scoreText.text = "Score: " + score;
+        turnText.text = "Turns Left: " + player.GetComponent<OnePlayerScript>().turns;
 
         #endregion
 
@@ -147,25 +149,12 @@ public class GameControllerScript : MonoBehaviour {
 
     #endregion
 
-    #region On Destroy
-    /// <summary>
-    /// Called when object is destroyd
-    /// </summary>
-    private void OnDestroy()
-    {
-        GemScript.fireSoundEvent -= PlaySound;
-        OnePlayerScript.fireScore -= SetScore;
-        OnePlayerScript.endGame -= GameOver;
-    }
-
-    #endregion
-
     #region Set Score
 
     void SetScore()
     {
         // Update Players Score
-        score = player.score * 100;
+        score = player.score * 10;
         scoreText.text = "Score: " + score;
     }
 
@@ -177,9 +166,26 @@ public class GameControllerScript : MonoBehaviour {
     /// </summary>
     public void GameOver()
     {
-        player.gameObject.SetActive(false);
-        endScreen.SetActive(true);
+        // turn off all objects other than the ending canvas
         UI.SetActive(false);
+        endScreen.SetActive(true);
+        // Set endign score values
+        endScreen.GetComponent<EndingScript>().setEnd(score);
+    }
+
+    #endregion
+
+    #region On Destroy
+    /// <summary>
+    /// Called when object is destroyd
+    /// </summary>
+    private void OnDestroy()
+    {
+        // remove all events from delegates
+        GemScript.fireSoundEvent -= PlaySound;
+        OnePlayerScript.fireScore -= SetScore;
+        OnePlayerScript.endGame -= GameOver;
+
     }
 
     #endregion

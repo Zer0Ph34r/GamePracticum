@@ -6,6 +6,7 @@ public class GlobalVariables {
     public static int TABLE_SIZE = 10;
     public static float MOVE_SPEED = 0.4f;
     public static int TURNS = 3;
+    public static int HIGHSCORE = 0;
 
     #endregion
 }
