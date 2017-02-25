@@ -78,7 +78,7 @@ public class OnePlayerScript : NetworkBehaviour
     {
         // initialize score
         score = 0;
-        turns = GlobalVariables.HIGHSCORE;
+        turns = GlobalVariables.TURNS;
 
         #region Load Assets
 

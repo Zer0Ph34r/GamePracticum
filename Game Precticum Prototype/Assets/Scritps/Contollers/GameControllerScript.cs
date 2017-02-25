@@ -153,9 +153,10 @@ public class GameControllerScript : MonoBehaviour {
 
     void SetScore()
     {
-        // Update Players Score
+        // Update Players Score and turn count
         score = player.score * 10;
         scoreText.text = "Score: " + score;
+        turnText.text = "Turns Left: " + player.GetComponent<OnePlayerScript>().turns;
     }
 
     #endregion
