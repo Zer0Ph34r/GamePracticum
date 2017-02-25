@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -31,7 +30,8 @@ public class NetworkPlayerScript : NetworkBehaviour
     int tableSize = GlobalVariables.TABLE_SIZE;
 
     // 2D array of table contents
-    public GameObject[,] gems;
+    GameObject[,] gems;
+    GameObject[,] rotation;
     GameObject[] playerHand;
 
     // save object positions for swapping
@@ -48,10 +48,28 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
-    List<GameObject> tempCheck;
+    // bool for checking if the top row has been destroyed in a swap
+    bool topSwapped = false;
 
     // Main Cemera
     Camera mainCamera;
+
+    // Score tracker
+    public int score { get; set; }
+
+    //Bool for tracking turn, player cannot make move when it's not their turn
+    public bool currTurn { get; set; }
+
+    // Reference to multiplayer manager
+    MultiplayerController manager;
+
+    #region Events
+
+    // Create event for setting score on gem destruction
+    public delegate void setScore();
+    public static event setScore fireScore;
+
+    #endregion
 
     #endregion
 
@@ -59,6 +77,17 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     private void Start()
     {
+        // initialize score
+        score = 0;
+
+        // set currTurn
+        currTurn = true;
+
+        // get reference to multiplayer manager
+        manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<MultiplayerController>();
+        // Set reference in multiplayer manager to this object
+        manager.SetPlayers(gameObject);
+
         #region Load Assets
 
         // Load Gems
@@ -73,11 +102,10 @@ public class NetworkPlayerScript : NetworkBehaviour
 
         #endregion
 
-        tempCheck = new List<GameObject>();
-
         #region Create Game Board
         // create table
         gems = new GameObject[tableSize, tableSize];
+        rotation = new GameObject[tableSize, tableSize];
         // fill table and create game board
         CreateGameBoard();
 
@@ -107,6 +135,8 @@ public class NetworkPlayerScript : NetworkBehaviour
         // add method for when a gem is selected
         GemScript.Selected += lockGems;
 
+        // Add event for checking if gems are falling
+        GemScript.checkGems += CheckGems;
 
         #endregion
 
@@ -130,7 +160,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         GameObject bg = new GameObject();
         bg.transform.SetParent(transform);
         bg.AddComponent<SpriteRenderer>().sprite = background;
-        bg.transform.position = new Vector3(tableSize / 2 + transform.position.x, tableSize / 2, -10);
+        bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -40);
 
         #endregion
 
@@ -138,13 +168,48 @@ public class NetworkPlayerScript : NetworkBehaviour
         // Prevent start board from having chains
         // Make sure the board starts without any chains in it
         ResolveOnStart();
-        
+
         #endregion
+
     }
 
     #endregion
 
     #region Methods
+
+    #region Check Gems
+
+    /// <summary>
+    /// Checks all gems to see how many are currently falling
+    /// returns true if one or fewer are falling
+    /// </summary>
+    /// <returns></returns>
+    bool CheckGems()
+    {
+        // set falling to 0
+        int falling = 0;
+        foreach (GameObject gem in gems)
+        {
+            // Add 1 if a gem cannot be selected, which means it is falling
+            if (gem != null &&
+                !gem.GetComponent<GemScript>().canSelect)
+            {
+                falling++;
+            }
+        }
+        if (falling > 0)
+        {
+            // If all gems are in their place
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+
+    }
+
+    #endregion
 
     #region Instantiation Methods
 
@@ -164,7 +229,7 @@ public class NetworkPlayerScript : NetworkBehaviour
                 go.transform.SetParent(transform);
                 go.AddComponent<SpriteRenderer>();
                 go.GetComponent<SpriteRenderer>().sprite = gridBackground;
-                go.transform.position = new Vector3(i + transform.position.x, k, -0.5f);
+                go.transform.position = new Vector3(i, k, -0.5f);
             }
         }
     }
@@ -199,11 +264,11 @@ public class NetworkPlayerScript : NetworkBehaviour
     void FillBoardPiece(int x, int y)
     {
         // create new piece at array position plus parent transform
-        
         GameObject go = Instantiate(RandomizeObject(),
             new Vector3((int)transform.localPosition.x + x,
             (int)transform.localPosition.y + y,
             0), Quaternion.identity, transform);
+        // set handpiece to new game object for checking 
         handPiece = go;
         go.GetComponent<GemScript>().isHand = false;
         gems[x, y] = go;
@@ -260,8 +325,6 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
-    #region Events
-
     #region Lock Gems
 
     /// <summary>
@@ -272,8 +335,16 @@ public class NetworkPlayerScript : NetworkBehaviour
         GemScript gs = go.GetComponent<GemScript>();
         if (gs.isHand)
         {
-            // set handPiece to go
-            handPiece = go;
+            if (go.GetComponent<GemScript>().isSelected)
+            {
+                // set handPiece to go
+                handPiece = go;
+            }
+            else
+            {
+                handPiece = null;
+            }
+
             // lock each peice
             foreach (GameObject gem in playerHand)
             {
@@ -288,8 +359,16 @@ public class NetworkPlayerScript : NetworkBehaviour
         }
         else
         {
-            // set board piece to go
-            boardPiece = go;
+            if (go.GetComponent<GemScript>().isSelected)
+            {
+                // set handPiece to go
+                boardPiece = go;
+            }
+            else
+            {
+                boardPiece = null;
+            }
+
             // lock each peice
             foreach (GameObject gem in gems)
             {
@@ -303,13 +382,13 @@ public class NetworkPlayerScript : NetworkBehaviour
             gridLocked = true;
         }
         // check if both grid and hand are locked
-        if (handLocked && gridLocked)
+        if (boardPiece != null &&
+            handPiece != null &&
+            handLocked && gridLocked)
         {
             SwapPieces();
         }
     }
-
-    #endregion
 
     #endregion
 
@@ -329,7 +408,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         if (chains.Count > 0)
         {
             // Remove all gems that form chains of 3 or more 
-            DeleteChains(chains);
+            DeleteOnStart(chains);
 
             // Fill all holes in grid
             RefillOnStart();
@@ -369,13 +448,13 @@ public class NetworkPlayerScript : NetworkBehaviour
     void RefillOnStart()
     {
         // First, drop all the gems as low as they can go
-        for (int i = 0; i < tableSize; i++)
-        {
-            for (int k = 1; k < tableSize; k++)
-            {
-                CheckEmptyStart(i, k);
-            }
-        }
+        //for (int i = 0; i < tableSize; i++)
+        //{
+        //    for (int k = 1; k < tableSize; k++)
+        //    {
+        //        CheckEmptyStart(i, k);
+        //    }
+        //}
 
         // Now fill empty spaces with new gems
         for (int j = 0; j < tableSize; j++)
@@ -394,11 +473,30 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     }
 
+    // deletes all gems in every chain
+    void DeleteOnStart(List<MoveScript> list)
+    {
+        // Iterate through each unique solution and delete all gems contained within
+        foreach (MoveScript move in list)
+        {
+            foreach (GameObject go in move.GetList)
+            {
+                // Check for null objects
+                if (go)
+                {
+                    gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
+                        (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
+                    Destroy(go);
+                }
+            }
+        }
+    }
+
     #endregion
 
     #region Grid Methods
 
-    #region Resolve Method
+    #region Resolve Grid
     /// <summary>
     /// Creates a new 2D array "Moves" which list all possible chains
     /// then sorts for unique chians and destroys all gems in those chains
@@ -421,30 +519,12 @@ public class NetworkPlayerScript : NetworkBehaviour
 
             // Fill all holes in grid
             RefillGrid();
-
-            // check for any chains made after grid has fallen and been refilled
-            GemScript.runNextMethod += ResolveGrid;
         }
-        GemScript.runNextMethod -= ResolveGrid;
     }
 
-    
-    //NOTE: Not Used Anymore
-    ///// <summary>
-    ///// Resolves board with given list of chains
-    ///// </summary>
-    ///// <param name="list"></param>
-    //void ResolveGrid(List<MoveScript> list)
-    //{
-    //    // Remove all gems that form chains of 3 or more 
-    //    DeleteChains(list);
-
-    //    // Fill all holes in grid
-    //    RefillGrid();
-    //}
     #endregion
 
-    #region CheckGrid
+    #region Check Grid
 
     /// <summary>
     /// Finds all possible Chains in grid and returns a list of all unique chains
@@ -466,11 +546,9 @@ public class NetworkPlayerScript : NetworkBehaviour
 
         #region Find all possible solutions
 
-        // movesGrid is an empty 2D array of size [tablesize, tablesize]
-        //MoveScript[,] movesGrid = new MoveScript[tableSize, tableSize];
+        // moves is a list of all valid moves (move is a chain of two or more)
         List<MoveScript> moves = new List<MoveScript>();
-        // This loop will look through the whole 
-        // table and find all possible matches
+
         #region Old Code
         ////  - Loop through each row
         //for (int i = 0; i < tableSize; ++i)
@@ -534,6 +612,8 @@ public class NetworkPlayerScript : NetworkBehaviour
         #endregion
 
         #region Two Nested loops for finding all straight Chains
+        // This loop will look through the whole 
+        // table and find all possible matches
         // check Columns
         int moveCount = -1;
         for (int i = 0; i < tableSize; ++i)
@@ -574,6 +654,7 @@ public class NetworkPlayerScript : NetworkBehaviour
 
 
         #endregion
+
         #endregion
 
         #region Prevent Duplicate "Moves"
@@ -594,6 +675,40 @@ public class NetworkPlayerScript : NetworkBehaviour
                 }
             }
         }
+
+        if (nonDuplicate.Count == 1 &&
+            nonDuplicate[0].GetList.Count == 3)
+        {
+            if (nonDuplicate[0].sameX() &&
+                nonDuplicate[0].returnPiece(2).
+                transform.position.y == tableSize - 1)
+            {
+                topSwapped = true;
+            }
+        }
+        else if (nonDuplicate.Count == 1 &&
+            nonDuplicate[0].GetList.Count == 4)
+        {
+            if (nonDuplicate.Count == 1 &&
+            nonDuplicate[0].sameX() &&
+            nonDuplicate[0].returnPiece(3).
+            transform.position.y == tableSize - 1)
+            {
+                topSwapped = true;
+            }
+        }
+        else if (nonDuplicate.Count == 1 &&
+            nonDuplicate[0].GetList.Count == 5)
+        {
+            if (nonDuplicate.Count == 1 &&
+            nonDuplicate[0].sameX() &&
+            nonDuplicate[0].returnPiece(4).
+            transform.position.y == tableSize - 1)
+            {
+                topSwapped = true;
+            }
+        }
+
 
         return nonDuplicate;
 
@@ -619,6 +734,8 @@ public class NetworkPlayerScript : NetworkBehaviour
                     gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
                         (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
                     go.GetComponent<GemScript>().BlowUp();
+                    score++;
+                    fireScore();
                 }
             }
         }
@@ -637,28 +754,42 @@ public class NetworkPlayerScript : NetworkBehaviour
         boardPos = boardPiece.transform.localPosition;
 
         // check if it's a valid swap
-        if (CheckValidSwap((int)boardPos.x, (int)boardPos.y))
+        if (currTurn &&
+            CheckValidSwap((int)boardPos.x, (int)boardPos.y))
         {
             #region Move Board Piece
-            // Move board piece to hand position
-            boardPiece.GetComponent<GemScript>().RunSwap(handPos);
+
             // Add board piece to player hand
-            playerHand[((int)handPos.x)] = boardPiece;
+            playerHand[(int)handPos.x] = boardPiece;
             // Turn board piece into hand piece
             boardPiece.GetComponent<GemScript>().isHand = true;
+            // Move board piece to hand position
+            boardPiece.GetComponent<GemScript>().RunSwap(handPos);
+
             #endregion
 
             #region Move Hand Piece
-            // set new positions to hand Piece
-            handPiece.GetComponent<GemScript>().RunSwap(boardPos);
-            // set handPiece into gem array
-            gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
+
             // make handPiece a board piece
             handPiece.GetComponent<GemScript>().isHand = false;
+            // set handPiece into gem array
+            gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
+            // set new positions to hand Piece
+            handPiece.GetComponent<GemScript>().RunSwap(boardPos);
+
             #endregion
 
-            // this will be called when swapping the pieces is finished
+            if (boardPos.y == tableSize - 1)
+            {
+                topSwapped = true;
+            }
+
             GemScript.runNextMethod += ContinueSwap;
+
+            // set other player turn to true
+            manager.SetTurn();
+            // Player has made their turn, cannot move until other player moves
+            currTurn = false;
 
         }
         else
@@ -742,9 +873,9 @@ public class NetworkPlayerScript : NetworkBehaviour
         }
         // Check for Middle gem swap validity up and down
         if (y + 1 < tableSize &&
-            y -1 >= 0)
+            y - 1 >= 0)
         {
-            if(gems[x, y + 1] != null &&
+            if (gems[x, y + 1] != null &&
                 gems[x, y - 1] != null &&
                 handPiece.CompareTag(gems[x, y + 1].tag) &&
                 handPiece.CompareTag(gems[x, y - 1].tag))
@@ -785,14 +916,16 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
-    #region Move and Refill Board
+    #region Refill Grid
     /// <summary>
     /// Has pieces "fall" into place, then creates new gems above the holes to 
     /// fill in grid completely
     /// </summary>
     void RefillGrid()
     {
-        
+        // remove called event
+        GemScript.runNextMethod -= RefillGrid;
+
         // First, drop all the gems as low as they can go
         for (int i = 0; i < tableSize; i++)
         {
@@ -802,11 +935,23 @@ public class NetworkPlayerScript : NetworkBehaviour
             }
         }
 
-        // run FillEmpty script once all gems have fallen
-        GemScript.runNextMethod += FillEmpty;
+        if (topSwapped)
+        {
+            FillEmpty();
+            topSwapped = false;
+        }
+        else
+        {
+            // run FillEmpty script once all gems have fallen
+            GemScript.runNextMethod += FillEmpty;
+        }
 
     }
 
+
+    #endregion
+
+    #region Fill Empty
     /// <summary>
     /// Fills all empty grid cells
     /// </summary>
@@ -814,25 +959,28 @@ public class NetworkPlayerScript : NetworkBehaviour
     {
         // remove Fill Empty Event registration
         GemScript.runNextMethod -= FillEmpty;
+
         // Now fill empty spaces with new gems
-        for (int j = 0; j < tableSize; j++)
+        for (int i = 0; i < tableSize; i++)
         {
-            for (int l = 0; l < tableSize; ++l)
+            for (int k = 0; k < tableSize; ++k)
             {
-                if (gems[j, l] == null)
+                if (gems[i, k] == null)
                 {
-                    FillBoardPiece(j, l);
+                    FillBoardPiece(i, k);
                 }
             }
         }
 
         // reset game for next round
         ResetBoard();
-    }
 
+        // check for any more gems to delete
+        ResolveGrid();
+    }
     #endregion
 
-    #region CheckFalling
+    #region Check Falling
 
     // Checks if there is a gem beneath this one and moves it
     // if there isn't one
@@ -843,16 +991,21 @@ public class NetworkPlayerScript : NetworkBehaviour
             gems[x, y] != null &&
             gems[x, y - 1] == null)
         {
+
             // tell gem to move and where to move to
-            gems[x,y].GetComponent<GemScript>().RunSwap(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
+            gems[x, y].GetComponent<GemScript>().RunFall(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
+
             // set gem to new grid position
-            gems[x, y - 1] = gems[x, y]; 
+            gems[x, y - 1] = gems[x, y];
+
             // set old position to null
             gems[x, y] = null;
+
             // check below this new position
             CheckFalling(x, y - 1);
-        }        
+        }
     }
+
 
     #endregion
 
@@ -881,6 +1034,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         // reset locked status
         gridLocked = false;
         handLocked = false;
+
     }
 
     #endregion
@@ -892,80 +1046,97 @@ public class NetworkPlayerScript : NetworkBehaviour
     /// </summary>
     public void RotateRight()
     {
-        // Rotate peices using a simple temp object to not lose any gems
-        for (int x = 0; x < tableSize / 2; x++)
+        if (CheckGems())
         {
-            // Consider elements in group of 4 in 
-            // current square
-            for (int y = x; y < tableSize - x - 1; y++)
+            // Rotate peices using a simple temp object to not lose any gems
+            for (int x = 0; x < tableSize / 2; x++)
             {
-                // store current cell in temp variable
-                GameObject temp = gems[x, y];
+                // Consider elements in group of 4 in 
+                // current square
+                for (int y = x; y < tableSize - x - 1; y++)
+                {
+                    // store current cell in temp variable
+                    GameObject temp = gems[x, y];
 
-                // move values from right to top
-                gems[x, y] = gems[y, tableSize - 1 - x];
+                    // move values from right to top
+                    gems[x, y] = gems[y, tableSize - 1 - x];
 
-                // move values from bottom to right
-                gems[y, tableSize - 1 - x] = gems[tableSize - 1 - x, tableSize - 1 - y];
+                    // move values from bottom to right
+                    gems[y, tableSize - 1 - x] = gems[tableSize - 1 - x, tableSize - 1 - y];
 
-                // move values from left to bottom
-                gems[tableSize - 1 - x, tableSize - 1 - y] = gems[tableSize - 1 - y, x];
+                    // move values from left to bottom
+                    gems[tableSize - 1 - x, tableSize - 1 - y] = gems[tableSize - 1 - y, x];
 
-                // assign temp to left
-                gems[tableSize - 1 - y, x] = temp;
+                    // assign temp to left
+                    gems[tableSize - 1 - y, x] = temp;
+                }
             }
-        }
 
-        //Now that we have our array rotated we need to move all gems to reflect their new rotation
-        for (int i = 0; i < tableSize; ++i)
-        {
-            for (int k = 0; k < tableSize; ++k)
+            //Now that we have our array rotated we need to move all gems to reflect their new rotation
+            for (int i = 0; i < tableSize; ++i)
             {
-                gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                for (int k = 0; k < tableSize; ++k)
+                {
+                    gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                }
             }
         }
     }
 
     public void RotateLeft()
     {
-        // Rotate peices using a simple temp object to not lose any gems
-        for (int x = 0; x < tableSize / 2; x++)
+        if (CheckGems())
         {
-            // Consider elements in group of 4 in 
-            // current square
-            for (int y = x; y < tableSize - x - 1; y++)
+            // Rotate peices using a simple temp object to not lose any gems
+            for (int x = 0; x < tableSize / 2; x++)
             {
-                // store current cell in temp variable
-                GameObject temp = gems[x, y];
+                // Consider elements in group of 4 in 
+                // current square
+                for (int y = x; y < tableSize - x - 1; y++)
+                {
+                    // store current cell in temp variable
+                    GameObject temp = gems[x, y];
 
-                // move values from right to top
-                gems[x, y] = gems[tableSize - 1 - y, x];
+                    // move values from right to top
+                    gems[x, y] = gems[tableSize - 1 - y, x];
 
-                // move values from bottom to right
-                gems[tableSize - 1 - y, x] = gems[tableSize - 1 - x, tableSize - 1 - y];
+                    // move values from bottom to right
+                    gems[tableSize - 1 - y, x] = gems[tableSize - 1 - x, tableSize - 1 - y];
 
-                // move values from left to bottom
-                gems[tableSize - 1 - x, tableSize - 1 - y] = gems[y, tableSize - 1 - x];
+                    // move values from left to bottom
+                    gems[tableSize - 1 - x, tableSize - 1 - y] = gems[y, tableSize - 1 - x];
 
-                // assign temp to left
-                gems[y, tableSize - 1 - x] = temp;
+                    // assign temp to left
+                    gems[y, tableSize - 1 - x] = temp;
+                }
             }
-        }
 
-        //Now that we have our array rotated we need to move all gems to reflect their new rotation
-        for (int i = 0; i < tableSize; ++i)
-        {
-            for (int k = 0; k < tableSize; ++k)
+            //Now that we have our array rotated we need to move all gems to reflect their new rotation
+            for (int i = 0; i < tableSize; ++i)
             {
-                gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                for (int k = 0; k < tableSize; ++k)
+                {
+                    gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                }
             }
         }
     }
 
     #endregion
 
+    #endregion
+
+    #region On Destroy
+
+    private void OnDestroy()
+    {
+        // Remove methods from events
+        GemScript.Selected -= lockGems;
+        GemScript.checkGems -= CheckGems;
+    }
 
     #endregion
 
     #endregion
+
 }

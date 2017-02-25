@@ -4,6 +4,7 @@ using UnityEngine.Networking;
 
 public class OnePlayerScript : NetworkBehaviour
 {
+
     #region Fields
 
     #region Load Objects
@@ -155,8 +156,7 @@ public class OnePlayerScript : NetworkBehaviour
         ResolveOnStart();
 
         #endregion
-
-        
+                
     }
 
     #endregion

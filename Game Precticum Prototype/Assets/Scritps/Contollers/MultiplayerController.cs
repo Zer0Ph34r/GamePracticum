@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class GameControllerScript : MonoBehaviour {
+public class MultiplayerController : MonoBehaviour {
 
     #region Fields
 
@@ -9,11 +9,14 @@ public class GameControllerScript : MonoBehaviour {
     int tableSize = GlobalVariables.TABLE_SIZE;
 
     // Score Tracker
-    int score = 0;
-    Text scoreText;
+    int player1Score = 0;
+    Text player1ScoreText;
+    int player2Score = 0;
+    Text player2ScoreText;
 
     // Get reference to player 
-    OnePlayerScript player;
+    NetworkPlayerScript player1;
+    NetworkPlayerScript player2;
 
     GameObject pauseMenu;
 
@@ -35,12 +38,10 @@ public class GameControllerScript : MonoBehaviour {
     #region Start Method
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
 
         #region Get / Save Objects
-
-        // save instance of player
-        player = GameObject.FindGameObjectWithTag("Player").GetComponent<OnePlayerScript>();
 
         // Save reference to audio source
         if (audioSource == null)
@@ -60,8 +61,10 @@ public class GameControllerScript : MonoBehaviour {
         break4 = Resources.Load<AudioClip>("Sounds/Break4");
 
         // Score Display
-        scoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
-        scoreText.text = "Score: " + score;
+        player1ScoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
+        player1ScoreText.text = "Score: " + player1Score;
+        player2ScoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
+        player2ScoreText.text = "Score: " + player2Score;
 
         #endregion
 
@@ -158,12 +161,49 @@ public class GameControllerScript : MonoBehaviour {
     void SetScore()
     {
         // Update Players Score
-        score = player.score * 100;
-        scoreText.text = "Score: " + score;
+        player1Score = player1.score * 100;
+        player1ScoreText.text = "Score: " + player1Score;
+        player2Score = player2.score * 100;
+        player2ScoreText.text = "Score: " + player2Score;
+    }
+
+    #endregion
+
+    #region Set Turn
+
+    public void SetTurn()
+    {
+        if (!player1.currTurn)
+        {
+            player1.currTurn = true;
+        }
+        if (!player2.currTurn)
+        {
+            player2.currTurn = true;
+        }
+    }
+
+    #endregion
+
+    #region Set Players
+    /// <summary>
+    /// Set player script references
+    /// </summary>
+    /// <param name="player"></param>
+    public void SetPlayers(GameObject player)
+    {
+        // check if player 1 is null
+        if (player1 == null)
+        {
+            player1 = player.GetComponent<NetworkPlayerScript>();
+        }
+        else
+        {
+            player2 = player.GetComponent<NetworkPlayerScript>();
+        }
     }
 
     #endregion
 
     #endregion
-
 }
