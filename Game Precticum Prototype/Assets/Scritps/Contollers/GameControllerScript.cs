@@ -15,7 +15,10 @@ public class GameControllerScript : MonoBehaviour {
     // Get reference to player 
     OnePlayerScript player;
 
+    // objects to start as inactive
+    GameObject UI;
     GameObject pauseMenu;
+    GameObject endScreen;
 
     #region Sound Effect Fields
     // Sound Stuff
@@ -35,23 +38,25 @@ public class GameControllerScript : MonoBehaviour {
     #region Start Method
 
     // Use this for initialization
-    void Start () {
+    void Start()
+    {
 
         #region Get / Save Objects
 
         // save instance of player
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<OnePlayerScript>();
 
-        // Save reference to audio source
-        if (audioSource == null)
-        {
-            gameObject.AddComponent<AudioSource>();
-            audioSource = GetComponent<AudioSource>();
-        }
 
-        // Save reference ot pause canvas
+        // Save reference to audio source
+        gameObject.AddComponent<AudioSource>();
+        audioSource = GetComponent<AudioSource>();
+
+        // Save reference to canvas'
+        UI = GameObject.FindGameObjectWithTag("UI");
         pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
         pauseMenu.gameObject.SetActive(false);
+        endScreen = GameObject.FindGameObjectWithTag("EndScreen");
+        endScreen.gameObject.SetActive(false);
 
         // Load in sound effects
         break1 = Resources.Load<AudioClip>("Sounds/Break1");
@@ -106,6 +111,7 @@ public class GameControllerScript : MonoBehaviour {
         // add method to event call
         GemScript.fireSoundEvent += PlaySound;
         OnePlayerScript.fireScore += SetScore;
+        OnePlayerScript.endGame += GameOver;
 
         #endregion
     }
@@ -149,6 +155,7 @@ public class GameControllerScript : MonoBehaviour {
     {
         GemScript.fireSoundEvent -= PlaySound;
         OnePlayerScript.fireScore -= SetScore;
+        OnePlayerScript.endGame -= GameOver;
     }
 
     #endregion
@@ -160,6 +167,19 @@ public class GameControllerScript : MonoBehaviour {
         // Update Players Score
         score = player.score * 100;
         scoreText.text = "Score: " + score;
+    }
+
+    #endregion
+
+    #region GameOver
+    /// <summary>
+    /// Sets game to game over state showing final score and end game options
+    /// </summary>
+    public void GameOver()
+    {
+        player.gameObject.SetActive(false);
+        endScreen.SetActive(true);
+        UI.SetActive(false);
     }
 
     #endregion

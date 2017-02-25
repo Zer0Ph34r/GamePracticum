@@ -57,11 +57,15 @@ public class OnePlayerScript : NetworkBehaviour
     // Score tracker
     public int score { get; set; }
 
+    // Current number of turns
+    int turns = GlobalVariables.TURNS;
+
     #region Events
 
     // Create event for setting score on gem destruction
     public delegate void setScore();
     public static event setScore fireScore;
+    public static event setScore endGame;
 
     #endregion
 
@@ -506,6 +510,11 @@ public class OnePlayerScript : NetworkBehaviour
             // Fill all holes in grid
             RefillGrid();
         }
+        //Check if game is over when game board is done reseting
+        if (turns == 0)
+        {
+            endGame();
+        }
     }
 
     #endregion
@@ -770,6 +779,9 @@ public class OnePlayerScript : NetworkBehaviour
             }
 
             GemScript.runNextMethod += ContinueSwap;
+
+            // deduct turn count
+            turns--;
 
         }
         else
