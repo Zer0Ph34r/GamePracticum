@@ -62,7 +62,7 @@ public class CameraSwapButtonScript : MonoBehaviour {
     {
         // set camera's position according to given object and table size
         mainCamera.transform.localPosition = new Vector3(tableSize / 2 + go.transform.position.x,
-            tableSize * (7 / 8f) + go.transform.position.y,
-            tableSize * 2);
+            tableSize * (6 / 8f) + go.transform.position.y,
+            tableSize * 1.5f);
     }
 }

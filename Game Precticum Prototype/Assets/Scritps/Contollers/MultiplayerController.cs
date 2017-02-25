@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 public class MultiplayerController : MonoBehaviour {
 
@@ -14,10 +15,18 @@ public class MultiplayerController : MonoBehaviour {
     int player2Score = 0;
     Text player2ScoreText;
 
+    // Reference to UI
+    [SerializeField]
+    Canvas UI;
+    [SerializeField]
+    GameObject networkManager;
+    NetworkManagerHUD networkHUD;
+
     // Get reference to player 
     NetworkPlayerScript player1;
     NetworkPlayerScript player2;
 
+    // reference to pause menu
     GameObject pauseMenu;
 
     #region Sound Effect Fields
@@ -66,6 +75,9 @@ public class MultiplayerController : MonoBehaviour {
         player2ScoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
         player2ScoreText.text = "Player 2: " + player2Score;
 
+        UI.gameObject.SetActive(false);
+        networkHUD = networkManager.GetComponent<NetworkManagerHUD>();
+
         #endregion
 
         #region Load BGM
@@ -108,7 +120,7 @@ public class MultiplayerController : MonoBehaviour {
 
         // add method to event call
         GemScript.fireSoundEvent += PlaySound;
-        OnePlayerScript.fireScore += SetScore;
+        NetworkPlayerScript.fireScore += SetScore;
 
         #endregion
     }
@@ -151,7 +163,7 @@ public class MultiplayerController : MonoBehaviour {
     private void OnDestroy()
     {
         GemScript.fireSoundEvent -= PlaySound;
-        OnePlayerScript.fireScore -= SetScore;
+        NetworkPlayerScript.fireScore -= SetScore;
     }
 
     #endregion
@@ -202,10 +214,17 @@ public class MultiplayerController : MonoBehaviour {
         else
         {
             player2 = player.GetComponent<NetworkPlayerScript>();
+            player.GetComponent<NetworkPlayerScript>().currTurn = false;
+        }
+        if (!UI.isActiveAndEnabled)
+        {
+            UI.gameObject.SetActive(true);
+            networkHUD.showGUI = false;
         }
     }
 
     #endregion
 
     #endregion
+
 }

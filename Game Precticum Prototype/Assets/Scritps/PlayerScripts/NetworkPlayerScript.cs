@@ -160,7 +160,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         GameObject bg = new GameObject();
         bg.transform.SetParent(transform);
         bg.AddComponent<SpriteRenderer>().sprite = background;
-        bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -40);
+        bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -15);
 
         #endregion
 
