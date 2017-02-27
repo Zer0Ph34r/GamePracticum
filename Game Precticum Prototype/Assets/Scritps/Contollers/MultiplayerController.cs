@@ -241,8 +241,16 @@ public class MultiplayerController : NetworkBehaviour
         // turn off all objects other than the ending canvas
         UI.gameObject.SetActive(false);
         endScreen.SetActive(true);
-        // Set ending score values
-        endScreen.GetComponent<EndingScript>().setEnd(player1Score);
+        // Check who is the winner
+        if (player1Score > player2Score)
+        {
+            endScreen.GetComponent<EndingScript>().SetMultiplayerEnd(player2Score, true);
+        }
+        else if (player2Score > player1Score)
+        {
+            endScreen.GetComponent<EndingScript>().SetMultiplayerEnd(player2Score, false);
+        }
+        
     }
 
     #endregion

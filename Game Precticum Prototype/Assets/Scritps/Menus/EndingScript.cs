@@ -38,5 +38,24 @@ public class EndingScript : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Set winning players score display and winner text
+    /// </summary>
+    /// <param name="score"></param>
+    /// <param name="winner"></param>
+    public void SetMultiplayerEnd(int score, bool winner)
+    {
+        finalScore.text = "Winners Score: " + score * 10;
+        if (winner)
+        {
+            highScoreText.text = "Player 1 Wins!";
+        }
+        else
+        {
+            highScoreText.text = "Player 2 Wins";
+        }
+        
+    }
+
     #endregion
 }
