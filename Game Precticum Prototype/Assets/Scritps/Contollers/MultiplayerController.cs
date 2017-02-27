@@ -2,7 +2,8 @@
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
-public class MultiplayerController : MonoBehaviour {
+public class MultiplayerController : NetworkBehaviour
+{
 
     #region Fields
 
@@ -23,6 +24,10 @@ public class MultiplayerController : MonoBehaviour {
     NetworkManagerHUD networkHUD;
 
     // Get reference to player 
+    [SyncVar]
+    GameObject player1Obj;
+    [SyncVar]
+    GameObject player2Obj;
     NetworkPlayerScript player1;
     NetworkPlayerScript player2;
 
@@ -199,10 +204,12 @@ public class MultiplayerController : MonoBehaviour {
         if (player1 == null)
         {
             player1 = player.GetComponent<NetworkPlayerScript>();
+            player1Obj = player.gameObject;
         }
         else
         {
             player2 = player.GetComponent<NetworkPlayerScript>();
+            player2Obj = player.gameObject;
             player.GetComponent<NetworkPlayerScript>().currTurn = false;
         }
         if (!UI.isActiveAndEnabled)
