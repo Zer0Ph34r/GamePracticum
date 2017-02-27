@@ -24,6 +24,10 @@ public class MultiplayerController : NetworkBehaviour
     [SerializeField]
     GameObject networkManager;
     NetworkManagerHUD networkHUD;
+    [SerializeField]
+    GameObject pauseMenu;
+    [SerializeField]
+    GameObject endScreen;
 
     // Get reference to player 
     [SyncVar]
@@ -32,9 +36,6 @@ public class MultiplayerController : NetworkBehaviour
     GameObject player2Obj;
     NetworkPlayerScript player1;
     NetworkPlayerScript player2;
-
-    // reference to pause menu
-    GameObject pauseMenu;
 
     #region Sound Effect Fields
     // Sound Stuff
@@ -189,10 +190,15 @@ public class MultiplayerController : NetworkBehaviour
         if (!player1.currTurn)
         {
             player1.currTurn = true;
+            turns--;
         }
         if (!player2.currTurn)
         {
             player2.currTurn = true;
+        }
+        if (turns == 0)
+        {
+            GameOver();
         }
     }
 
@@ -222,6 +228,21 @@ public class MultiplayerController : NetworkBehaviour
             UI.gameObject.SetActive(true);
             networkHUD.showGUI = false;
         }
+    }
+
+    #endregion
+
+    #region GameOver
+    /// <summary>
+    /// Sets game to game over state showing final score and end game options
+    /// </summary>
+    public void GameOver()
+    {
+        // turn off all objects other than the ending canvas
+        UI.gameObject.SetActive(false);
+        endScreen.SetActive(true);
+        // Set ending score values
+        endScreen.GetComponent<EndingScript>().setEnd(player1Score);
     }
 
     #endregion
