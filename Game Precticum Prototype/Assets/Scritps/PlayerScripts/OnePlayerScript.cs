@@ -221,7 +221,7 @@ public class OnePlayerScript : NetworkBehaviour
                 go.transform.SetParent(transform);
                 go.AddComponent<SpriteRenderer>();
                 go.GetComponent<SpriteRenderer>().sprite = gridBackground;
-                go.transform.position = new Vector3(i, k , -0.5f);
+                go.transform.localPosition = new Vector3(i, k , -0.5f);
             }
         }
     }

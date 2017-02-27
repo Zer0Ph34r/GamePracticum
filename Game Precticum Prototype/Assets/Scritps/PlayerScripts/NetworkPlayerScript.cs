@@ -83,11 +83,6 @@ public class NetworkPlayerScript : NetworkBehaviour
         // set currTurn
         currTurn = true;
 
-        // get reference to multiplayer manager
-        manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<MultiplayerController>();
-        // Set reference in multiplayer manager to this object
-        manager.SetPlayers(gameObject);
-
         #region Load Assets
 
         // Load Gems
@@ -171,6 +166,11 @@ public class NetworkPlayerScript : NetworkBehaviour
 
         #endregion
 
+        // get reference to multiplayer manager
+        manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<MultiplayerController>();
+        // Set reference in multiplayer manager to this object
+        manager.SetPlayers(gameObject);
+
     }
 
     #endregion
@@ -229,7 +229,7 @@ public class NetworkPlayerScript : NetworkBehaviour
                 go.transform.SetParent(transform);
                 go.AddComponent<SpriteRenderer>();
                 go.GetComponent<SpriteRenderer>().sprite = gridBackground;
-                go.transform.position = new Vector3(i, k, -0.5f);
+                go.transform.localPosition = new Vector3(i, k, -0.5f);
             }
         }
     }
