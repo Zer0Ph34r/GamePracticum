@@ -15,6 +15,8 @@ public class MultiplayerController : NetworkBehaviour
     Text player1ScoreText;
     int player2Score = 0;
     Text player2ScoreText;
+    int turns = GlobalVariables.MULTIPLAYER_TURNS;
+    Text turnText;
 
     // Reference to UI
     [SerializeField]
@@ -77,8 +79,10 @@ public class MultiplayerController : NetworkBehaviour
         // Score Display
         player1ScoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
         player1ScoreText.text = "Player 1: " + player1Score;
-        player2ScoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
+        player2ScoreText = GameObject.FindGameObjectWithTag("Text2").GetComponent<Text>();
         player2ScoreText.text = "Player 2: " + player2Score;
+        turnText = GameObject.FindGameObjectWithTag("Turns").GetComponent<Text>();
+        turnText.text = "Turns: " + turns;
 
         UI.gameObject.SetActive(false);
         networkHUD = networkManager.GetComponent<NetworkManagerHUD>();
@@ -169,10 +173,11 @@ public class MultiplayerController : NetworkBehaviour
     void SetScore()
     {
         // Update Players Score
-        player1Score = player1.score * 100;
+        player1Score = player1.score * 10;
         player1ScoreText.text = "Player 1: " + player1Score;
-        player2Score = player2.score * 100;
+        player2Score = player2.score * 10;
         player2ScoreText.text = "Player 2: " + player2Score;
+        turnText.text = "Turns: " + turns;
     }
 
     #endregion
