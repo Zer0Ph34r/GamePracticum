@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 
-public class GemEnumScript : MonoBehaviour {
+public class GemEnumScript : NetworkBehaviour
+{
 
     #region Gem Type Enum
 
@@ -22,19 +24,6 @@ public class GemEnumScript : MonoBehaviour {
         Position = InitialPosition;
         gemType = GemType;
     }
-
-    #endregion
-
-    #region Methods
-
-    //public GameObject CreateGem()
-    //{
-    //    GameObject gem;
-
-    //    switch
-
-    //    return gem;
-    //}
 
     #endregion
 

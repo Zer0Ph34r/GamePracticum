@@ -1136,6 +1136,42 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
+    #region Create Gem
+
+    public void CreateGem(GemEnumScript gemEnum)
+    {
+        //GameObject gem;
+        //gem = new GameObject();
+
+        // instantiate given gem at given location
+        switch (gemEnum.gemType)
+        {
+            case GemEnumScript.GemTypes.White:
+                Instantiate<GameObject>(whiteGem, gemEnum.Position, Quaternion.identity, null);
+                break;
+            case GemEnumScript.GemTypes.Red:
+                Instantiate<GameObject>(redGem, gemEnum.Position, Quaternion.identity, null);
+                break;
+            case GemEnumScript.GemTypes.Blue:
+                Instantiate<GameObject>(blueGem, gemEnum.Position, Quaternion.identity, null);
+                break;
+            case GemEnumScript.GemTypes.Yellow:
+                Instantiate<GameObject>(yellowGem, gemEnum.Position, Quaternion.identity, null);
+                break;
+            case GemEnumScript.GemTypes.Purple:
+                Instantiate<GameObject>(purpleGem, gemEnum.Position, Quaternion.identity, null);
+                break;
+            case GemEnumScript.GemTypes.Green:
+                Instantiate<GameObject>(greenGem, gemEnum.Position, Quaternion.identity, null);
+                break;
+        }
+
+        // return new gem
+        //return gem;
+    }
+
+    #endregion
+
     #endregion
 
 }
