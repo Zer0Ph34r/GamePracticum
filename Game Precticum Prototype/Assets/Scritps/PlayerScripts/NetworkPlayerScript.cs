@@ -30,8 +30,8 @@ public class NetworkPlayerScript : NetworkBehaviour
     int tableSize = GlobalVariables.TABLE_SIZE;
 
     // 2D array of table contents
+    
     GameObject[,] gems;
-    GameObject[,] rotation;
     GameObject[] playerHand;
 
     // save object positions for swapping
@@ -100,7 +100,6 @@ public class NetworkPlayerScript : NetworkBehaviour
         #region Create Game Board
         // create table
         gems = new GameObject[tableSize, tableSize];
-        rotation = new GameObject[tableSize, tableSize];
         // fill table and create game board
         CreateGameBoard();
 
