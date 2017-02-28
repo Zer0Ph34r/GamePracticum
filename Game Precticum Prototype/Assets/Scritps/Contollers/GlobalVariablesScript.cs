@@ -1,6 +1,12 @@
 ﻿
 public class GlobalVariables {
 
+    #region Gem Type Enum
+
+    public enum GemTypes { White, Yellow, Blue, Green, Red, Purple }
+
+    #endregion
+
     #region Feilds
 
     public static int TABLE_SIZE = 10;

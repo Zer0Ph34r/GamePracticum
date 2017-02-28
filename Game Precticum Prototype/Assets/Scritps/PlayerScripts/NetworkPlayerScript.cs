@@ -32,6 +32,7 @@ public class NetworkPlayerScript : NetworkBehaviour
     // 2D array of table contents
     
     GameObject[,] gems;
+    SyncList<SyncListStruct<GemEnumScript>> gemSend;
     GameObject[] playerHand;
 
     // save object positions for swapping
@@ -100,6 +101,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         #region Create Game Board
         // create table
         gems = new GameObject[tableSize, tableSize];
+        gemSend = new SyncList<SyncListStruct<GemEnumScript>>();
         // fill table and create game board
         CreateGameBoard();
 
@@ -1146,22 +1148,22 @@ public class NetworkPlayerScript : NetworkBehaviour
         // instantiate given gem at given location
         switch (gemEnum.gemType)
         {
-            case GemEnumScript.GemTypes.White:
+            case GlobalVariables.GemTypes.White:
                 Instantiate<GameObject>(whiteGem, gemEnum.Position, Quaternion.identity, null);
                 break;
-            case GemEnumScript.GemTypes.Red:
+            case GlobalVariables.GemTypes.Red:
                 Instantiate<GameObject>(redGem, gemEnum.Position, Quaternion.identity, null);
                 break;
-            case GemEnumScript.GemTypes.Blue:
+            case GlobalVariables.GemTypes.Blue:
                 Instantiate<GameObject>(blueGem, gemEnum.Position, Quaternion.identity, null);
                 break;
-            case GemEnumScript.GemTypes.Yellow:
+            case GlobalVariables.GemTypes.Yellow:
                 Instantiate<GameObject>(yellowGem, gemEnum.Position, Quaternion.identity, null);
                 break;
-            case GemEnumScript.GemTypes.Purple:
+            case GlobalVariables.GemTypes.Purple:
                 Instantiate<GameObject>(purpleGem, gemEnum.Position, Quaternion.identity, null);
                 break;
-            case GemEnumScript.GemTypes.Green:
+            case GlobalVariables.GemTypes.Green:
                 Instantiate<GameObject>(greenGem, gemEnum.Position, Quaternion.identity, null);
                 break;
         }
