@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class GemScript : MonoBehaviour
+public class GemScript : NetworkPlayerScript //MonoBehaviour
 {
     #region Fields
 
@@ -90,6 +90,9 @@ public class GemScript : MonoBehaviour
     // When the Mouse clicks on a gem
     public void OnMouseDown()
     {
+        if (!isLocalPlayer)
+            return;
+
         if (canSelect)
         {
             // Flips between selected and unselected states

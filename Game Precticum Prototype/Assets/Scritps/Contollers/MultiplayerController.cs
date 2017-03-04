@@ -227,14 +227,14 @@ public class MultiplayerController : NetworkBehaviour
         // check if player 1 is null
         if (player1 == null)
         {
-            SetupServer();
+            //SetupServer();
             player1 = player.GetComponent<NetworkPlayerScript>();
             player1Obj = player.gameObject;
             
         }
         else
         {
-            SetupClient();
+            //SetupClient();
             player2 = player.GetComponent<NetworkPlayerScript>();
             player2Obj = player.gameObject;
             player.GetComponent<NetworkPlayerScript>().currTurn = false;

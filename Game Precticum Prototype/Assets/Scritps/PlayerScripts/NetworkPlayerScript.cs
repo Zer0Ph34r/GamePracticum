@@ -29,11 +29,13 @@ public class NetworkPlayerScript : NetworkBehaviour
     // table size int X int
     int tableSize = GlobalVariables.TABLE_SIZE;
 
-    // 2D array of table contents
-    
+    // arrays and lists of content
     GameObject[,] gems;
-    //SyncList<GemSyncList> gemSend;
     GameObject[] playerHand;
+    //public SyncListInt gemSendPosX;
+    //public SyncListInt gemSendPosY;
+    //public SyncListString gemSendType;
+    
 
     // save object positions for swapping
     Vector3 handPos;
@@ -96,12 +98,22 @@ public class NetworkPlayerScript : NetworkBehaviour
         // Load Sprites
         gridBackground = Resources.Load<Sprite>("Sprites/GridBacking");
 
+        #region Register prefabs
+        ClientScene.RegisterPrefab(whiteGem);
+        ClientScene.RegisterPrefab(redGem);
+        ClientScene.RegisterPrefab(yellowGem);
+        ClientScene.RegisterPrefab(greenGem);
+        ClientScene.RegisterPrefab(blueGem);
+        ClientScene.RegisterPrefab(purpleGem);
+        #endregion
         #endregion
 
         #region Create Game Board
         // create table
         gems = new GameObject[tableSize, tableSize];
-        //gemSend = new SyncList<GemSyncList>();
+        //gemSendPosX = new SyncListInt();
+        //gemSendPosY = new SyncListInt();
+        //gemSendType = new SyncListString();
         // fill table and create game board
         CreateGameBoard();
 
@@ -250,7 +262,7 @@ public class NetworkPlayerScript : NetworkBehaviour
             (int)transform.localPosition.y + y,
             0), Quaternion.identity, transform);
         gem.GetComponent<GemScript>().isHand = false;
-        NetworkServer.Spawn(gem);
+        //NetworkServer.Spawn(gem);
         gems[x, y] = gem;
     }
 
@@ -273,7 +285,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         // set handpiece to new game object for checking 
         handPiece = gem;
         gem.GetComponent<GemScript>().isHand = false;
-        NetworkServer.Spawn(gem);
+        //NetworkServer.Spawn(gem);
         gems[x, y] = gem;
         // Check if this new gem creates a chain
         if (CheckValidSwap(x, y))
@@ -1019,14 +1031,25 @@ public class NetworkPlayerScript : NetworkBehaviour
     /// </summary>
     void ResetBoard()
     {
+        //gemSendPosX = null;
+       // gemSendPosY = null;
+        //gemSendType = null;
+
         // reset all gems to unlocked and unselected state 
         foreach (GameObject gem in gems)
         {
             gem.GetComponent<GemScript>().Reset();
+            //gemSendPosX.Add((int)gem.transform.position.x);
+            //gemSendPosY.Add((int)gem.transform.position.y);
+            //gemSendType.Add(gem.tag);
+
         }
         foreach (GameObject gem in playerHand)
         {
             gem.GetComponent<GemScript>().Reset();
+            //gemSendPosX.Add((int)gem.transform.position.x);
+            //gemSendPosY.Add((int)gem.transform.position.y);
+            //gemSendType.Add(gem.tag);
         }
 
         // reset game board and hand
