@@ -250,7 +250,7 @@ public class NetworkPlayerScript : NetworkBehaviour
             (int)transform.localPosition.y + y,
             0), Quaternion.identity, transform);
         gem.GetComponent<GemScript>().isHand = false;
-        //NetworkServer.Spawn(gem);
+        NetworkServer.Spawn(gem);
         gems[x, y] = gem;
     }
 
@@ -273,7 +273,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         // set handpiece to new game object for checking 
         handPiece = gem;
         gem.GetComponent<GemScript>().isHand = false;
-        //NetworkServer.Spawn(gem);
+        NetworkServer.Spawn(gem);
         gems[x, y] = gem;
         // Check if this new gem creates a chain
         if (CheckValidSwap(x, y))
