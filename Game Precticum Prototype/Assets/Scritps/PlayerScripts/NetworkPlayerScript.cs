@@ -99,12 +99,12 @@ public class NetworkPlayerScript : NetworkBehaviour
         gridBackground = Resources.Load<Sprite>("Sprites/GridBacking");
 
         #region Register prefabs
-        ClientScene.RegisterPrefab(whiteGem);
-        ClientScene.RegisterPrefab(redGem);
-        ClientScene.RegisterPrefab(yellowGem);
-        ClientScene.RegisterPrefab(greenGem);
-        ClientScene.RegisterPrefab(blueGem);
-        ClientScene.RegisterPrefab(purpleGem);
+        //ClientScene.RegisterPrefab(whiteGem);
+        //ClientScene.RegisterPrefab(redGem);
+        //ClientScene.RegisterPrefab(yellowGem);
+        //ClientScene.RegisterPrefab(greenGem);
+        //ClientScene.RegisterPrefab(blueGem);
+        //ClientScene.RegisterPrefab(purpleGem);
         #endregion
         #endregion
 
@@ -237,7 +237,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         {
             for (int k = 0; k < tableSize; ++k)
             {
-                CreateBoardPiece(i, k);
+                CmdCreateBoardPiece(i, k);
                 GameObject go = new GameObject();
                 go.transform.SetParent(transform);
                 go.AddComponent<SpriteRenderer>();
@@ -249,33 +249,33 @@ public class NetworkPlayerScript : NetworkBehaviour
     #endregion
 
     #region Create Piece
-
+    [Command]
     /// <summary>
     /// Creates Random Piece and adds it ot the board of gems
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
-    void CreateBoardPiece(int x, int y)
+    void CmdCreateBoardPiece(int x, int y)
     {
         GameObject gem = Instantiate(RandomizeObject(),
             new Vector3((int)transform.localPosition.x + x,
             (int)transform.localPosition.y + y,
             0), Quaternion.identity, transform);
         gem.GetComponent<GemScript>().isHand = false;
-        //NetworkServer.Spawn(gem);
+        NetworkServer.Spawn(gem);
         gems[x, y] = gem;
     }
 
     #endregion
 
     #region Refill Board
-
+    [Command]
     /// <summary>
     /// Creates Random Piece and adds it ot the board of gems
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
-    void FillBoardPiece(int x, int y)
+    void CmdFillBoardPiece(int x, int y)
     {
         // create new piece at array position plus parent transform
         GameObject gem = Instantiate(RandomizeObject(),
@@ -285,14 +285,14 @@ public class NetworkPlayerScript : NetworkBehaviour
         // set handpiece to new game object for checking 
         handPiece = gem;
         gem.GetComponent<GemScript>().isHand = false;
-        //NetworkServer.Spawn(gem);
+        NetworkServer.Spawn(gem);
         gems[x, y] = gem;
         // Check if this new gem creates a chain
         if (CheckValidSwap(x, y))
         {
             Destroy(gems[x, y]);
             gems[x, y] = null;
-            FillBoardPiece(x, y);
+            CmdFillBoardPiece(x, y);
         }
         handPiece = null;
     }
@@ -478,7 +478,7 @@ public class NetworkPlayerScript : NetworkBehaviour
             {
                 if (gems[j, l] == null)
                 {
-                    FillBoardPiece(j, l);
+                    CmdFillBoardPiece(j, l);
                 }
             }
         }
@@ -982,7 +982,7 @@ public class NetworkPlayerScript : NetworkBehaviour
             {
                 if (gems[i, k] == null)
                 {
-                    FillBoardPiece(i, k);
+                    CmdFillBoardPiece(i, k);
                 }
             }
         }
