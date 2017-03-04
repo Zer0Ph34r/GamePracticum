@@ -58,7 +58,6 @@ public class MultiplayerController : NetworkBehaviour
 
     #region Server Fields
     // variables for getting server client connections
-    bool isAtStartup = true;
     NetworkClient myClient;
     NetworkMessageDelegate OnConnected;
     #endregion
@@ -228,14 +227,14 @@ public class MultiplayerController : NetworkBehaviour
         // check if player 1 is null
         if (player1 == null)
         {
-            SetupServer();
+            //SetupServer();
             player1 = player.GetComponent<NetworkPlayerScript>();
             player1Obj = player.gameObject;
             
         }
         else
         {
-            SetupLocalClient();
+            //SetupClient();
             player2 = player.GetComponent<NetworkPlayerScript>();
             player2Obj = player.gameObject;
             player.GetComponent<NetworkPlayerScript>().currTurn = false;
@@ -293,8 +292,7 @@ public class MultiplayerController : NetworkBehaviour
     /// </summary>
     public void SetupServer()
     {
-        NetworkServer.Listen(7777);
-        isAtStartup = false;
+        NetworkServer.Listen(443);
     }
     #endregion
 
@@ -306,8 +304,7 @@ public class MultiplayerController : NetworkBehaviour
     {
         myClient = new NetworkClient();
         myClient.RegisterHandler(MsgType.Connect, OnConnected);
-        myClient.Connect("192.168.0.1", 7777);
-        isAtStartup = false;
+        myClient.Connect("192.168.0.1", 443);
     }
     #endregion
 
@@ -319,7 +316,6 @@ public class MultiplayerController : NetworkBehaviour
     {
         myClient = ClientScene.ConnectLocalServer();
         myClient.RegisterHandler(MsgType.Connect, OnConnected);
-        isAtStartup = false;
     }
     #endregion
 

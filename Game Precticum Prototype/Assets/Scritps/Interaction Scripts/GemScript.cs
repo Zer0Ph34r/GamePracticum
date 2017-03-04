@@ -150,14 +150,14 @@ public class GemScript : MonoBehaviour
     {
         canSelect = false;
         // loops for learping between positions
-        while (Vector3.Distance(transform.position, endPos) > 0.1)
+        while (Vector3.Distance(transform.localPosition, endPos) > 0.1)
         {
             //float step = speed * Time.deltaTime;
-            transform.position = Vector3.MoveTowards(transform.position, endPos, speed);
+            transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPos, speed);
             yield return null;
         }
         // perfectly align gem
-        transform.position = endPos;
+        transform.localPosition = endPos;
         // No longer moving, can select gem
         canSelect = true;
         //Fire Event after coroutine ends
@@ -176,14 +176,14 @@ public class GemScript : MonoBehaviour
     {
         canSelect = false;
         // loops for learping between positions
-        while (Vector3.Distance(transform.position, endPos) > 0.1)
+        while (Vector3.Distance(transform.localPosition, endPos) > 0.1)
         {
             //float step = speed * Time.deltaTime;
-            transform.position = Vector3.MoveTowards(transform.position, endPos, 0.05f);
+            transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPos, 0.05f);
             yield return null;
         }
         // perfectly align gem
-        transform.position = endPos;
+        transform.localPosition = endPos;
         // No longer moving, can select gem
         canSelect = true;
         //Fire Event after coroutine ends
