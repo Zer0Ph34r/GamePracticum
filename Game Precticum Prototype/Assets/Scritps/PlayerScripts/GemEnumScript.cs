@@ -12,6 +12,8 @@ public struct GemEnumStruct
     #endregion
 
 }
-
 public class GemSyncList : SyncListStruct<GemEnumStruct>
-{ }
+{
+
+}
+

@@ -70,6 +70,7 @@ public class MultiplayerController : NetworkBehaviour
         // Save reference ot pause canvas
         pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
         pauseMenu.gameObject.SetActive(false);
+        endScreen.gameObject.SetActive(false);
 
         // Load in sound effects
         break1 = Resources.Load<AudioClip>("Sounds/Break1");

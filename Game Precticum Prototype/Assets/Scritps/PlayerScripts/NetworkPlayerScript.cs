@@ -32,7 +32,7 @@ public class NetworkPlayerScript : NetworkBehaviour
     // 2D array of table contents
     
     GameObject[,] gems;
-    SyncList<SyncListStruct<GemEnumScript>> gemSend;
+    //SyncList<GemSyncList> gemSend;
     GameObject[] playerHand;
 
     // save object positions for swapping
@@ -101,7 +101,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         #region Create Game Board
         // create table
         gems = new GameObject[tableSize, tableSize];
-        gemSend = new SyncList<SyncListStruct<GemEnumScript>>();
+        //gemSend = new SyncList<GemSyncList>();
         // fill table and create game board
         CreateGameBoard();
 
@@ -245,12 +245,13 @@ public class NetworkPlayerScript : NetworkBehaviour
     /// <param name="y"></param>
     void CreateBoardPiece(int x, int y)
     {
-        GameObject go = Instantiate(RandomizeObject(),
+        GameObject gem = Instantiate(RandomizeObject(),
             new Vector3((int)transform.localPosition.x + x,
             (int)transform.localPosition.y + y,
             0), Quaternion.identity, transform);
-        go.GetComponent<GemScript>().isHand = false;
-        gems[x, y] = go;
+        gem.GetComponent<GemScript>().isHand = false;
+        NetworkServer.Spawn(gem);
+        gems[x, y] = gem;
     }
 
     #endregion
@@ -265,14 +266,15 @@ public class NetworkPlayerScript : NetworkBehaviour
     void FillBoardPiece(int x, int y)
     {
         // create new piece at array position plus parent transform
-        GameObject go = Instantiate(RandomizeObject(),
+        GameObject gem = Instantiate(RandomizeObject(),
             new Vector3((int)transform.localPosition.x + x,
             (int)transform.localPosition.y + y,
             0), Quaternion.identity, transform);
         // set handpiece to new game object for checking 
-        handPiece = go;
-        go.GetComponent<GemScript>().isHand = false;
-        gems[x, y] = go;
+        handPiece = gem;
+        gem.GetComponent<GemScript>().isHand = false;
+        NetworkServer.Spawn(gem);
+        gems[x, y] = gem;
         // Check if this new gem creates a chain
         if (CheckValidSwap(x, y))
         {
@@ -1140,37 +1142,37 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #region Create Gem
 
-    public void CreateGem(GemEnumScript gemEnum)
-    {
-        //GameObject gem;
-        //gem = new GameObject();
+    //public void CreateGem(GemEnumScript gemEnum)
+    //{
+    //    //GameObject gem;
+    //    //gem = new GameObject();
 
-        // instantiate given gem at given location
-        switch (gemEnum.gemType)
-        {
-            case GlobalVariables.GemTypes.White:
-                Instantiate<GameObject>(whiteGem, gemEnum.Position, Quaternion.identity, null);
-                break;
-            case GlobalVariables.GemTypes.Red:
-                Instantiate<GameObject>(redGem, gemEnum.Position, Quaternion.identity, null);
-                break;
-            case GlobalVariables.GemTypes.Blue:
-                Instantiate<GameObject>(blueGem, gemEnum.Position, Quaternion.identity, null);
-                break;
-            case GlobalVariables.GemTypes.Yellow:
-                Instantiate<GameObject>(yellowGem, gemEnum.Position, Quaternion.identity, null);
-                break;
-            case GlobalVariables.GemTypes.Purple:
-                Instantiate<GameObject>(purpleGem, gemEnum.Position, Quaternion.identity, null);
-                break;
-            case GlobalVariables.GemTypes.Green:
-                Instantiate<GameObject>(greenGem, gemEnum.Position, Quaternion.identity, null);
-                break;
-        }
+    //    // instantiate given gem at given location
+    //    switch (gemEnum.gemType)
+    //    {
+    //        case GlobalVariables.GemTypes.White:
+    //            Instantiate<GameObject>(whiteGem, gemEnum.Position, Quaternion.identity, null);
+    //            break;
+    //        case GlobalVariables.GemTypes.Red:
+    //            Instantiate<GameObject>(redGem, gemEnum.Position, Quaternion.identity, null);
+    //            break;
+    //        case GlobalVariables.GemTypes.Blue:
+    //            Instantiate<GameObject>(blueGem, gemEnum.Position, Quaternion.identity, null);
+    //            break;
+    //        case GlobalVariables.GemTypes.Yellow:
+    //            Instantiate<GameObject>(yellowGem, gemEnum.Position, Quaternion.identity, null);
+    //            break;
+    //        case GlobalVariables.GemTypes.Purple:
+    //            Instantiate<GameObject>(purpleGem, gemEnum.Position, Quaternion.identity, null);
+    //            break;
+    //        case GlobalVariables.GemTypes.Green:
+    //            Instantiate<GameObject>(greenGem, gemEnum.Position, Quaternion.identity, null);
+    //            break;
+    //    }
 
-        // return new gem
-        //return gem;
-    }
+    //    // return new gem
+    //    //return gem;
+    //}
 
     #endregion
 
