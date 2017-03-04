@@ -10,6 +10,7 @@ public class MultiplayerController : NetworkBehaviour
     // table size int X int
     int tableSize = GlobalVariables.TABLE_SIZE;
 
+    #region UI Display Info
     // Score Tracker
     int player1Score = 0;
     Text player1ScoreText;
@@ -17,7 +18,9 @@ public class MultiplayerController : NetworkBehaviour
     Text player2ScoreText;
     int turns = GlobalVariables.MULTIPLAYER_TURNS;
     Text turnText;
+    #endregion
 
+    #region UI Objects
     // Reference to UI
     [SerializeField]
     Canvas UI;
@@ -28,7 +31,9 @@ public class MultiplayerController : NetworkBehaviour
     GameObject pauseMenu;
     [SerializeField]
     GameObject endScreen;
+    #endregion
 
+    #region Player Refereces
     // Get reference to player 
     [SyncVar]
     GameObject player1Obj;
@@ -36,6 +41,7 @@ public class MultiplayerController : NetworkBehaviour
     GameObject player2Obj;
     NetworkPlayerScript player1;
     NetworkPlayerScript player2;
+    #endregion
 
     #region Sound Effect Fields
     // Sound Stuff
@@ -48,6 +54,13 @@ public class MultiplayerController : NetworkBehaviour
     // BGM
     AudioClip BGMusic;
 
+    #endregion
+
+    #region Server Fields
+    // variables for getting server client connections
+    bool isAtStartup = true;
+    NetworkClient myClient;
+    NetworkMessageDelegate OnConnected;
     #endregion
 
     #endregion
@@ -215,14 +228,18 @@ public class MultiplayerController : NetworkBehaviour
         // check if player 1 is null
         if (player1 == null)
         {
+            SetupServer();
             player1 = player.GetComponent<NetworkPlayerScript>();
             player1Obj = player.gameObject;
+            
         }
         else
         {
+            SetupLocalClient();
             player2 = player.GetComponent<NetworkPlayerScript>();
             player2Obj = player.gameObject;
             player.GetComponent<NetworkPlayerScript>().currTurn = false;
+            
         }
         if (!UI.isActiveAndEnabled)
         {
@@ -265,6 +282,46 @@ public class MultiplayerController : NetworkBehaviour
         GemScript.fireSoundEvent -= PlaySound;
         NetworkPlayerScript.fireScore -= SetScore;
     }
+
+    #endregion
+
+    #region Server Methods
+
+    #region Set UpServer 
+    /// <summary>
+    /// Creates an instance of the server on this machine
+    /// </summary>
+    public void SetupServer()
+    {
+        NetworkServer.Listen(7777);
+        isAtStartup = false;
+    }
+    #endregion
+
+    #region Set Up Client
+    /// <summary>
+    /// Create a client and connect to the server port
+    /// </summary>
+    public void SetupClient()
+    {
+        myClient = new NetworkClient();
+        myClient.RegisterHandler(MsgType.Connect, OnConnected);
+        myClient.Connect("192.168.0.1", 7777);
+        isAtStartup = false;
+    }
+    #endregion
+
+    #region Set Up Local Client
+    /// <summary>
+    /// Create a local client and connect to the local server
+    /// </summary>
+    public void SetupLocalClient()
+    {
+        myClient = ClientScene.ConnectLocalServer();
+        myClient.RegisterHandler(MsgType.Connect, OnConnected);
+        isAtStartup = false;
+    }
+    #endregion
 
     #endregion
 
