@@ -419,12 +419,12 @@ public class NetworkPlayerScript : NetworkBehaviour
         List<MoveScript> chains;
 
         // FInd all possible Chains created
-        chains = CmdCheckGrid();
+        chains = CheckGrid();
 
         if (chains.Count > 0)
         {
             // Remove all gems that form chains of 3 or more 
-            CmdDeleteOnStart(chains);
+            DeleteOnStart(chains);
 
             // Fill all holes in grid
             CmdRefillOnStart();
@@ -465,15 +465,6 @@ public class NetworkPlayerScript : NetworkBehaviour
     /// </summary>
     void CmdRefillOnStart()
     {
-        // First, drop all the gems as low as they can go
-        //for (int i = 0; i < tableSize; i++)
-        //{
-        //    for (int k = 1; k < tableSize; k++)
-        //    {
-        //        CheckEmptyStart(i, k);
-        //    }
-        //}
-
         // Now fill empty spaces with new gems
         for (int j = 0; j < tableSize; j++)
         {
@@ -488,12 +479,10 @@ public class NetworkPlayerScript : NetworkBehaviour
 
         // reset game for next round
         CmdResetBoard();
-
     }
 
-    [Command]
     // deletes all gems in every chain
-    void CmdDeleteOnStart(List<MoveScript> list)
+    void DeleteOnStart(List<MoveScript> list)
     {
         // Iterate through each unique solution and delete all gems contained within
         foreach (MoveScript move in list)
@@ -531,12 +520,12 @@ public class NetworkPlayerScript : NetworkBehaviour
         List<MoveScript> chains;
 
         // FInd all possible Chains created
-        chains = CmdCheckGrid();
+        chains = CheckGrid();
 
         if (chains.Count > 0)
         {
             // Remove all gems that form chains of 3 or more 
-            CmdDeleteChains(chains);
+            DeleteChains(chains);
 
             // Fill all holes in grid
             CmdRefillGrid();
@@ -546,13 +535,12 @@ public class NetworkPlayerScript : NetworkBehaviour
     #endregion
 
     #region Check Grid
-
-    [Command]
+    
     /// <summary>
     /// Finds all possible Chains in grid and returns a list of all unique chains
     /// </summary>
     /// <returns></returns>
-    List<MoveScript> CmdCheckGrid()
+    List<MoveScript> CheckGrid()
     {
 
         #region Fields
@@ -742,9 +730,8 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #region Delete Chains
 
-    [Command]
     // deletes all gems in every chain
-    void CmdDeleteChains(List<MoveScript> list)
+    void DeleteChains(List<MoveScript> list)
     {
         // Iterate through each unique solution and delete all gems contained within
         foreach (MoveScript move in list)
@@ -928,7 +915,6 @@ public class NetworkPlayerScript : NetworkBehaviour
     #endregion
 
     #region Cancel Swap
-
     [Command]
     // Resets gems back to starting position and writes out warning to player
     void CmdCancelSwap()
@@ -1128,6 +1114,9 @@ public class NetworkPlayerScript : NetworkBehaviour
     }
 
     [Command]
+    /// <summary>
+    /// Rotates all board peices 90 deg anti clockwise
+    /// </summary>
     public void CmdRotateLeft()
     {
         if (CheckGems())
