@@ -141,7 +141,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         #region Add Event Methods
 
         // add method for when a gem is selected
-        GemScript.Selected += lockGems;
+        GemScript.Selected += CmdlockGems;
 
         // Add event for checking if gems are falling
         GemScript.checkGems += CheckGems;
@@ -175,7 +175,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         #region Check Grid
         // Prevent start board from having chains
         // Make sure the board starts without any chains in it
-        ResolveOnStart();
+        CmdResolveOnStart();
 
         #endregion
 
@@ -341,11 +341,11 @@ public class NetworkPlayerScript : NetworkBehaviour
     #endregion
 
     #region Lock Gems
-
+    [Command]
     /// <summary>
     /// Prevents multiple gems from being selected or swapped
     /// </summary>
-    void lockGems(GameObject go)
+    void CmdlockGems(GameObject go)
     {
         GemScript gs = go.GetComponent<GemScript>();
         if (gs.isHand)
@@ -401,7 +401,7 @@ public class NetworkPlayerScript : NetworkBehaviour
             handPiece != null &&
             handLocked && gridLocked)
         {
-            SwapPieces();
+            CmdSwapPieces();
         }
     }
 
@@ -409,36 +409,38 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #region OnStart Grid Resolution
 
+    [Command]
     /// <summary>
     /// Used for starting the game board with no pieces without seeing them move or earning score
     /// </summary>
-    void ResolveOnStart()
+    void CmdResolveOnStart()
     {
         // List for storing all chains created
         List<MoveScript> chains;
 
         // FInd all possible Chains created
-        chains = CheckGrid();
+        chains = CmdCheckGrid();
 
         if (chains.Count > 0)
         {
             // Remove all gems that form chains of 3 or more 
-            DeleteOnStart(chains);
+            CmdDeleteOnStart(chains);
 
             // Fill all holes in grid
-            RefillOnStart();
+            CmdRefillOnStart();
 
             // check for any chains made after grid has fallen and been refilled
-            ResolveOnStart();
+            CmdResolveOnStart();
         }
     }
 
+    [Command]
     /// <summary>
     /// Moves pieces down the board if there are any matching chains
     /// </summary>
     /// <param name="x"></param>
     /// <param name="y"></param>
-    void CheckEmptyStart(int x, int y)
+    void CmdCheckEmptyStart(int x, int y)
     {
         // check if the space below this is null
         if (y >= 1 &&
@@ -452,15 +454,16 @@ public class NetworkPlayerScript : NetworkBehaviour
             // set old position to null
             gems[x, y] = null;
             // check below this new position
-            CheckEmptyStart(x, y - 1);
+            CmdCheckEmptyStart(x, y - 1);
         }
     }
 
+    [Command]
     /// <summary>
     /// Has pieces "fall" into place, then creates new gems above the holes to 
     /// fill in grid completely
     /// </summary>
-    void RefillOnStart()
+    void CmdRefillOnStart()
     {
         // First, drop all the gems as low as they can go
         //for (int i = 0; i < tableSize; i++)
@@ -484,12 +487,13 @@ public class NetworkPlayerScript : NetworkBehaviour
         }
 
         // reset game for next round
-        ResetBoard();
+        CmdResetBoard();
 
     }
 
+    [Command]
     // deletes all gems in every chain
-    void DeleteOnStart(List<MoveScript> list)
+    void CmdDeleteOnStart(List<MoveScript> list)
     {
         // Iterate through each unique solution and delete all gems contained within
         foreach (MoveScript move in list)
@@ -512,11 +516,13 @@ public class NetworkPlayerScript : NetworkBehaviour
     #region Grid Methods
 
     #region Resolve Grid
+
+    [Command]
     /// <summary>
     /// Creates a new 2D array "Moves" which list all possible chains
     /// then sorts for unique chians and destroys all gems in those chains
     /// </summary>
-    void ResolveGrid()
+    void CmdResolveGrid()
     {
         // remove method from event
         GemScript.runNextMethod -= ContinueSwap;
@@ -525,15 +531,15 @@ public class NetworkPlayerScript : NetworkBehaviour
         List<MoveScript> chains;
 
         // FInd all possible Chains created
-        chains = CheckGrid();
+        chains = CmdCheckGrid();
 
         if (chains.Count > 0)
         {
             // Remove all gems that form chains of 3 or more 
-            DeleteChains(chains);
+            CmdDeleteChains(chains);
 
             // Fill all holes in grid
-            RefillGrid();
+            CmdRefillGrid();
         }
     }
 
@@ -541,11 +547,12 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #region Check Grid
 
+    [Command]
     /// <summary>
     /// Finds all possible Chains in grid and returns a list of all unique chains
     /// </summary>
     /// <returns></returns>
-    List<MoveScript> CheckGrid()
+    List<MoveScript> CmdCheckGrid()
     {
 
         #region Fields
@@ -735,8 +742,9 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #region Delete Chains
 
+    [Command]
     // deletes all gems in every chain
-    void DeleteChains(List<MoveScript> list)
+    void CmdDeleteChains(List<MoveScript> list)
     {
         // Iterate through each unique solution and delete all gems contained within
         foreach (MoveScript move in list)
@@ -759,10 +767,12 @@ public class NetworkPlayerScript : NetworkBehaviour
     #endregion
 
     #region Swap Pieces
+
+    [Command]
     /// <summary>
     /// Swaps two pieces and then checks for validity
     /// </summary>
-    void SwapPieces()
+    void CmdSwapPieces()
     {
         // set positions
         handPos = handPiece.transform.localPosition;
@@ -810,7 +820,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         else
         {
             // Reset board so payer can pick again
-            ResetBoard();
+            CmdResetBoard();
 
             // reset nad and board pieces
             boardPiece = null;
@@ -831,7 +841,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         boardPos = Vector3.zero;
 
         // resolve all possible solutions on board
-        ResolveGrid();
+        CmdResolveGrid();
     }
     #endregion
 
@@ -919,8 +929,9 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #region Cancel Swap
 
+    [Command]
     // Resets gems back to starting position and writes out warning to player
-    void CancelSwap()
+    void CmdCancelSwap()
     {
         // reset pieces selected to starting positions
         boardPiece.transform.localPosition = boardPos;
@@ -932,33 +943,35 @@ public class NetworkPlayerScript : NetworkBehaviour
     #endregion
 
     #region Refill Grid
+
+    [Command]
     /// <summary>
     /// Has pieces "fall" into place, then creates new gems above the holes to 
     /// fill in grid completely
     /// </summary>
-    void RefillGrid()
+    void CmdRefillGrid()
     {
         // remove called event
-        GemScript.runNextMethod -= RefillGrid;
+        GemScript.runNextMethod -= CmdRefillGrid;
 
         // First, drop all the gems as low as they can go
         for (int i = 0; i < tableSize; i++)
         {
             for (int k = 1; k < tableSize; k++)
             {
-                CheckFalling(i, k);
+                CmdCheckFalling(i, k);
             }
         }
 
         if (topSwapped)
         {
-            FillEmpty();
+            CmdFillEmpty();
             topSwapped = false;
         }
         else
         {
             // run FillEmpty script once all gems have fallen
-            GemScript.runNextMethod += FillEmpty;
+            GemScript.runNextMethod += CmdFillEmpty;
         }
 
     }
@@ -967,13 +980,15 @@ public class NetworkPlayerScript : NetworkBehaviour
     #endregion
 
     #region Fill Empty
+
+    [Command]
     /// <summary>
     /// Fills all empty grid cells
     /// </summary>
-    void FillEmpty()
+    void CmdFillEmpty()
     {
         // remove Fill Empty Event registration
-        GemScript.runNextMethod -= FillEmpty;
+        GemScript.runNextMethod -= CmdFillEmpty;
 
         // Now fill empty spaces with new gems
         for (int i = 0; i < tableSize; i++)
@@ -988,18 +1003,19 @@ public class NetworkPlayerScript : NetworkBehaviour
         }
 
         // reset game for next round
-        ResetBoard();
+        CmdResetBoard();
 
         // check for any more gems to delete
-        ResolveGrid();
+        CmdResolveGrid();
     }
     #endregion
 
     #region Check Falling
 
+    [Command]
     // Checks if there is a gem beneath this one and moves it
     // if there isn't one
-    void CheckFalling(int x, int y)
+    void CmdCheckFalling(int x, int y)
     {
         // check if the space below this is null
         if (y >= 1 &&
@@ -1017,7 +1033,7 @@ public class NetworkPlayerScript : NetworkBehaviour
             gems[x, y] = null;
 
             // check below this new position
-            CheckFalling(x, y - 1);
+            CmdCheckFalling(x, y - 1);
         }
     }
 
@@ -1026,10 +1042,11 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #region Reset Board
 
+    [Command]
     /// <summary>
     /// Resets all board and ahdn pieces so they can be selected again
     /// </summary>
-    void ResetBoard()
+    void CmdResetBoard()
     {
         //gemSendPosX = null;
        // gemSendPosY = null;
@@ -1067,10 +1084,11 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #region Rotate Board
 
+    [Command]
     /// <summary>
     /// Rotates board visually while just saving gems into a new array that is "rotated" 90 deg 
     /// </summary>
-    public void RotateRight()
+    public void CmdRotateRight()
     {
         if (CheckGems())
         {
@@ -1109,7 +1127,8 @@ public class NetworkPlayerScript : NetworkBehaviour
         }
     }
 
-    public void RotateLeft()
+    [Command]
+    public void CmdRotateLeft()
     {
         if (CheckGems())
         {
@@ -1157,7 +1176,7 @@ public class NetworkPlayerScript : NetworkBehaviour
     private void OnDestroy()
     {
         // Remove methods from events
-        GemScript.Selected -= lockGems;
+        GemScript.Selected -= CmdlockGems;
         GemScript.checkGems -= CheckGems;
     }
 
