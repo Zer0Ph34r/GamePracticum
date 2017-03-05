@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using System;
+using Random = UnityEngine.Random;
 
-public class NetworkPlayerScript : NetworkBehaviour
+public class NetworkPlayerScript : NetworkManager
 {
 
     #region Fields
@@ -1223,20 +1225,42 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
+    #region On Message Recieved
+
+
+
+    #endregion
+
     #endregion
 
 }
 
-public class SyncListGameObject : SyncList<GameObject>
+//public class SyncListGameObject : SyncList<GameObject>
+//{
+//    protected override void SerializeItem(NetworkWriter netWriter, GameObject serialItem)
+//    {
+
+//    }
+
+
+//    protected override GameObject DeserializeItem(NetworkReader NW)
+//    {
+//        return null;
+//    }
+//}
+
+[Serializable]
+public class SyncGem
 {
-    protected override void SerializeItem(NetworkWriter netWriter, GameObject serialItem)
-    {
-        
-    }
+    public short xPos { get; set; }
+    public short yPos { get; set; }
+    public short colorEnum { get; set; }
 
-
-    protected override GameObject DeserializeItem(NetworkReader NW)
+    public SyncGem(short x, short y, short color)
     {
-        return null;
+        xPos = x;
+        yPos = y;
+        colorEnum = color;
     }
 }
+

@@ -15,10 +15,13 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
     // Bool to prevent gem selectoin while gem is moving
     public bool canSelect { get; set; }
 
+    // Serialable field
+    SyncGem serialGem;
+
     // particle effect for destruction
     [SerializeField]
     ParticleSystem particleSystem;
-    Color color;
+    short color;
     #endregion
 
     #region Move
@@ -69,24 +72,26 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
         switch(gameObject.tag)
         {
             case "White":
-                color = Color.white;
-                break;
-            case "Red":
-                color = Color.red;
-                break;
-            case "Green":
-                color = Color.green;
-                break;
-            case "Purple":
-                color = Color.magenta;
+                color = 0;
                 break;
             case "Yellow":
-                color = Color.yellow;
+                color = 1;
                 break;
             case "Blue":
-                color = Color.blue;
+                color = 2;
+                break;
+            case "Green":
+                color = 3;
+                break;
+            case "Red":
+                color = 4;
+                break;
+            case "Purple":
+                color = 5;
                 break;
         }
+
+        serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
     }
 
 
@@ -152,7 +157,6 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
         ParticleSystem ps = Instantiate<ParticleSystem>(particleSystem);
         ps.transform.position = transform.position;
         ParticleSystem.MainModule mm = ps.main;
-        mm.startColor = color;
         ParticleSystem.EmissionModule em = ps.emission;
         em.enabled = true;
         gameObject.GetComponent<MeshRenderer>().enabled = false;
@@ -192,6 +196,7 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
         if (runNextMethod != null &&
             checkGems())
         {
+            serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
             runNextMethod();
         }
     }
@@ -218,6 +223,7 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
         if (runNextMethod != null &&
             checkGems())
         {
+            serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
             runNextMethod();
         }
 
