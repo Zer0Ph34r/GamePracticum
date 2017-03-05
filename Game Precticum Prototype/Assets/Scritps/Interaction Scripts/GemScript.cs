@@ -90,8 +90,8 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
     // When the Mouse clicks on a gem
     public void OnMouseDown()
     {
-        if (!isLocalPlayer)
-            return;
+        //if (!isLocalPlayer)
+        //    return;
 
         if (canSelect)
         {
@@ -153,7 +153,7 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
     {
         canSelect = false;
         // loops for learping between positions
-        while (Vector3.Distance(transform.localPosition, endPos) > 0.1)
+        while (Vector3.Distance(transform.localPosition, endPos) > 0.05 * Time.deltaTime)
         {
             //float step = speed * Time.deltaTime;
             transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPos, speed);

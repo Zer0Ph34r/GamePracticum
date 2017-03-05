@@ -1070,11 +1070,11 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #region Rotate Board
 
-    [Command]
+    //[Command]
     /// <summary>
     /// Rotates board visually while just saving gems into a new array that is "rotated" 90 deg 
     /// </summary>
-    public void CmdRotateRight()
+    public void RotateRight()
     {
         if (CheckGems())
         {
@@ -1113,11 +1113,11 @@ public class NetworkPlayerScript : NetworkBehaviour
         }
     }
 
-    [Command]
+    //[Command]
     /// <summary>
     /// Rotates all board peices 90 deg anti clockwise
     /// </summary>
-    public void CmdRotateLeft()
+    public void RotateLeft()
     {
         if (CheckGems())
         {
