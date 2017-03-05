@@ -47,6 +47,14 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
 
     #endregion
 
+    #region Network Features
+
+    [SyncVar]
+    private GameObject objectID;
+    private NetworkIdentity objNetId;
+
+    #endregion
+
     #endregion
 
     #region Start
@@ -127,8 +135,19 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
     #endregion
 
     #region Destory Gem
+
+    //[Command]
     public void BlowUp()
     {
+        #region Networking
+
+        //objNetId = gameObject.GetComponent<NetworkIdentity>();
+        //objNetId.AssignClientAuthority(connectionToClient);
+        //// Do the thing here, update gem and such
+        //objNetId.RemoveClientAuthority(connectionToClient);
+
+        #endregion
+
         fireSoundEvent();
         ParticleSystem ps = Instantiate<ParticleSystem>(particleSystem);
         ps.transform.position = transform.position;
@@ -137,6 +156,12 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
         ParticleSystem.EmissionModule em = ps.emission;
         em.enabled = true;
         gameObject.GetComponent<MeshRenderer>().enabled = false;
+        //Network.Destroy(gameObject);
+    }
+
+    //[Command]
+    public void DestroyGem()
+    {
         Destroy(gameObject);
     }
     #endregion
