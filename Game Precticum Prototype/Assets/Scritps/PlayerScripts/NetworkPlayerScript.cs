@@ -207,15 +207,19 @@ public class NetworkPlayerScript : NetworkBehaviour
     {
         // set falling to 0
         int falling = 0;
-        foreach (GameObject gem in gems[0]/*Note: Add iterations through lists*/)
+        for (int i = 0; i < gems.Count; i++)
         {
-            // Add 1 if a gem cannot be selected, which means it is falling
-            if (gem != null &&
-                !gem.GetComponent<GemScript>().canSelect)
+            foreach (GameObject gem in gems[i])
             {
-                falling++;
+                // Add 1 if a gem cannot be selected, which means it is falling
+                if (gem != null &&
+                    !gem.GetComponent<GemScript>().canSelect)
+                {
+                    falling++;
+                }
             }
         }
+        
         if (falling > 0)
         {
             // If all gems are in their place
@@ -269,9 +273,11 @@ public class NetworkPlayerScript : NetworkBehaviour
             0), Quaternion.identity, transform);
         gem.GetComponent<GemScript>().isHand = false;
         //NetworkServer.Spawn(gem);
+        if (gems[x] == null)
+        {
+            //gems.Add(new SyncList<GameObject>());
+        }
         gems[x][y] = gem;
-        //gem = null;
-        //Destroy(gem.gameObject);
     }
 
     #endregion
@@ -303,8 +309,6 @@ public class NetworkPlayerScript : NetworkBehaviour
             FillBoardPiece(x, y);
         }
         handPiece = null;
-        //gem = null;
-        //Destroy(gem.gameObject);
     }
 
     #endregion
@@ -395,14 +399,18 @@ public class NetworkPlayerScript : NetworkBehaviour
             }
 
             // lock each peice
-            foreach (GameObject gem in gems[0] /*NOTE: Add iterations*/)
+            for (int i = 0; i < gems.Count; i++)
             {
-                if (gem != go)
+                foreach (GameObject gem in gems[i])
                 {
-                    gem.GetComponent<GemScript>().isSelected = false;
-                    gem.GetComponent<GemScript>().transform.GetChild(0).gameObject.SetActive(false);
+                    if (gem != go)
+                    {
+                        gem.GetComponent<GemScript>().isSelected = false;
+                        gem.GetComponent<GemScript>().transform.GetChild(0).gameObject.SetActive(false);
+                    }
                 }
             }
+            
             // Show hand is locked
             gridLocked = true;
         }
@@ -1048,22 +1056,20 @@ public class NetworkPlayerScript : NetworkBehaviour
        // gemSendPosY = null;
         //gemSendType = null;
 
-        // reset all gems to unlocked and unselected state 
-        foreach (GameObject gem in gems[0] /*NOTE: Add iterations*/)
+        for (int i = 0; i < gems.Count; i++)
         {
-            gem.GetComponent<GemScript>().Reset();
-            //gemSendPosX.Add((int)gem.transform.position.x);
-            //gemSendPosY.Add((int)gem.transform.position.y);
-            //gemSendType.Add(gem.tag);
+            // reset all gems to unlocked and unselected state 
+            foreach (GameObject gem in gems[i] )
+            {
+                gem.GetComponent<GemScript>().Reset();
 
+            }
+            foreach (GameObject gem in playerHand)
+            {
+                gem.GetComponent<GemScript>().Reset();
+            }
         }
-        foreach (GameObject gem in playerHand)
-        {
-            gem.GetComponent<GemScript>().Reset();
-            //gemSendPosX.Add((int)gem.transform.position.x);
-            //gemSendPosY.Add((int)gem.transform.position.y);
-            //gemSendType.Add(gem.tag);
-        }
+        
 
         // reset game board and hand
         // null reference pieces
@@ -1219,4 +1225,18 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
+}
+
+public class SyncListGameObject : SyncList<GameObject>
+{
+    protected override void SerializeItem(NetworkWriter netWriter, GameObject serialItem)
+    {
+        
+    }
+
+
+    protected override GameObject DeserializeItem(NetworkReader NW)
+    {
+        return null;
+    }
 }
