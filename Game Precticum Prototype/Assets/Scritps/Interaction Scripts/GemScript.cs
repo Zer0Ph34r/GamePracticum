@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.EventSystems;
 
 public class GemScript : NetworkPlayerScript //MonoBehaviour
 {
@@ -102,26 +103,27 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
     // When the Mouse clicks on a gem
     public void OnMouseDown()
     {
-        //if (!isLocalPlayer)
-        //    return;
-
-        if (canSelect)
+        if (!EventSystem.current.IsPointerOverGameObject())
         {
-            // Flips between selected and unselected states
-            if (isSelected)
+            if (canSelect)
             {
-                isSelected = false;
-                transform.GetChild(0).gameObject.SetActive(false);
-            }
-            else
-            {
-                isSelected = true;
-                transform.GetChild(0).gameObject.SetActive(true);
-            }
+                // Flips between selected and unselected states
+                if (isSelected)
+                {
+                    isSelected = false;
+                    transform.GetChild(0).gameObject.SetActive(false);
+                }
+                else
+                {
+                    isSelected = true;
+                    transform.GetChild(0).gameObject.SetActive(true);
+                }
 
-            // fire selected Event
-            Selected(gameObject);
+                // fire selected Event
+                Selected(gameObject);
+            }
         }
+        
     }
     #endregion
 
