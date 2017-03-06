@@ -1425,6 +1425,7 @@ public class GemMessageAssistant : MonoBehaviour
         myClient = new NetworkClient();
         myClient.RegisterHandler(MsgType.Connect, OnConnected);
         myClient.RegisterHandler(MyMsgType.gemInfo, OnChange);
+        Debug.Log("Both handlers were registered");
         //myClient.Connect("127.0.0.1", 4444);
     }
 
@@ -1433,7 +1434,7 @@ public class GemMessageAssistant : MonoBehaviour
         GemMessage msg = netMsg.ReadMessage<GemMessage>();
         GameObject player = GameObject.FindGameObjectWithTag("Player");
         player.GetComponent<NetworkPlayerScript>().SetOpponantBoard(msg.xPosition, msg.yPosition, msg.gemColor);
-        Debug.Log("OnScoreMessage " + msg.xPosition);
+        //Debug.Log("OnScoreMessage " + msg.xPosition);
     }
 
     public void OnConnected(NetworkMessage netMsg)
