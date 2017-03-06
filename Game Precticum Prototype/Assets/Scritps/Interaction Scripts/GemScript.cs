@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.EventSystems;
 
-public class GemScript : NetworkPlayerScript
+public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
 {
     #region Fields
 
@@ -17,7 +17,7 @@ public class GemScript : NetworkPlayerScript
     public bool canSelect { get; set; }
 
     // Serialable field
-    SyncGem serialGem;
+    public SyncGem serialGem { get; set; }
 
     // particle effect for destruction
     [SerializeField]

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Networking.NetworkSystem;
 using System;
 using Random = UnityEngine.Random;
 
@@ -33,8 +34,12 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     // arrays and lists of content
     GameObject[,] gems;
+    SyncGem[,] boardSync;
     GameObject[,] opponantTable;
-    GameObject[] playerHand;   
+
+    GameObject[] playerHand;
+    SyncGem[] handSync;
+    GameObject[] opponantHand;
 
     // save object positions for swapping
     Vector3 handPos;
@@ -77,6 +82,19 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
+    #region Message Fields
+
+    //const short MyBeginMsg = 1002;
+    //Set up special class for sending and recieving gem messages
+
+    GemMessageAssistant gemMessenger;
+
+
+    NetworkClient m_client;
+    uint myNetID;
+
+    #endregion
+
     #endregion
 
     #region Start
@@ -89,6 +107,17 @@ public class NetworkPlayerScript : NetworkBehaviour
         // set currTurn
         currTurn = true;
 
+        gameObject.AddComponent<GemMessageAssistant>();
+        gemMessenger = GetComponent<GemMessageAssistant>();
+        
+        myNetID = NetworkInstanceId.Invalid.Value;
+
+        if (NetworkClient.active &&
+            NetworkClient.allClients[0] != null)
+        {
+            //m_client = NetworkClient.allClients[0];
+            gemMessenger.SetupClient();
+        }
         
         #region Load Assets
 
@@ -115,6 +144,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         #region Create Game Board
         // create table
         gems = new GameObject[tableSize, tableSize];
+        boardSync = new SyncGem[tableSize, tableSize];
         opponantTable = new GameObject[tableSize, tableSize];
         //gems = new List<List<GameObject>>();
         // fill table and create game board
@@ -126,13 +156,18 @@ public class NetworkPlayerScript : NetworkBehaviour
         #region Create Player Hand
         // Create Player Hand Empty
         playerHand = new GameObject[3];
+        handSync = new SyncGem[3];
+        opponantHand = new GameObject[3];
         // Fill Player Hand with random gems
         for (int i = 0; i < 3; ++i)
         {
             // Add gem to hand array for checking later on
             GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + i, tableSize + 1, 0), Quaternion.identity, transform);
             go.GetComponent<GemScript>().isHand = true;
+            handSync[i] = go.GetComponent<GemScript>().serialGem;
             playerHand[i] = go;
+
+            // Create BG Squares for hand gems
             GameObject handBG = new GameObject();
             handBG.transform.SetParent(transform);
             handBG.AddComponent<SpriteRenderer>();
@@ -146,7 +181,8 @@ public class NetworkPlayerScript : NetworkBehaviour
             // Add gem to hand array for checking later on
             GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + i, tableSize + 51, 0), Quaternion.identity, transform);
             go.GetComponent<GemScript>().isHand = true;
-            playerHand[i] = go;
+            opponantHand[i] = go;
+            // Create BG Squares for opponant hand gems
             GameObject handBG = new GameObject();
             handBG.transform.SetParent(transform);
             handBG.AddComponent<SpriteRenderer>();
@@ -208,6 +244,8 @@ public class NetworkPlayerScript : NetworkBehaviour
         manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<MultiplayerController>();
         // Set reference in multiplayer manager to this object
         manager.SetPlayers(gameObject);
+
+        SendReadyToBeginMessage((int)myNetID);
 
     }
 
@@ -309,6 +347,7 @@ public class NetworkPlayerScript : NetworkBehaviour
             (int)transform.localPosition.y + y,
             0), Quaternion.identity, transform);
         gem.GetComponent<GemScript>().isHand = false;
+        boardSync[x, y] = gem.GetComponent<GemScript>().serialGem;
         gems[x, y] = gem;
     }
 
@@ -341,7 +380,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         // set handpiece to new game object for checking 
         handPiece = gem;
         gem.GetComponent<GemScript>().isHand = false;
-        NetworkServer.Spawn(gem);
+        boardSync[x, y] = gem.GetComponent<GemScript>().serialGem;
         gems[x, y] = gem;
         // Check if this new gem creates a chain
         if (CheckValidSwap(x, y))
@@ -1265,9 +1304,102 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
-    #region On Message Recieved
+    #region Message Methods
 
+    public void SendReadyToBeginMessage(int myId)
+    {
+        //IntegerMessage msg = new IntegerMessage(myId);
+        //m_client.Send(MyBeginMsg, msgX);
+    }
 
+    public void Init(NetworkClient client)
+    {
+        //m_client = client;
+        //NetworkServer.RegisterHandler(MyBeginMsg, OnServerReadyToBeginMessage);
+    }
+
+    void OnServerReadyToBeginMessage(NetworkMessage netMsg)
+    {
+        //IntegerMessage beginMessage = netMsg.ReadMessage<IntegerMessage>();
+        //GemMessageAssistant beginMessage = netMsg.ReadMessage<GemMessageAssistant>();
+        //Debug.Log("received OnServerReadyToBeginMessage " + beginMessage.value);
+    }
+
+    #region Set Opponant Board
+
+    public void SetOpponantBoard(short x, short y, short color)
+    {
+        Destroy(opponantTable[x, y]);
+        opponantTable[x, y] = null;
+        // Create correct gem in correct position
+        switch (color)
+        {
+            case 0: // White gem
+                opponantTable[x, y] = Instantiate(whiteGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+            case 1: //Yellow Gem
+                opponantTable[x, y] = Instantiate(yellowGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+            case 2: //Blue Gem
+                opponantTable[x, y] = Instantiate(blueGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+            case 3: // green Gem
+                opponantTable[x, y] = Instantiate(greenGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+            case 4: // Red Gem
+                opponantTable[x, y] = Instantiate(redGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+            case 5: // Purple Gem
+                opponantTable[x, y] = Instantiate(purpleGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+        }
+    }
+
+    #endregion
+
+    #region Set Opponant hand
+
+    public void SetOpponantHand(short x, short y, short color)
+    {
+        Destroy(opponantHand[x]);
+        opponantHand[x] = null;
+        // Create correct gem in correct position
+        switch (color)
+        {
+            case 0: // White gem
+                opponantHand[x] = Instantiate(whiteGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+            case 1: //Yellow Gem
+                opponantHand[x] = Instantiate(yellowGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+            case 2: //Blue Gem
+                opponantHand[x] = Instantiate(blueGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+            case 3: // green Gem
+                opponantHand[x] = Instantiate(greenGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+            case 4: // Red Gem
+                opponantHand[x] = Instantiate(redGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+            case 5: // Purple Gem
+                opponantHand[x] = Instantiate(purpleGem, new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                break;
+        }
+    }
+
+    #endregion
 
     #endregion
 
@@ -1275,6 +1407,60 @@ public class NetworkPlayerScript : NetworkBehaviour
 
 }
 
+#region Custom Gem Message Class
+
+public class GemMessageAssistant : MonoBehaviour
+{
+    NetworkClient myClient;
+
+    public class MyMsgType
+    {
+        public static short gemInfo = MsgType.Highest + 1;
+    };
+
+    public class GemMessage : MessageBase
+    {
+        public short xPosition;
+        public short yPosition;
+        public short gemColor;
+    }
+
+    public void SendGemInfo(short xPos, short yPos, short color)
+    {
+        GemMessage msg = new GemMessage();
+        msg.xPosition = xPos;
+        msg.yPosition = yPos;
+        msg.gemColor = color;
+
+        NetworkServer.SendToAll(MyMsgType.gemInfo, msg);
+    }
+
+    // Create a client and connect to the server port
+    public void SetupClient()
+    {
+        myClient = new NetworkClient();
+        myClient.RegisterHandler(MsgType.Connect, OnConnected);
+        myClient.RegisterHandler(MyMsgType.gemInfo, OnChange);
+        //myClient.Connect("127.0.0.1", 4444);
+    }
+
+    public void OnChange(NetworkMessage netMsg)
+    {
+        GemMessage msg = netMsg.ReadMessage<GemMessage>();
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        player.GetComponent<NetworkPlayerScript>().SetOpponantBoard(msg.xPosition, msg.yPosition, msg.gemColor);
+        Debug.Log("OnScoreMessage " + msg.xPosition);
+    }
+
+    public void OnConnected(NetworkMessage netMsg)
+    {
+        Debug.Log("Connected to server");
+    }
+}
+
+#endregion
+
+#region SyncGem Serializable Class
 [Serializable]
 public class SyncGem
 {
@@ -1289,4 +1475,4 @@ public class SyncGem
         colorEnum = color;
     }
 }
-
+#endregion
