@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.EventSystems;
 
-public class GemScript : NetworkPlayerScript //MonoBehaviour
+public class GemScript : NetworkPlayerScript
 {
     #region Fields
 

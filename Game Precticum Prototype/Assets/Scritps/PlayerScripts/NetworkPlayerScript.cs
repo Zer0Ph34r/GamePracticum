@@ -187,13 +187,14 @@ public class NetworkPlayerScript : NetworkBehaviour
         bg.transform.SetParent(transform);
         bg.AddComponent<SpriteRenderer>().sprite = background;
         bg.transform.localPosition = new Vector3(tableSize / 2, tableSize / 2, -15);
+        bg.GetComponent<SpriteRenderer>().sortingOrder = -20;
 
         // create opponant BG
         GameObject opponantBG = new GameObject();
         opponantBG.transform.SetParent(transform);
         opponantBG.AddComponent<SpriteRenderer>().sprite = background;
         opponantBG.transform.localPosition = new Vector3(tableSize / 2, tableSize / 2 + 50, -15);
-
+        opponantBG.GetComponent<SpriteRenderer>().sortingOrder = -20;
         #endregion
 
         #region Check Grid
