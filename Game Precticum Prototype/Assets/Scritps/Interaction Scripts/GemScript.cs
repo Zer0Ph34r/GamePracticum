@@ -68,7 +68,8 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
         isSelected = false;
         canSelect = true;
 
-        // get the color fo the particle effects based on gem tag
+        #region Get Color
+        // set color short based on color tag
         switch(gameObject.tag)
         {
             case "White":
@@ -90,6 +91,7 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
                 color = 5;
                 break;
         }
+        #endregion
 
         serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
     }

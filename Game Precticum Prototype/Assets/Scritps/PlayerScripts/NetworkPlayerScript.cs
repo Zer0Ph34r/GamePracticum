@@ -89,7 +89,6 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     GemMessageAssistant gemMessenger;
 
-
     NetworkClient m_client;
     uint myNetID;
 
@@ -107,18 +106,6 @@ public class NetworkPlayerScript : NetworkBehaviour
         // set currTurn
         currTurn = true;
 
-        gameObject.AddComponent<GemMessageAssistant>();
-        gemMessenger = GetComponent<GemMessageAssistant>();
-        
-        myNetID = NetworkInstanceId.Invalid.Value;
-
-        if (NetworkClient.active &&
-            NetworkClient.allClients[0] != null)
-        {
-            //m_client = NetworkClient.allClients[0];
-            gemMessenger.SetupClient();
-        }
-        
         #region Load Assets
 
         // Load Gems
@@ -245,7 +232,24 @@ public class NetworkPlayerScript : NetworkBehaviour
         // Set reference in multiplayer manager to this object
         manager.SetPlayers(gameObject);
 
-        SendReadyToBeginMessage((int)myNetID);
+        #region Send Message
+
+        // create and save reference to GemMessage Assistant
+        gameObject.AddComponent<GemMessageAssistant>();
+        gemMessenger = GetComponent<GemMessageAssistant>();
+
+        // get this objects unique Network ID
+        myNetID = NetworkInstanceId.Invalid.Value;
+
+        // Check if the connection has been made and if the client is active
+        if (NetworkClient.active &&
+            NetworkClient.allClients[0] != null)
+        {
+            // Save reference to client
+            gemMessenger.SetupClient();
+        }
+
+        #endregion
 
     }
 
@@ -1268,39 +1272,19 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
-    #region Create Gem
+    #region Send Message Method
 
-    //public void CreateGem(GemEnumScript gemEnum)
-    //{
-    //    //GameObject gem;
-    //    //gem = new GameObject();
-
-    //    // instantiate given gem at given location
-    //    switch (gemEnum.gemType)
-    //    {
-    //        case GlobalVariables.GemTypes.White:
-    //            Instantiate<GameObject>(whiteGem, gemEnum.Position, Quaternion.identity, null);
-    //            break;
-    //        case GlobalVariables.GemTypes.Red:
-    //            Instantiate<GameObject>(redGem, gemEnum.Position, Quaternion.identity, null);
-    //            break;
-    //        case GlobalVariables.GemTypes.Blue:
-    //            Instantiate<GameObject>(blueGem, gemEnum.Position, Quaternion.identity, null);
-    //            break;
-    //        case GlobalVariables.GemTypes.Yellow:
-    //            Instantiate<GameObject>(yellowGem, gemEnum.Position, Quaternion.identity, null);
-    //            break;
-    //        case GlobalVariables.GemTypes.Purple:
-    //            Instantiate<GameObject>(purpleGem, gemEnum.Position, Quaternion.identity, null);
-    //            break;
-    //        case GlobalVariables.GemTypes.Green:
-    //            Instantiate<GameObject>(greenGem, gemEnum.Position, Quaternion.identity, null);
-    //            break;
-    //    }
-
-    //    // return new gem
-    //    //return gem;
-    //}
+    /// <summary>
+    /// Call this method to send a message for each gem in the array
+    /// </summary>
+    public void SendMessage()
+    {
+        foreach (GameObject gem in gems)
+        {
+            GemScript g = gem.GetComponent<GemScript>();
+            gemMessenger.SendGemInfo(g.serialGem.xPos, g.serialGem.yPos, g.serialGem.colorEnum);
+        }
+    }
 
     #endregion
 

@@ -227,18 +227,23 @@ public class MultiplayerController : NetworkBehaviour
         // check if player 1 is null
         if (player1 == null)
         {
-            //SetupServer();
             player1 = player.GetComponent<NetworkPlayerScript>();
             player1Obj = player.gameObject;
             
         }
         else
         {
-            //SetupClient();
             player2 = player.GetComponent<NetworkPlayerScript>();
             player2Obj = player.gameObject;
             player.GetComponent<NetworkPlayerScript>().currTurn = false;
             
+        }
+
+        if (player1 != null &&
+            player2 != null)
+        {
+            player1.GetComponent<NetworkPlayerScript>().SendMessage();
+            player2.GetComponent<NetworkPlayerScript>().SendMessage();
         }
         if (!UI.isActiveAndEnabled)
         {
@@ -281,43 +286,6 @@ public class MultiplayerController : NetworkBehaviour
         GemScript.fireSoundEvent -= PlaySound;
         NetworkPlayerScript.fireScore -= SetScore;
     }
-
-    #endregion
-
-    #region Server Methods
-
-    #region Set UpServer 
-    /// <summary>
-    /// Creates an instance of the server on this machine
-    /// </summary>
-    public void SetupServer()
-    {
-        NetworkServer.Listen(443);
-    }
-    #endregion
-
-    #region Set Up Client
-    /// <summary>
-    /// Create a client and connect to the server port
-    /// </summary>
-    public void SetupClient()
-    {
-        myClient = new NetworkClient();
-        myClient.RegisterHandler(MsgType.Connect, OnConnected);
-        myClient.Connect("192.168.0.1", 443);
-    }
-    #endregion
-
-    #region Set Up Local Client
-    /// <summary>
-    /// Create a local client and connect to the local server
-    /// </summary>
-    public void SetupLocalClient()
-    {
-        myClient = ClientScene.ConnectLocalServer();
-        myClient.RegisterHandler(MsgType.Connect, OnConnected);
-    }
-    #endregion
 
     #endregion
 
