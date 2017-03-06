@@ -8,7 +8,8 @@ public class CameraSwapButtonScript : MonoBehaviour {
     // This button prevents players from interacting on the other players screen
     [SerializeField]
     Button overayButton;
-    GameObject opponant;
+    Vector3 position;
+    Vector3 opponant;
 
     // bool for checking swap state
     bool swapped = false;
@@ -22,16 +23,9 @@ public class CameraSwapButtonScript : MonoBehaviour {
     private void Start()
     {
         mainCamera = Camera.main;
-        // find the opponants position
-        GameObject[] positions = new GameObject[2];
-        positions = GameObject.FindGameObjectsWithTag("Position");
-        foreach (GameObject go in positions)
-        {
-            if (go.transform.position != transform.parent.position)
-            {
-                opponant = go;
-            }
-        }
+        // Set both positions
+        position = gameObject.transform.parent.transform.position;
+        opponant = new Vector3(position.x, position.y + 50, 0);
     }
 
     #region Swap Camera View
@@ -44,7 +38,7 @@ public class CameraSwapButtonScript : MonoBehaviour {
         if (swapped)
         {
             // set main camera active and deactivate the other camera
-            SetCamera(gameObject.transform.parent.gameObject);
+            SetCamera(position);
             overayButton.gameObject.SetActive(false);
             swapped = false;
         }
@@ -58,11 +52,11 @@ public class CameraSwapButtonScript : MonoBehaviour {
     }
     #endregion
 
-    void SetCamera(GameObject go)
+    void SetCamera(Vector3 Pos)
     {
         // set camera's position according to given object and table size
-        mainCamera.transform.localPosition = new Vector3(tableSize / 2 + go.transform.position.x,
-            tableSize * (6 / 8f) + go.transform.position.y,
+        mainCamera.transform.position = new Vector3(tableSize / 2 + Pos.x,
+            tableSize * (6 / 8f) + Pos.y,
             tableSize * 1.5f);
     }
 }

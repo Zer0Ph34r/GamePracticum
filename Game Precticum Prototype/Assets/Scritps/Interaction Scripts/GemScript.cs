@@ -52,9 +52,8 @@ public class GemScript : NetworkPlayerScript //MonoBehaviour
 
     #region Network Features
 
-    [SyncVar]
-    private GameObject objectID;
-    private NetworkIdentity objNetId;
+    //private GameObject objectID;
+    //private NetworkIdentity objNetId;
 
     #endregion
 

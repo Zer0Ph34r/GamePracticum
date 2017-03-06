@@ -4,7 +4,7 @@ using UnityEngine.Networking;
 using System;
 using Random = UnityEngine.Random;
 
-public class NetworkPlayerScript : NetworkManager
+public class NetworkPlayerScript : NetworkBehaviour
 {
 
     #region Fields
@@ -32,7 +32,8 @@ public class NetworkPlayerScript : NetworkManager
     int tableSize = GlobalVariables.TABLE_SIZE;
 
     // arrays and lists of content
-    //GameObject[,] gems;
+    GameObject[,] gems;
+    GameObject[,] opponantTable;
     GameObject[] playerHand;   
 
     // save object positions for swapping
@@ -76,13 +77,6 @@ public class NetworkPlayerScript : NetworkManager
 
     #endregion
 
-    #region Networking Fields
-
-    //NetworkIdentity
-    List<SyncList<GameObject>> gems;
-
-    #endregion
-
     #endregion
 
     #region Start
@@ -120,10 +114,12 @@ public class NetworkPlayerScript : NetworkManager
 
         #region Create Game Board
         // create table
-        //gems = new GameObject[tableSize, tableSize];
-        gems = new List<SyncList<GameObject>>();
+        gems = new GameObject[tableSize, tableSize];
+        opponantTable = new GameObject[tableSize, tableSize];
+        //gems = new List<List<GameObject>>();
         // fill table and create game board
         CreateGameBoard();
+        CreateOpponantBoard();
 
         #endregion
 
@@ -142,6 +138,20 @@ public class NetworkPlayerScript : NetworkManager
             handBG.AddComponent<SpriteRenderer>();
             handBG.GetComponent<SpriteRenderer>().sprite = gridBackground;
             handBG.transform.position = new Vector3(transform.localPosition.x + i, tableSize + 1, -0.5f);
+        }
+
+        // Create Opponant Hand
+        for (int i = 0; i < 3; ++i)
+        {
+            // Add gem to hand array for checking later on
+            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + i, tableSize + 51, 0), Quaternion.identity, transform);
+            go.GetComponent<GemScript>().isHand = true;
+            playerHand[i] = go;
+            GameObject handBG = new GameObject();
+            handBG.transform.SetParent(transform);
+            handBG.AddComponent<SpriteRenderer>();
+            handBG.GetComponent<SpriteRenderer>().sprite = gridBackground;
+            handBG.transform.position = new Vector3(transform.localPosition.x + i, tableSize + 51, -0.5f);
         }
 
         #endregion
@@ -178,6 +188,12 @@ public class NetworkPlayerScript : NetworkManager
         bg.AddComponent<SpriteRenderer>().sprite = background;
         bg.transform.localPosition = new Vector3(tableSize / 2, tableSize / 2, -15);
 
+        // create opponant BG
+        GameObject opponantBG = new GameObject();
+        opponantBG.transform.SetParent(transform);
+        opponantBG.AddComponent<SpriteRenderer>().sprite = background;
+        opponantBG.transform.localPosition = new Vector3(tableSize / 2, tableSize / 2 + 50, -15);
+
         #endregion
 
         #region Check Grid
@@ -209,9 +225,9 @@ public class NetworkPlayerScript : NetworkManager
     {
         // set falling to 0
         int falling = 0;
-        for (int i = 0; i < gems.Count; i++)
-        {
-            foreach (GameObject gem in gems[i])
+        //for (int i = 0; i < gems; i++)
+        //{
+            foreach (GameObject gem in gems)
             {
                 // Add 1 if a gem cannot be selected, which means it is falling
                 if (gem != null &&
@@ -220,7 +236,7 @@ public class NetworkPlayerScript : NetworkManager
                     falling++;
                 }
             }
-        }
+       //}
         
         if (falling > 0)
         {
@@ -258,6 +274,24 @@ public class NetworkPlayerScript : NetworkManager
             }
         }
     }
+
+    public void CreateOpponantBoard()
+    {
+        // creates 2D array of gems on the field
+        for (int i = 0; i < tableSize; ++i)
+        {
+            for (int k = 0; k < tableSize; ++k)
+            {
+                CreateOpponantPiece(i, k);
+                GameObject go = new GameObject();
+                go.transform.SetParent(transform);
+                go.AddComponent<SpriteRenderer>();
+                go.GetComponent<SpriteRenderer>().sprite = gridBackground;
+                go.transform.localPosition = new Vector3(i, k + 50, -0.5f);
+            }
+        }
+    }
+
     #endregion
 
     #region Create Piece
@@ -274,12 +308,17 @@ public class NetworkPlayerScript : NetworkManager
             (int)transform.localPosition.y + y,
             0), Quaternion.identity, transform);
         gem.GetComponent<GemScript>().isHand = false;
-        //NetworkServer.Spawn(gem);
-        if (gems[x] == null)
-        {
-            //gems.Add(new SyncList<GameObject>());
-        }
-        gems[x][y] = gem;
+        gems[x, y] = gem;
+    }
+
+    public void CreateOpponantPiece(int x, int y)
+    {
+        GameObject gem = Instantiate(RandomizeObject(),
+            new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y + 50,
+            0), Quaternion.identity, transform);
+        gem.GetComponent<GemScript>().isHand = false;
+        opponantTable[x, y] = gem;
     }
 
     #endregion
@@ -302,12 +341,12 @@ public class NetworkPlayerScript : NetworkManager
         handPiece = gem;
         gem.GetComponent<GemScript>().isHand = false;
         NetworkServer.Spawn(gem);
-        gems[x][y] = gem;
+        gems[x, y] = gem;
         // Check if this new gem creates a chain
         if (CheckValidSwap(x, y))
         {
-            gems[x][y].GetComponent<GemScript>().DestroyGem();
-            gems[x][y] = null;
+            gems[x, y].GetComponent<GemScript>().DestroyGem();
+            gems[x, y] = null;
             FillBoardPiece(x, y);
         }
         handPiece = null;
@@ -401,9 +440,9 @@ public class NetworkPlayerScript : NetworkManager
             }
 
             // lock each peice
-            for (int i = 0; i < gems.Count; i++)
-            {
-                foreach (GameObject gem in gems[i])
+            //for (int i = 0; i < gems.Count; i++)
+            //{
+                foreach (GameObject gem in gems)
                 {
                     if (gem != go)
                     {
@@ -411,7 +450,7 @@ public class NetworkPlayerScript : NetworkManager
                         gem.GetComponent<GemScript>().transform.GetChild(0).gameObject.SetActive(false);
                     }
                 }
-            }
+            //}
             
             // Show hand is locked
             gridLocked = true;
@@ -464,15 +503,15 @@ public class NetworkPlayerScript : NetworkManager
     {
         // check if the space below this is null
         if (y >= 1 &&
-            gems[x][y] != null &&
-            gems[x][y - 1] == null)
+            gems[x, y] != null &&
+            gems[x, y - 1] == null)
         {
             // Move gem into correct position
-            gems[x][y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
+            gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
             // set gem to new grid position
-            gems[x][y - 1] = gems[x][y];
+            gems[x, y - 1] = gems[x, y];
             // set old position to null
-            gems[x][y] = null;
+            gems[x, y] = null;
             // check below this new position
             CheckEmptyStart(x, y - 1);
         }
@@ -490,7 +529,7 @@ public class NetworkPlayerScript : NetworkManager
         {
             for (int l = 0; l < tableSize; ++l)
             {
-                if (gems[j][l] == null)
+                if (gems[j, l] == null)
                 {
                     FillBoardPiece(j, l);
                 }
@@ -512,8 +551,8 @@ public class NetworkPlayerScript : NetworkManager
                 // Check for null objects
                 if (go)
                 {
-                    gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x)]
-                        [(int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
+                    gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
+                        (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
                     go.GetComponent<GemScript>().DestroyGem();
                 }
             }
@@ -652,7 +691,7 @@ public class NetworkPlayerScript : NetworkManager
             string prevColor = "";
             for (int k = 0; k < tableSize; ++k)
             {
-                currCell = gems[i][k];
+                currCell = gems[i, k];
                 currColor = currCell.tag;
                 if (currColor != prevColor)
                 {
@@ -670,7 +709,7 @@ public class NetworkPlayerScript : NetworkManager
             string prevColor = "";
             for (int k = 0; k < tableSize; ++k)
             {
-                currCell = gems[k][i];
+                currCell = gems[k, i];
                 currColor = currCell.tag;
                 if (currColor != prevColor)
                 {
@@ -761,8 +800,8 @@ public class NetworkPlayerScript : NetworkManager
                 // Check for null objects
                 if (go)
                 {
-                    gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x)]
-                        [(int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
+                    gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
+                        (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
                     go.GetComponent<GemScript>().BlowUp();
                     score++;
                     fireScore();
@@ -805,7 +844,7 @@ public class NetworkPlayerScript : NetworkManager
             // make handPiece a board piece
             handPiece.GetComponent<GemScript>().isHand = false;
             // set handPiece into gem array
-            gems[(int)boardPos.x][(int)boardPos.y] = handPiece;
+            gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
             // set new positions to hand Piece
             handPiece.GetComponent<GemScript>().RunSwap(boardPos);
 
@@ -862,10 +901,10 @@ public class NetworkPlayerScript : NetworkManager
         // check if the piece is at least 3 away from the left edge
         if (x - 2 >= 0)
         {
-            if (gems[x - 1][y] != null &&
-                gems[x - 2][y] != null &&
-                handPiece.CompareTag(gems[x - 1][y].tag) &&
-                handPiece.CompareTag(gems[x - 2][y].tag))
+            if (gems[x - 1, y] != null &&
+                gems[x - 2, y] != null &&
+                handPiece.CompareTag(gems[x - 1, y].tag) &&
+                handPiece.CompareTag(gems[x - 2, y].tag))
             {
                 return true;
             }
@@ -873,10 +912,10 @@ public class NetworkPlayerScript : NetworkManager
         // check if the piece is at least 3 away from the right edge
         if (x + 2 < tableSize)
         {
-            if (gems[x + 1][y] != null &&
-                gems[x + 2][y] != null &&
-                handPiece.CompareTag(gems[x + 1][y].tag) &&
-                handPiece.CompareTag(gems[x + 2][y].tag))
+            if (gems[x + 1, y] != null &&
+                gems[x + 2, y] != null &&
+                handPiece.CompareTag(gems[x + 1, y].tag) &&
+                handPiece.CompareTag(gems[x + 2, y].tag))
             {
                 return true;
             }
@@ -884,10 +923,10 @@ public class NetworkPlayerScript : NetworkManager
         // check if the piece is at least 3 away from the bottom edge
         if (y - 2 >= 0)
         {
-            if (gems[x][y - 1] != null &&
-                gems[x][y - 2] != null &&
-                handPiece.CompareTag(gems[x][y - 1].tag) &&
-                handPiece.CompareTag(gems[x][y - 2].tag))
+            if (gems[x, y - 1] != null &&
+                gems[x, y - 2] != null &&
+                handPiece.CompareTag(gems[x, y - 1].tag) &&
+                handPiece.CompareTag(gems[x, y - 2].tag))
             {
                 return true;
             }
@@ -895,10 +934,10 @@ public class NetworkPlayerScript : NetworkManager
         // check if the piece is at least 3 away from the top edge
         if (y + 2 < tableSize)
         {
-            if (gems[x][y + 1] != null &&
-                gems[x][y + 2] != null &&
-                handPiece.CompareTag(gems[x][y + 1].tag) &&
-                handPiece.CompareTag(gems[x][y + 2].tag))
+            if (gems[x, y + 1] != null &&
+                gems[x, y + 2] != null &&
+                handPiece.CompareTag(gems[x, y + 1].tag) &&
+                handPiece.CompareTag(gems[x, y + 2].tag))
             {
                 return true;
             }
@@ -907,10 +946,10 @@ public class NetworkPlayerScript : NetworkManager
         if (y + 1 < tableSize &&
             y - 1 >= 0)
         {
-            if (gems[x][y + 1] != null &&
-                gems[x][y - 1] != null &&
-                handPiece.CompareTag(gems[x][y + 1].tag) &&
-                handPiece.CompareTag(gems[x][y - 1].tag))
+            if (gems[x, y + 1] != null &&
+                gems[x, y - 1] != null &&
+                handPiece.CompareTag(gems[x, y + 1].tag) &&
+                handPiece.CompareTag(gems[x, y - 1].tag))
             {
                 return true;
             }
@@ -919,10 +958,10 @@ public class NetworkPlayerScript : NetworkManager
         if (x + 1 < tableSize &&
             x - 1 >= 0)
         {
-            if (gems[x + 1][y] != null &&
-                gems[x - 1][y] != null &&
-                handPiece.CompareTag(gems[x + 1][y].tag) &&
-                handPiece.CompareTag(gems[x - 1][y].tag))
+            if (gems[x + 1, y] != null &&
+                gems[x - 1, y] != null &&
+                handPiece.CompareTag(gems[x + 1, y].tag) &&
+                handPiece.CompareTag(gems[x - 1, y].tag))
             {
                 return true;
             }
@@ -1001,7 +1040,7 @@ public class NetworkPlayerScript : NetworkManager
         {
             for (int k = 0; k < tableSize; ++k)
             {
-                if (gems[i][k] == null)
+                if (gems[i, k] == null)
                 {
                     FillBoardPiece(i, k);
                 }
@@ -1025,18 +1064,18 @@ public class NetworkPlayerScript : NetworkManager
     {
         // check if the space below this is null
         if (y >= 1 &&
-            gems[x][y] != null &&
-            gems[x][y - 1] == null)
+            gems[x, y] != null &&
+            gems[x, y - 1] == null)
         {
 
             // tell gem to move and where to move to
-            gems[x][y].GetComponent<GemScript>().RunFall(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
+            gems[x, y].GetComponent<GemScript>().RunFall(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
 
             // set gem to new grid position
-            gems[x][y - 1] = gems[x][y];
+            gems[x, y - 1] = gems[x, y];
 
             // set old position to null
-            gems[x][y] = null;
+            gems[x, y] = null;
 
             // check below this new position
             CheckFalling(x, y - 1);
@@ -1058,10 +1097,10 @@ public class NetworkPlayerScript : NetworkManager
        // gemSendPosY = null;
         //gemSendType = null;
 
-        for (int i = 0; i < gems.Count; i++)
-        {
+        //for (int i = 0; i < gems.Count; i++)
+        //{
             // reset all gems to unlocked and unselected state 
-            foreach (GameObject gem in gems[i] )
+            foreach (GameObject gem in gems)
             {
                 gem.GetComponent<GemScript>().Reset();
 
@@ -1070,7 +1109,7 @@ public class NetworkPlayerScript : NetworkManager
             {
                 gem.GetComponent<GemScript>().Reset();
             }
-        }
+        //}
         
 
         // reset game board and hand
@@ -1104,19 +1143,19 @@ public class NetworkPlayerScript : NetworkManager
                 for (int y = x; y < tableSize - x - 1; y++)
                 {
                     // store current cell in temp variable
-                    GameObject temp = gems[x][y];
+                    GameObject temp = gems[x, y];
 
                     // move values from right to top
-                    gems[x][y] = gems[y][tableSize - 1 - x];
+                    gems[x, y] = gems[y, tableSize - 1 - x];
 
                     // move values from bottom to right
-                    gems[y][tableSize - 1 - x] = gems[tableSize - 1 - x][tableSize - 1 - y];
+                    gems[y, tableSize - 1 - x] = gems[tableSize - 1 - x, tableSize - 1 - y];
 
                     // move values from left to bottom
-                    gems[tableSize - 1 - x][tableSize - 1 - y] = gems[tableSize - 1 - y][x];
+                    gems[tableSize - 1 - x, tableSize - 1 - y] = gems[tableSize - 1 - y, x];
 
                     // assign temp to left
-                    gems[tableSize - 1 - y][x] = temp;
+                    gems[tableSize - 1 - y, x] = temp;
                 }
             }
 
@@ -1125,7 +1164,7 @@ public class NetworkPlayerScript : NetworkManager
             {
                 for (int k = 0; k < tableSize; ++k)
                 {
-                    gems[i][k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                    gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
                 }
             }
         }
@@ -1147,19 +1186,19 @@ public class NetworkPlayerScript : NetworkManager
                 for (int y = x; y < tableSize - x - 1; y++)
                 {
                     // store current cell in temp variable
-                    GameObject temp = gems[x][y];
+                    GameObject temp = gems[x, y];
 
                     // move values from right to top
-                    gems[x][y] = gems[tableSize - 1 - y][x];
+                    gems[x, y] = gems[tableSize - 1 - y, x];
 
                     // move values from bottom to right
-                    gems[tableSize - 1 - y][x] = gems[tableSize - 1 - x][tableSize - 1 - y];
+                    gems[tableSize - 1 - y, x] = gems[tableSize - 1 - x, tableSize - 1 - y];
 
                     // move values from left to bottom
-                    gems[tableSize - 1 - x][tableSize - 1 - y] = gems[y][tableSize - 1 - x];
+                    gems[tableSize - 1 - x, tableSize - 1 - y] = gems[y, tableSize - 1 - x];
 
                     // assign temp to left
-                    gems[y][tableSize - 1 - x] = temp;
+                    gems[y, tableSize - 1 - x] = temp;
                 }
             }
 
@@ -1168,7 +1207,7 @@ public class NetworkPlayerScript : NetworkManager
             {
                 for (int k = 0; k < tableSize; ++k)
                 {
-                    gems[i][k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                    gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
                 }
             }
         }
@@ -1234,20 +1273,6 @@ public class NetworkPlayerScript : NetworkManager
     #endregion
 
 }
-
-//public class SyncListGameObject : SyncList<GameObject>
-//{
-//    protected override void SerializeItem(NetworkWriter netWriter, GameObject serialItem)
-//    {
-
-//    }
-
-
-//    protected override GameObject DeserializeItem(NetworkReader NW)
-//    {
-//        return null;
-//    }
-//}
 
 [Serializable]
 public class SyncGem
