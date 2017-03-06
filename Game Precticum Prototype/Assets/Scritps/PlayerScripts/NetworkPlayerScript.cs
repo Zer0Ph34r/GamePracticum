@@ -1448,9 +1448,9 @@ public class GemMessageAssistant : MonoBehaviour
 [Serializable]
 public class SyncGem
 {
-    public short xPos { get; set; }
-    public short yPos { get; set; }
-    public short colorEnum { get; set; }
+    public short xPos;//{ get; set; }
+    public short yPos;//{ get; set; }
+    public short colorEnum;//{ get; set; }
 
     public SyncGem(short x, short y, short color)
     {

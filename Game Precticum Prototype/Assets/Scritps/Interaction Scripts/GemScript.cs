@@ -17,7 +17,7 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
     public bool canSelect { get; set; }
 
     // Serialable field
-    public SyncGem serialGem { get; set; }
+    public SyncGem serialGem;//{ get; set; }
 
     // particle effect for destruction
     [SerializeField]
@@ -92,8 +92,8 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
                 break;
         }
         #endregion
-
         serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
+
     }
 
 
