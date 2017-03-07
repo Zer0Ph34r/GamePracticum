@@ -62,15 +62,11 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
 
     #region Start
 
-    private void Start()
+    private void Awake()
     {
-        // set initial state
-        isSelected = false;
-        canSelect = true;
-
         #region Get Color
         // set color short based on color tag
-        switch(gameObject.tag)
+        switch (gameObject.tag)
         {
             case "White":
                 color = 0;
@@ -92,10 +88,16 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
                 break;
         }
         #endregion
-        serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
 
+        serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
     }
 
+    public GemScript()
+    {
+        // set initial state
+        isSelected = false;
+        canSelect = true;
+    }
 
     #endregion
 

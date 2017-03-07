@@ -187,10 +187,18 @@ public class MultiplayerController : NetworkBehaviour
     void SetScore()
     {
         // Update Players Score
-        player1Score = player1.score * 10;
-        player1ScoreText.text = "Player 1: " + player1Score;
-        player2Score = player2.score * 10;
-        player2ScoreText.text = "Player 2: " + player2Score;
+        if (player1 != null)
+        {
+            player1Score = player1.score * 10;
+            player1ScoreText.text = "Player 1: " + player1Score;
+        }
+        // update player 2 score
+        if (player2 != null)
+        {
+            player2Score = player2.score * 10;
+            player2ScoreText.text = "Player 2: " + player2Score;
+        }
+        // set turn count
         turnText.text = "Turns: " + turns;
     }
 
@@ -200,15 +208,23 @@ public class MultiplayerController : NetworkBehaviour
 
     public void SetTurn()
     {
+        // check if it was player 1's turn
         if (!player1.currTurn)
         {
             player1.currTurn = true;
             turns--;
         }
-        if (!player2.currTurn)
+        // check if player 2 exists and it was their turn
+        if (player2 != null &&
+            !player2.currTurn)
         {
             player2.currTurn = true;
         }
+        else if (player1.currTurn)
+        {
+            player1.currTurn = true;
+        }
+        // check for game over
         if (turns == 0)
         {
             GameOver();
@@ -218,6 +234,7 @@ public class MultiplayerController : NetworkBehaviour
     #endregion
 
     #region Set Players
+
     /// <summary>
     /// Set player script references
     /// </summary>
@@ -229,14 +246,14 @@ public class MultiplayerController : NetworkBehaviour
         {
             player1 = player.GetComponent<NetworkPlayerScript>();
             player1Obj = player.gameObject;
-            
+            SetUpServer();
         }
         else
         {
             player2 = player.GetComponent<NetworkPlayerScript>();
             player2Obj = player.gameObject;
             player.GetComponent<NetworkPlayerScript>().currTurn = false;
-            
+            SetUpClient();
         }
 
         if (player1 != null &&
@@ -250,6 +267,28 @@ public class MultiplayerController : NetworkBehaviour
             UI.gameObject.SetActive(true);
             networkHUD.showGUI = false;
         }
+    }
+
+    #endregion
+
+    #region Set Up Server
+
+    public void SetUpServer()
+    {
+        NetworkServer.Listen(4444);
+        //myClient = ClientScene.ConnectLocalServer();
+        //myClient.RegisterHandler(MsgType.Connect, OnConnected);
+    } 
+
+    #endregion
+
+    #region Set Up Client
+
+    public void SetUpClient()
+    {
+        myClient = new NetworkClient();
+        myClient.RegisterHandler(MsgType.Connect, OnConnected);
+        myClient.Connect("128.198.115.51", 4444);
     }
 
     #endregion

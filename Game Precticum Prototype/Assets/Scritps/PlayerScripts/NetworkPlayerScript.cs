@@ -5,6 +5,121 @@ using UnityEngine.Networking.NetworkSystem;
 using System;
 using Random = UnityEngine.Random;
 
+#region Custom Gem Message Class
+
+public class GemMessageAssistant : MonoBehaviour
+{
+
+    #region Fields
+    // reference to this client
+    NetworkClient myClient;
+
+    #endregion
+
+    #region Message Type
+    public class MyMsgType
+    {
+        public static short gemInfo = 1000;
+    };
+    #endregion
+
+    #region Gem Message Class
+    public class GemMessage : MessageBase
+    {
+        public short xPosition;
+        public short yPosition;
+        public short gemColor;
+    }
+
+    #endregion
+
+    #region Send Message Method
+    public void SendGemInfo(short xPos, short yPos, short color)
+    {
+        GemMessage msg = new GemMessage();
+        msg.xPosition = xPos;
+        msg.yPosition = yPos;
+        msg.gemColor = color;
+
+        NetworkServer.SendToAll(MyMsgType.gemInfo, msg);
+    }
+
+    #endregion
+
+    #region Set Up Client Method
+    // Create a client and connect to the server port
+    public void SetupClient()
+    {
+        myClient = new NetworkClient();
+        myClient.RegisterHandler(MsgType.Connect, OnConnected);
+        myClient.RegisterHandler(MyMsgType.gemInfo, OnChange);
+        Debug.Log("Both handlers were registered");
+        //myClient.Connect("127.0.0.1", 4444);
+    }
+
+    #endregion
+
+    #region On Change Method
+    /// <summary>
+    /// Called when message is recieved
+    /// </summary>
+    /// <param name="netMsg"></param>
+    public void OnChange(NetworkMessage netMsg)
+    {
+        GemMessage msg = netMsg.ReadMessage<GemMessage>();
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        player.GetComponent<NetworkPlayerScript>().SetOpponantBoard(msg.xPosition, msg.yPosition, msg.gemColor);
+        //Debug.Log("OnScoreMessage " + msg.xPosition);
+    }
+    #endregion
+
+    #region On Connected Method
+    /// <summary>
+    /// Method is called when a connection is made witht the server
+    /// </summary>
+    /// <param name="netMsg"></param>
+    public void OnConnected(NetworkMessage netMsg)
+    {
+        Debug.Log("Connected to server");
+    }
+    #endregion
+
+}
+
+#endregion
+
+#region SyncGem Serializable Class
+[Serializable]
+public class SyncGem
+{
+
+    #region Fields
+    // All info to be sent in message between clients
+    public short xPos;//{ get; set; }
+    public short yPos;//{ get; set; }
+    public short colorEnum;//{ get; set; }
+    #endregion
+
+    #region Constructor
+    /// <summary>
+    /// Creates new instance of SyncGem with given values
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="color"></param>
+    public SyncGem(short x, short y, short color)
+    {
+        xPos = x;
+        yPos = y;
+        colorEnum = color;
+    }
+    #endregion
+
+}
+#endregion
+
+#region NetworkPlayer Class
+
 public class NetworkPlayerScript : NetworkBehaviour
 {
 
@@ -94,11 +209,11 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
+    NetworkClient myClient;
+
     #endregion
 
-    #region Start
-
-    private void Start()
+    public void Awake()
     {
         // initialize score
         score = 0;
@@ -118,14 +233,6 @@ public class NetworkPlayerScript : NetworkBehaviour
         // Load Sprites
         gridBackground = Resources.Load<Sprite>("Sprites/GridBacking");
 
-        #region Register prefabs
-        //ClientScene.RegisterPrefab(whiteGem);
-        //ClientScene.RegisterPrefab(redGem);
-        //ClientScene.RegisterPrefab(yellowGem);
-        //ClientScene.RegisterPrefab(greenGem);
-        //ClientScene.RegisterPrefab(blueGem);
-        //ClientScene.RegisterPrefab(purpleGem);
-        #endregion
         #endregion
 
         #region Create Game Board
@@ -231,25 +338,34 @@ public class NetworkPlayerScript : NetworkBehaviour
         manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<MultiplayerController>();
         // Set reference in multiplayer manager to this object
         manager.SetPlayers(gameObject);
+    }
 
-        #region Send Message
+    #region Constructor
 
-        // create and save reference to GemMessage Assistant
-        gameObject.AddComponent<GemMessageAssistant>();
-        gemMessenger = GetComponent<GemMessageAssistant>();
+    public NetworkPlayerScript()
+    {
+        
 
-        // get this objects unique Network ID
-        myNetID = NetworkInstanceId.Invalid.Value;
+        //Initialize();
 
-        // Check if the connection has been made and if the client is active
-        if (NetworkClient.active &&
-            NetworkClient.allClients[0] != null)
-        {
-            // Save reference to client
-            gemMessenger.SetupClient();
-        }
+        //#region Send Message
 
-        #endregion
+        //// create and save reference to GemMessage Assistant
+        //gameObject.AddComponent<GemMessageAssistant>();
+        //gemMessenger = GetComponent<GemMessageAssistant>();
+
+        //// get this objects unique Network ID
+        //myNetID = NetworkInstanceId.Invalid.Value;
+
+        //// Check if the connection has been made and if the client is active
+        //if (NetworkClient.active &&
+        //    NetworkClient.allClients[0] != null)
+        //{
+        //    // Save reference to client
+        //    gemMessenger.SetupClient();
+        //}
+
+        //#endregion
 
     }
 
@@ -1272,42 +1388,14 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
-    #region Send Message Method
+    #region Send Message
 
-    /// <summary>
-    /// Call this method to send a message for each gem in the array
-    /// </summary>
     public void SendMessage()
     {
-        foreach (GameObject gem in gems)
-        {
-            GemScript g = gem.GetComponent<GemScript>();
-            gemMessenger.SendGemInfo(g.serialGem.xPos, g.serialGem.yPos, g.serialGem.colorEnum);
-        }
+        gemMessenger.SendGemInfo(0,0,0);
     }
 
     #endregion
-
-    #region Message Methods
-
-    public void SendReadyToBeginMessage(int myId)
-    {
-        //IntegerMessage msg = new IntegerMessage(myId);
-        //m_client.Send(MyBeginMsg, msgX);
-    }
-
-    public void Init(NetworkClient client)
-    {
-        //m_client = client;
-        //NetworkServer.RegisterHandler(MyBeginMsg, OnServerReadyToBeginMessage);
-    }
-
-    void OnServerReadyToBeginMessage(NetworkMessage netMsg)
-    {
-        //IntegerMessage beginMessage = netMsg.ReadMessage<IntegerMessage>();
-        //GemMessageAssistant beginMessage = netMsg.ReadMessage<GemMessageAssistant>();
-        //Debug.Log("received OnServerReadyToBeginMessage " + beginMessage.value);
-    }
 
     #region Set Opponant Board
 
@@ -1387,77 +1475,5 @@ public class NetworkPlayerScript : NetworkBehaviour
 
     #endregion
 
-    #endregion
-
-}
-
-#region Custom Gem Message Class
-
-public class GemMessageAssistant : MonoBehaviour
-{
-    NetworkClient myClient;
-
-    public class MyMsgType
-    {
-        public static short gemInfo = MsgType.Highest + 1;
-    };
-
-    public class GemMessage : MessageBase
-    {
-        public short xPosition;
-        public short yPosition;
-        public short gemColor;
-    }
-
-    public void SendGemInfo(short xPos, short yPos, short color)
-    {
-        GemMessage msg = new GemMessage();
-        msg.xPosition = xPos;
-        msg.yPosition = yPos;
-        msg.gemColor = color;
-
-        NetworkServer.SendToAll(MyMsgType.gemInfo, msg);
-    }
-
-    // Create a client and connect to the server port
-    public void SetupClient()
-    {
-        myClient = new NetworkClient();
-        myClient.RegisterHandler(MsgType.Connect, OnConnected);
-        myClient.RegisterHandler(MyMsgType.gemInfo, OnChange);
-        Debug.Log("Both handlers were registered");
-        //myClient.Connect("127.0.0.1", 4444);
-    }
-
-    public void OnChange(NetworkMessage netMsg)
-    {
-        GemMessage msg = netMsg.ReadMessage<GemMessage>();
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        player.GetComponent<NetworkPlayerScript>().SetOpponantBoard(msg.xPosition, msg.yPosition, msg.gemColor);
-        //Debug.Log("OnScoreMessage " + msg.xPosition);
-    }
-
-    public void OnConnected(NetworkMessage netMsg)
-    {
-        Debug.Log("Connected to server");
-    }
-}
-
-#endregion
-
-#region SyncGem Serializable Class
-[Serializable]
-public class SyncGem
-{
-    public short xPos;//{ get; set; }
-    public short yPos;//{ get; set; }
-    public short colorEnum;//{ get; set; }
-
-    public SyncGem(short x, short y, short color)
-    {
-        xPos = x;
-        yPos = y;
-        colorEnum = color;
-    }
 }
 #endregion

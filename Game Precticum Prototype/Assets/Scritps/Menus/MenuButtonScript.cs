@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MenuButtonScript : MonoBehaviour {
 
@@ -23,7 +24,7 @@ public class MenuButtonScript : MonoBehaviour {
 
     #endregion
 
-    #region Button Methods
+    #region Start Method
 
     private void Start()
     {
@@ -35,10 +36,12 @@ public class MenuButtonScript : MonoBehaviour {
             gameObject.AddComponent<AudioSource>();
             audioSource = GetComponent<AudioSource>();
         }
-        
-
     }
+    #endregion
 
+    #region Button Methods
+
+    #region Load Scene
     /// <summary>
     /// Change scene to Main Scene
     /// </summary>
@@ -47,7 +50,9 @@ public class MenuButtonScript : MonoBehaviour {
         audioSource.PlayOneShot(click);
         SceneManager.LoadScene(sceneName);
     }
+    #endregion
 
+    #region Tutorial Button
     /// <summary>
     /// Open Tutoriel button
     /// </summary>
@@ -57,7 +62,9 @@ public class MenuButtonScript : MonoBehaviour {
         gameObject.SetActive(false);
         InstructionsCanvas.transform.gameObject.SetActive(true);
     }
+    #endregion
 
+    #region Credits Button
     /// <summary>
     /// Open credits canvas and close button canvas
     /// </summary>
@@ -67,7 +74,20 @@ public class MenuButtonScript : MonoBehaviour {
         CreditsCanvas.transform.gameObject.SetActive(true);
         gameObject.SetActive(false);
     }
+    #endregion
 
+    #region Slider Button
+    // Gets current slider setting
+    public void SubmitSliderSetting(Slider mainSlider)
+    {
+        //Displays the value of the slider in the console.
+        GlobalVariables.TURNS = (int)mainSlider.value;
+
+        Debug.Log(mainSlider.value);
+    }
+    #endregion
+
+    #region Disable
     /// <summary>
     /// Disable given game object
     /// </summary>
@@ -76,7 +96,9 @@ public class MenuButtonScript : MonoBehaviour {
         audioSource.PlayOneShot(click);
         gameObject.SetActive(false);
     }
+    #endregion
 
+    #region Enable
     /// <summary>
     /// Set given object active
     /// </summary>
@@ -86,7 +108,9 @@ public class MenuButtonScript : MonoBehaviour {
         audioSource.PlayOneShot(click);
         go.SetActive(true);
     }
+    #endregion
 
+    #region End Button
     /// <summary>
     /// Exit game
     /// </summary>
@@ -95,6 +119,7 @@ public class MenuButtonScript : MonoBehaviour {
         audioSource.PlayOneShot(click);
         Application.Quit();
     }
+    #endregion
 
     #endregion
 }
