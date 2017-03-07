@@ -11,6 +11,8 @@ public class MenuButtonScript : MonoBehaviour {
     Canvas CreditsCanvas;
     [SerializeField]
     Canvas InstructionsCanvas;
+    [SerializeField]
+    Text SliderText;
 
     // Sound Effect for clicking on buttons
     AudioClip click;
@@ -82,8 +84,7 @@ public class MenuButtonScript : MonoBehaviour {
     {
         //Displays the value of the slider in the console.
         GlobalVariables.TURNS = (int)mainSlider.value;
-
-        Debug.Log(mainSlider.value);
+        SliderText.text = "# of Turns: " + mainSlider.value;
     }
     #endregion
 

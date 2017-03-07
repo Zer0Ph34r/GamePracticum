@@ -11,7 +11,7 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
     // bool for being selected
     public bool isSelected { get; set; }
     // Bool for hand pieces
-    public bool isHand { get; set; }
+    public bool isHand; /*{ get; set; }*/
 
     // Bool to prevent gem selectoin while gem is moving
     public bool canSelect { get; set; }
@@ -48,13 +48,6 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
     //Check falling state event
     public delegate bool check();
     public static event check checkGems = null;
-
-    #endregion
-
-    #region Network Features
-
-    //private GameObject objectID;
-    //private NetworkIdentity objNetId;
 
     #endregion
 
@@ -187,10 +180,9 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
     {
         canSelect = false;
         // loops for learping between positions
-        while (Vector3.Distance(transform.localPosition, endPos) > 0.05 * Time.deltaTime)
+        while (Vector3.Distance(transform.localPosition, endPos) > 0.1)
         {
-            //float step = speed * Time.deltaTime;
-            transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPos, speed);
+            transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPos, speed * Time.deltaTime);
             yield return null;
         }
         // perfectly align gem
@@ -216,8 +208,7 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
         // loops for learping between positions
         while (Vector3.Distance(transform.position, endPos) > 0.1)
         {
-            //float step = speed * Time.deltaTime;
-            transform.position = Vector3.MoveTowards(transform.position, endPos, 0.05f);
+            transform.position = Vector3.MoveTowards(transform.position, endPos, 1.5f * Time.deltaTime);
             yield return null;
         }
         // perfectly align gem

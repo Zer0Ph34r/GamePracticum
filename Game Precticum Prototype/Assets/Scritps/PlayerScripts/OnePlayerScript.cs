@@ -722,7 +722,7 @@ public class OnePlayerScript : NetworkBehaviour
             foreach (GameObject go in move.GetList)
             {
                 // Check for null objects
-                if (go)
+                if (go != null)
                 {
                     gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
                         (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
