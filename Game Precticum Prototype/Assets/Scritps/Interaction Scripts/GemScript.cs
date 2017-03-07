@@ -180,7 +180,7 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
     {
         canSelect = false;
         // loops for learping between positions
-        while (Vector3.Distance(transform.localPosition, endPos) > 0.1)
+        while (Vector3.Distance(transform.localPosition, endPos) > 0.01)
         {
             transform.localPosition = Vector3.MoveTowards(transform.localPosition, endPos, speed * Time.deltaTime);
             yield return null;
@@ -206,7 +206,7 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
     {
         canSelect = false;
         // loops for learping between positions
-        while (Vector3.Distance(transform.position, endPos) > 0.1)
+        while (Vector3.Distance(transform.position, endPos) > 0.01)
         {
             transform.position = Vector3.MoveTowards(transform.position, endPos, 1.5f * Time.deltaTime);
             yield return null;

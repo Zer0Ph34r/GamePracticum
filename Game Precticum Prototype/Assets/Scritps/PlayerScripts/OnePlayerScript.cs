@@ -191,7 +191,7 @@ public class OnePlayerScript : NetworkBehaviour
         }
         if (falling > 0)
         {
-            // If all gems are in their place
+            // If any gem is still falling
             return false;
         }
         else
