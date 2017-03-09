@@ -28,6 +28,7 @@ public class OnePlayerScript : NetworkBehaviour
 
     // table size int X int
     int tableSize = GlobalVariables.TABLE_SIZE;
+    int worldSize = GlobalVariables.SCREEN_POSITION;
 
     // 2D array of table contents
     GameObject[,] gems;
@@ -97,7 +98,6 @@ public class OnePlayerScript : NetworkBehaviour
         #region Create Game Board
         // create table
         gems = new GameObject[tableSize, tableSize];
-        rotation = new GameObject[tableSize, tableSize];
         // fill table and create game board
         CreateGameBoard();
 
@@ -110,14 +110,16 @@ public class OnePlayerScript : NetworkBehaviour
         for (int i = 0; i < 3; ++i)
         {
             // Add gem to hand array for checking later on
-            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + i, tableSize + 1, 0), Quaternion.identity, transform);
+            GameObject go = (GameObject)Instantiate(RandomizeObject(), 
+                new Vector3(transform.localPosition.x + i /*+ (worldSize - tableSize)*/,
+                tableSize + 1 /*+ (worldSize - tableSize)*/, 0), Quaternion.identity, transform);
             go.GetComponent<GemScript>().isHand = true;
             playerHand[i] = go;
             GameObject handBG = new GameObject();
             handBG.transform.SetParent(transform);
             handBG.AddComponent<SpriteRenderer>();
             handBG.GetComponent<SpriteRenderer>().sprite = gridBackground;
-            handBG.transform.position = new Vector3(transform.localPosition.x + i, tableSize + 1, -0.5f);
+            handBG.transform.position = new Vector3(transform.localPosition.x + i /*+ (worldSize - tableSize)*/, tableSize + 1, -0.5f);
         }
 
         #endregion
@@ -137,9 +139,9 @@ public class OnePlayerScript : NetworkBehaviour
         //get main camera
         mainCamera = Camera.main;
         // set camera's position according to table size
-        mainCamera.transform.localPosition = new Vector3(tableSize / 2 + transform.position.x,
-            tableSize * (6 / 8f) + transform.position.y,
-            tableSize * 5);
+        mainCamera.transform.localPosition = new Vector3(worldSize / 2 + transform.position.x,
+            worldSize * (6 / 8f) + transform.position.y,
+            worldSize * 5);
         // Move Camera to face the gems instantiated
         mainCamera.transform.localRotation = Quaternion.Euler(new Vector3(0, 180, 0));
 
@@ -152,7 +154,7 @@ public class OnePlayerScript : NetworkBehaviour
         GameObject bg = new GameObject();
         bg.transform.SetParent(transform);
         bg.AddComponent<SpriteRenderer>().sprite = background;
-        bg.transform.position = new Vector3(tableSize / 2, tableSize / 2, -40);
+        bg.transform.position = new Vector3(worldSize / 2, worldSize / 2, -40);
 
         #endregion
 
@@ -221,7 +223,7 @@ public class OnePlayerScript : NetworkBehaviour
                 go.transform.SetParent(transform);
                 go.AddComponent<SpriteRenderer>();
                 go.GetComponent<SpriteRenderer>().sprite = gridBackground;
-                go.transform.localPosition = new Vector3(i, k , -0.5f);
+                go.transform.localPosition = new Vector3(i /*+ (worldSize - tableSize)*/, k /*+ (worldSize - tableSize)*/, -0.5f);
             }
         }
     }
@@ -236,10 +238,8 @@ public class OnePlayerScript : NetworkBehaviour
     /// <param name="y"></param>
     void CreateBoardPiece(int x, int y)
     {
-        GameObject go = Instantiate(RandomizeObject(),
-            new Vector3((int)transform.localPosition.x + x,
-            (int)transform.localPosition.y + y,
-            0), Quaternion.identity, transform);
+        GameObject go = Instantiate(RandomizeObject(), new Vector3((int)transform.localPosition.x + x /*+ (worldSize - tableSize)*/,
+            (int)transform.localPosition.y + y /*+ (worldSize - tableSize)*/, 0), Quaternion.identity, transform);
         go.GetComponent<GemScript>().isHand = false;
         gems[x, y] = go;
     }
@@ -256,10 +256,8 @@ public class OnePlayerScript : NetworkBehaviour
     void FillBoardPiece(int x, int y)
     {
         // create new piece at array position plus parent transform
-        GameObject go = Instantiate(RandomizeObject(),
-            new Vector3((int)transform.localPosition.x + x,
-            (int)transform.localPosition.y + y,
-            0), Quaternion.identity, transform);
+        GameObject go = Instantiate(RandomizeObject(), new Vector3((int)transform.localPosition.x + x /*+ (worldSize - tableSize)*/,
+            (int)transform.localPosition.y + y /*+ (worldSize - tableSize)*/, 0), Quaternion.identity, transform);
         // set handpiece to new game object for checking 
         handPiece = go;
         go.GetComponent<GemScript>().isHand = false;
@@ -439,15 +437,6 @@ public class OnePlayerScript : NetworkBehaviour
     /// </summary>
     void RefillOnStart()
     {
-        // First, drop all the gems as low as they can go
-        //for (int i = 0; i < tableSize; i++)
-        //{
-        //    for (int k = 1; k < tableSize; k++)
-        //    {
-        //        CheckEmptyStart(i, k);
-        //    }
-        //}
-
         // Now fill empty spaces with new gems
         for (int j = 0; j < tableSize; j++)
         {

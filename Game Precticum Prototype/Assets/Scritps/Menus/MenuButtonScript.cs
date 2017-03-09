@@ -12,7 +12,9 @@ public class MenuButtonScript : MonoBehaviour {
     [SerializeField]
     Canvas InstructionsCanvas;
     [SerializeField]
-    Text SliderText;
+    Text TurnSliderText;
+    [SerializeField]
+    Text GridSizeSliderText;
 
     // Sound Effect for clicking on buttons
     AudioClip click;
@@ -84,7 +86,15 @@ public class MenuButtonScript : MonoBehaviour {
     {
         //Displays the value of the slider in the console.
         GlobalVariables.TURNS = (int)mainSlider.value;
-        SliderText.text = "# of Turns: " + mainSlider.value;
+        TurnSliderText.text = "# of Turns: " + mainSlider.value;
+    }
+
+    // Gets current slider setting
+    public void SubmitGridSliderSetting(Slider mainSlider)
+    {
+        //Displays the value of the slider in the console.
+        GlobalVariables.TABLE_SIZE = (int)mainSlider.value;
+        GridSizeSliderText.text = "Grid Size: " + mainSlider.value + " x " + mainSlider.value;
     }
     #endregion
 

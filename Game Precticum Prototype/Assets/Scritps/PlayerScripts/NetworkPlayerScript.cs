@@ -145,7 +145,7 @@ public class NetworkPlayerScript : NetworkBehaviour
     #region Table/Hand Stuff
 
     // table size int X int
-    int tableSize = GlobalVariables.TABLE_SIZE;
+    int tableSize = GlobalVariables.SCREEN_POSITION;
 
     // arrays and lists of content
     GameObject[,] gems;

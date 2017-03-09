@@ -6,7 +6,7 @@ public class GameControllerScript : MonoBehaviour {
     #region Fields
 
     // table size int X int
-    int tableSize = GlobalVariables.TABLE_SIZE;
+    int tableSize = GlobalVariables.SCREEN_POSITION;
 
     // Score Tracker
     int score = 0;

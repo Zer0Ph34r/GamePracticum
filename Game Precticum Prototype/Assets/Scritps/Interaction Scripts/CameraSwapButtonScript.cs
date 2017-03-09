@@ -16,7 +16,7 @@ public class CameraSwapButtonScript : MonoBehaviour {
 
     // Main Camera
     Camera mainCamera;
-    int tableSize = GlobalVariables.TABLE_SIZE;
+    int tableSize = GlobalVariables.SCREEN_POSITION;
 
     #endregion
 

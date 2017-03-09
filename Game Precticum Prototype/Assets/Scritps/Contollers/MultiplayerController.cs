@@ -8,7 +8,7 @@ public class MultiplayerController : NetworkBehaviour
     #region Fields
 
     // table size int X int
-    int tableSize = GlobalVariables.TABLE_SIZE;
+    int tableSize = GlobalVariables.SCREEN_POSITION;
 
     #region UI Display Info
     // Score Tracker
