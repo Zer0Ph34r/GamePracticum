@@ -139,7 +139,7 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
 
     #region Destory Gem
 
-    //[Command]
+
     public void BlowUp()
     {
         #region Networking
@@ -158,14 +158,9 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
         ParticleSystem.EmissionModule em = ps.emission;
         em.enabled = true;
         gameObject.GetComponent<MeshRenderer>().enabled = false;
-        //Network.Destroy(gameObject);
+
     }
 
-    //[Command]
-    public void DestroyGem()
-    {
-        Destroy(gameObject);
-    }
     #endregion
 
     #endregion
@@ -196,6 +191,7 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
             serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
             runNextMethod();
         }
+        
     }
 
     /// <summary>
@@ -208,7 +204,7 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
         // loops for learping between positions
         while (Vector3.Distance(transform.position, endPos) > 0.01)
         {
-            transform.position = Vector3.MoveTowards(transform.position, endPos, 1.5f * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, endPos, 1.7f * Time.deltaTime);
             yield return null;
         }
         // perfectly align gem
@@ -222,7 +218,7 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
             serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
             runNextMethod();
         }
-
+        
     }
 
     #region Call Coroutines

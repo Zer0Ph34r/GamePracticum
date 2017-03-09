@@ -505,7 +505,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         // Check if this new gem creates a chain
         if (CheckValidSwap(x, y))
         {
-            gems[x, y].GetComponent<GemScript>().DestroyGem();
+            Destroy(gems[x, y]);
             gems[x, y] = null;
             FillBoardPiece(x, y);
         }
@@ -713,7 +713,7 @@ public class NetworkPlayerScript : NetworkBehaviour
                 {
                     gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
                         (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
-                    go.GetComponent<GemScript>().DestroyGem();
+                    Destroy(go);
                 }
             }
         }

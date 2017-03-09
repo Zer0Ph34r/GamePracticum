@@ -926,9 +926,9 @@ public class OnePlayerScript : NetworkBehaviour
         GemScript.runNextMethod -= RefillGrid;
 
         // First, drop all the gems as low as they can go
-        for (int i = 0; i < tableSize; i++)
+        for (short i = 0; i < tableSize; i++)
         {
-            for (int k = 1; k < tableSize; k++)
+            for (short k = 1; k < tableSize; k++)
             {
                 CheckFalling(i, k);
             }
@@ -960,9 +960,9 @@ public class OnePlayerScript : NetworkBehaviour
         GemScript.runNextMethod -= FillEmpty;
 
         // Now fill empty spaces with new gems
-        for (int i = 0; i < tableSize; i++)
+        for (short i = 0; i < tableSize; i++)
         {
-            for (int k = 0; k < tableSize; ++k)
+            for (short k = 0; k < tableSize; ++k)
             {
                 if (gems[i, k] == null)
                 {
@@ -1048,11 +1048,11 @@ public class OnePlayerScript : NetworkBehaviour
         if (CheckGems())
         {
             // Rotate peices using a simple temp object to not lose any gems
-            for (int x = 0; x < tableSize / 2; x++)
+            for (short x = 0; x < tableSize / 2; x++)
             {
                 // Consider elements in group of 4 in 
                 // current square
-                for (int y = x; y < tableSize - x - 1; y++)
+                for (short y = x; y < tableSize - x - 1; y++)
                 {
                     // store current cell in temp variable
                     GameObject temp = gems[x, y];
@@ -1072,9 +1072,9 @@ public class OnePlayerScript : NetworkBehaviour
             }
 
             //Now that we have our array rotated we need to move all gems to reflect their new rotation
-            for (int i = 0; i < tableSize; ++i)
+            for (short i = 0; i < tableSize; ++i)
             {
-                for (int k = 0; k < tableSize; ++k)
+                for (short k = 0; k < tableSize; ++k)
                 {
                     gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
                 }
@@ -1087,11 +1087,11 @@ public class OnePlayerScript : NetworkBehaviour
         if (CheckGems())
         {
             // Rotate peices using a simple temp object to not lose any gems
-            for (int x = 0; x < tableSize / 2; x++)
+            for (short x = 0; x < tableSize / 2; x++)
             {
                 // Consider elements in group of 4 in 
                 // current square
-                for (int y = x; y < tableSize - x - 1; y++)
+                for (short y = x; y < tableSize - x - 1; y++)
                 {
                     // store current cell in temp variable
                     GameObject temp = gems[x, y];
@@ -1111,9 +1111,9 @@ public class OnePlayerScript : NetworkBehaviour
             }
 
             //Now that we have our array rotated we need to move all gems to reflect their new rotation
-            for (int i = 0; i < tableSize; ++i)
+            for (short i = 0; i < tableSize; ++i)
             {
-                for (int k = 0; k < tableSize; ++k)
+                for (short k = 0; k < tableSize; ++k)
                 {
                     gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
                 }
