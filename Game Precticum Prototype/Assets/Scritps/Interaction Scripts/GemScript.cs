@@ -135,21 +135,13 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
         transform.GetChild(0).gameObject.SetActive(false);
 
     }
+
     #endregion
 
     #region Destory Gem
 
-
     public void BlowUp()
     {
-        #region Networking
-
-        //objNetId = gameObject.GetComponent<NetworkIdentity>();
-        //objNetId.AssignClientAuthority(connectionToClient);
-        //// Do the thing here, update gem and such
-        //objNetId.RemoveClientAuthority(connectionToClient);
-
-        #endregion
 
         fireSoundEvent();
         ParticleSystem ps = Instantiate<ParticleSystem>(particleSystem);
@@ -158,7 +150,7 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
         ParticleSystem.EmissionModule em = ps.emission;
         em.enabled = true;
         gameObject.GetComponent<MeshRenderer>().enabled = false;
-
+        Destroy(gameObject);
     }
 
     #endregion

@@ -726,6 +726,7 @@ public class OnePlayerScript : NetworkBehaviour
                 {
                     gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
                         (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
+                    // delete game object and set score
                     go.GetComponent<GemScript>().BlowUp();
                     score++;
                     fireScore();
@@ -763,23 +764,23 @@ public class OnePlayerScript : NetworkBehaviour
 
                 #region Move Board Piece
 
+                // Move board piece to hand position
+                boardPiece.GetComponent<GemScript>().RunSwap(handPos);
                 // Add board piece to player hand
                 playerHand[(int)handPos.x] = boardPiece;
                 // Turn board piece into hand piece
                 boardPiece.GetComponent<GemScript>().isHand = true;
-                // Move board piece to hand position
-                boardPiece.GetComponent<GemScript>().RunSwap(handPos);
 
                 #endregion
 
                 #region Move Hand Piece
 
+                // set new positions to hand Piece
+                handPiece.GetComponent<GemScript>().RunSwap(boardPos);
                 // make handPiece a board piece
                 handPiece.GetComponent<GemScript>().isHand = false;
                 // set handPiece into gem array
                 gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
-                // set new positions to hand Piece
-                handPiece.GetComponent<GemScript>().RunSwap(boardPos);
 
                 #endregion
 
@@ -811,6 +812,7 @@ public class OnePlayerScript : NetworkBehaviour
         // reset hand and board pieces
         boardPiece = null;
         handPiece = null;
+        // Reset hand and board positions
         handPos = Vector3.zero;
         boardPos = Vector3.zero;
 
@@ -986,19 +988,18 @@ public class OnePlayerScript : NetworkBehaviour
     void CheckFalling(int x, int y)
     {
         // check if the space below this is null
-        if (y >= 1 &&
+        if (y > 0 &&
             gems[x, y] != null &&
             gems[x, y - 1] == null)
         {
-
-            // tell gem to move and where to move to
-            gems[x, y].GetComponent<GemScript>().RunFall(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
-
             // set gem to new grid position
             gems[x, y - 1] = gems[x, y];
-            
+
             // set old position to null
             gems[x, y] = null;
+
+            // tell gem to move and where to move to
+            gems[x, y - 1].GetComponent<GemScript>().RunFall(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
 
             // check below this new position
             CheckFalling(x, y - 1);

@@ -492,16 +492,18 @@ public class NetworkPlayerScript : NetworkBehaviour
     /// <param name="y"></param>
     void FillBoardPiece(int x, int y)
     {
+        // Make sure gem in this position does not contain a gem
+        Destroy(gems[x, y]);
+        gems[x, y] = null;
+
         // create new piece at array position plus parent transform
-        GameObject gem = Instantiate(RandomizeObject(),
-            new Vector3((int)transform.localPosition.x + x,
-            (int)transform.localPosition.y + y,
-            0), Quaternion.identity, transform);
+        GameObject gem = Instantiate(RandomizeObject(), new Vector3((int)transform.localPosition.x + x,
+            (int)transform.localPosition.y + y, 0), Quaternion.identity, transform);
+        gems[x, y] = gem;
         // set handpiece to new game object for checking 
         handPiece = gem;
         gem.GetComponent<GemScript>().isHand = false;
         boardSync[x, y] = gem.GetComponent<GemScript>().serialGem;
-        gems[x, y] = gem;
         // Check if this new gem creates a chain
         if (CheckValidSwap(x, y))
         {
@@ -525,7 +527,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         // return object
         GameObject returnGem = null;
         // radom number between 0 and number of gems
-        switch ((int)Random.Range(0, 6))
+        switch ((short)Random.Range(0, 6))
         {
             case 0:
                 returnGem = whiteGem;
@@ -600,18 +602,15 @@ public class NetworkPlayerScript : NetworkBehaviour
             }
 
             // lock each peice
-            //for (int i = 0; i < gems.Count; i++)
-            //{
-                foreach (GameObject gem in gems)
+            foreach (GameObject gem in gems)
+            {
+                if (gem != go)
                 {
-                    if (gem != go)
-                    {
-                        gem.GetComponent<GemScript>().isSelected = false;
-                        gem.GetComponent<GemScript>().transform.GetChild(0).gameObject.SetActive(false);
-                    }
+                    gem.GetComponent<GemScript>().isSelected = false;
+                    gem.GetComponent<GemScript>().transform.GetChild(0).gameObject.SetActive(false);
                 }
-            //}
-            
+            }
+
             // Show hand is locked
             gridLocked = true;
         }
@@ -685,9 +684,9 @@ public class NetworkPlayerScript : NetworkBehaviour
     void RefillOnStart()
     {
         // Now fill empty spaces with new gems
-        for (int j = 0; j < tableSize; j++)
+        for (short j = 0; j < tableSize; j++)
         {
-            for (int l = 0; l < tableSize; ++l)
+            for (short l = 0; l < tableSize; ++l)
             {
                 if (gems[j, l] == null)
                 {
@@ -1196,9 +1195,9 @@ public class NetworkPlayerScript : NetworkBehaviour
         GemScript.runNextMethod -= FillEmpty;
 
         // Now fill empty spaces with new gems
-        for (int i = 0; i < tableSize; i++)
+        for (short i = 0; i < tableSize; i++)
         {
-            for (int k = 0; k < tableSize; ++k)
+            for (short k = 0; k < tableSize; ++k)
             {
                 if (gems[i, k] == null)
                 {
@@ -1253,24 +1252,15 @@ public class NetworkPlayerScript : NetworkBehaviour
     /// </summary>
     void ResetBoard()
     {
-        //gemSendPosX = null;
-       // gemSendPosY = null;
-        //gemSendType = null;
-
-        //for (int i = 0; i < gems.Count; i++)
-        //{
-            // reset all gems to unlocked and unselected state 
-            foreach (GameObject gem in gems)
-            {
-                gem.GetComponent<GemScript>().Reset();
-
-            }
-            foreach (GameObject gem in playerHand)
-            {
-                gem.GetComponent<GemScript>().Reset();
-            }
-        //}
-        
+        // reset all gems to unlocked and unselected state 
+        foreach (GameObject gem in gems)
+        {
+            gem.GetComponent<GemScript>().Reset();
+        }
+        foreach (GameObject gem in playerHand)
+        {
+            gem.GetComponent<GemScript>().Reset();
+        }
 
         // reset game board and hand
         // null reference pieces
