@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.EventSystems;
 
-public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
+public class GemScript : MonoBehaviour
 {
     #region Fields
 
@@ -140,16 +140,21 @@ public class GemScript : NetworkBehaviour /*NetworkPlayerScript*/
 
     #region Destory Gem
 
+    /// <summary>
+    /// Destroys gem and creates a new particle effect
+    /// </summary>
     public void BlowUp()
     {
-
+        // Play blow up sound effect
         fireSoundEvent();
-        ParticleSystem ps = Instantiate<ParticleSystem>(particleSystem);
+        // create new particle effect
+        ParticleSystem ps = Instantiate(particleSystem);
         ps.transform.position = transform.position;
         ParticleSystem.MainModule mm = ps.main;
         ParticleSystem.EmissionModule em = ps.emission;
         em.enabled = true;
-        gameObject.GetComponent<MeshRenderer>().enabled = false;
+        // Destroy game object
+        //gameObject.GetComponent<MeshRenderer>().enabled = false;
         Destroy(gameObject);
     }
 

@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
-public class MultiplayerController : NetworkBehaviour
+public class MultiplayerController : MonoBehaviour
 {
 
     #region Fields
@@ -25,22 +25,9 @@ public class MultiplayerController : NetworkBehaviour
     [SerializeField]
     Canvas UI;
     [SerializeField]
-    GameObject networkManager;
-    NetworkManagerHUD networkHUD;
-    [SerializeField]
     GameObject pauseMenu;
     [SerializeField]
     GameObject endScreen;
-    #endregion
-
-    #region Player Refereces
-    // Get reference to player 
-    [SyncVar]
-    GameObject player1Obj;
-    [SyncVar]
-    GameObject player2Obj;
-    NetworkPlayerScript player1;
-    NetworkPlayerScript player2;
     #endregion
 
     #region Sound Effect Fields
@@ -98,8 +85,8 @@ public class MultiplayerController : NetworkBehaviour
         turnText = GameObject.FindGameObjectWithTag("Turns").GetComponent<Text>();
         turnText.text = "Turns: " + turns;
 
-        UI.gameObject.SetActive(false);
-        networkHUD = networkManager.GetComponent<NetworkManagerHUD>();
+        //UI.gameObject.SetActive(false);
+        //networkHUD = networkManager.GetComponent<NetworkManagerHUD>();
 
         #endregion
 
@@ -186,18 +173,7 @@ public class MultiplayerController : NetworkBehaviour
     /// </summary>
     void SetScore()
     {
-        // Update Players Score
-        if (player1 != null)
-        {
-            player1Score = player1.score * 10;
-            player1ScoreText.text = "Player 1: " + player1Score;
-        }
-        // update player 2 score
-        if (player2 != null)
-        {
-            player2Score = player2.score * 10;
-            player2ScoreText.text = "Player 2: " + player2Score;
-        }
+        
         // set turn count
         turnText.text = "Turns: " + turns;
     }
@@ -208,22 +184,7 @@ public class MultiplayerController : NetworkBehaviour
 
     public void SetTurn()
     {
-        // check if it was player 1's turn
-        if (!player1.currTurn)
-        {
-            player1.currTurn = true;
-            turns--;
-        }
-        // check if player 2 exists and it was their turn
-        if (player2 != null &&
-            !player2.currTurn)
-        {
-            player2.currTurn = true;
-        }
-        else if (player1.currTurn)
-        {
-            player1.currTurn = true;
-        }
+        
         // check for game over
         if (turns == 0)
         {
@@ -241,32 +202,19 @@ public class MultiplayerController : NetworkBehaviour
     /// <param name="player"></param>
     public void SetPlayers(GameObject player)
     {
-        // check if player 1 is null
-        if (player1 == null)
+        if (!NetworkServer.active)
         {
-            player1 = player.GetComponent<NetworkPlayerScript>();
-            player1Obj = player.gameObject;
             SetUpServer();
         }
         else
         {
-            player2 = player.GetComponent<NetworkPlayerScript>();
-            player2Obj = player.gameObject;
-            player.GetComponent<NetworkPlayerScript>().currTurn = false;
             SetUpClient();
         }
 
-        if (player1 != null &&
-            player2 != null)
-        {
-            player1.GetComponent<NetworkPlayerScript>().SendMessage();
-            player2.GetComponent<NetworkPlayerScript>().SendMessage();
-        }
-        if (!UI.isActiveAndEnabled)
-        {
-            UI.gameObject.SetActive(true);
-            networkHUD.showGUI = false;
-        }
+        //if (!UI.isActiveAndEnabled)
+        //{
+        //    UI.gameObject.SetActive(true);
+        //}
     }
 
     #endregion

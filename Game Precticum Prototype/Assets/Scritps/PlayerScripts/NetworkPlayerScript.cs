@@ -120,7 +120,7 @@ public class SyncGem
 
 #region NetworkPlayer Class
 
-public class NetworkPlayerScript : NetworkBehaviour
+public class NetworkPlayerScript : MonoBehaviour
 {
 
     #region Fields
@@ -240,7 +240,6 @@ public class NetworkPlayerScript : NetworkBehaviour
         gems = new GameObject[tableSize, tableSize];
         boardSync = new SyncGem[tableSize, tableSize];
         opponantTable = new GameObject[tableSize, tableSize];
-        //gems = new List<List<GameObject>>();
         // fill table and create game board
         CreateGameBoard();
         CreateOpponantBoard();
@@ -256,7 +255,7 @@ public class NetworkPlayerScript : NetworkBehaviour
         for (int i = 0; i < 3; ++i)
         {
             // Add gem to hand array for checking later on
-            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + i, tableSize + 1, 0), Quaternion.identity, transform);
+            GameObject go = Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + i, tableSize + 1, 0), Quaternion.identity, transform);
             go.GetComponent<GemScript>().isHand = true;
             handSync[i] = go.GetComponent<GemScript>().serialGem;
             playerHand[i] = go;
@@ -273,9 +272,10 @@ public class NetworkPlayerScript : NetworkBehaviour
         for (int i = 0; i < 3; ++i)
         {
             // Add gem to hand array for checking later on
-            GameObject go = (GameObject)Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + i, tableSize + 51, 0), Quaternion.identity, transform);
+            GameObject go = Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + i, tableSize + 51, 0), Quaternion.identity, transform);
             go.GetComponent<GemScript>().isHand = true;
             opponantHand[i] = go;
+
             // Create BG Squares for opponant hand gems
             GameObject handBG = new GameObject();
             handBG.transform.SetParent(transform);
@@ -339,37 +339,6 @@ public class NetworkPlayerScript : NetworkBehaviour
         // Set reference in multiplayer manager to this object
         manager.SetPlayers(gameObject);
     }
-
-    #region Constructor
-
-    public NetworkPlayerScript()
-    {
-        
-
-        //Initialize();
-
-        //#region Send Message
-
-        //// create and save reference to GemMessage Assistant
-        //gameObject.AddComponent<GemMessageAssistant>();
-        //gemMessenger = GetComponent<GemMessageAssistant>();
-
-        //// get this objects unique Network ID
-        //myNetID = NetworkInstanceId.Invalid.Value;
-
-        //// Check if the connection has been made and if the client is active
-        //if (NetworkClient.active &&
-        //    NetworkClient.allClients[0] != null)
-        //{
-        //    // Save reference to client
-        //    gemMessenger.SetupClient();
-        //}
-
-        //#endregion
-
-    }
-
-    #endregion
 
     #region Methods
 
@@ -454,7 +423,6 @@ public class NetworkPlayerScript : NetworkBehaviour
     #endregion
 
     #region Create Piece
-    ////[Command]
     /// <summary>
     /// Creates Random Piece and adds it ot the board of gems
     /// </summary>
@@ -484,7 +452,6 @@ public class NetworkPlayerScript : NetworkBehaviour
     #endregion
 
     #region Refill Board
-    //[Command]
     /// <summary>
     /// Creates Random Piece and adds it ot the board of gems
     /// </summary>
