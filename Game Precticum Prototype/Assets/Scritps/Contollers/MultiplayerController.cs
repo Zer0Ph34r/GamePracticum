@@ -10,6 +10,10 @@ public class MultiplayerController : MonoBehaviour
     // table size int X int
     int tableSize = GlobalVariables.SCREEN_POSITION;
 
+    // load in player prefabs
+    GameObject serverPlayer;
+    GameObject clientPlayer;
+
     #region UI Display Info
     // Score Tracker
     int player1Score = 0;
@@ -66,16 +70,25 @@ public class MultiplayerController : MonoBehaviour
             audioSource = GetComponent<AudioSource>();
         }
 
+        serverPlayer = Resources.Load<GameObject>("Prefabs/ServerPlayerPrefab");
+        clientPlayer = Resources.Load<GameObject>("Prefabs/ClientPlayerPrefab");
+
         // Save reference ot pause canvas
         pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
         pauseMenu.gameObject.SetActive(false);
         endScreen.gameObject.SetActive(false);
+
+        #region Sounds
 
         // Load in sound effects
         break1 = Resources.Load<AudioClip>("Sounds/Break1");
         break2 = Resources.Load<AudioClip>("Sounds/Break2");
         break3 = Resources.Load<AudioClip>("Sounds/Break3");
         break4 = Resources.Load<AudioClip>("Sounds/Break4");
+
+        #endregion
+
+        #region Score Display
 
         // Score Display
         player1ScoreText = GameObject.FindGameObjectWithTag("Text").GetComponent<Text>();
@@ -84,9 +97,7 @@ public class MultiplayerController : MonoBehaviour
         player2ScoreText.text = "Player 2: " + player2Score;
         turnText = GameObject.FindGameObjectWithTag("Turns").GetComponent<Text>();
         turnText.text = "Turns: " + turns;
-
-        //UI.gameObject.SetActive(false);
-        //networkHUD = networkManager.GetComponent<NetworkManagerHUD>();
+        #endregion
 
         #endregion
 
@@ -134,6 +145,8 @@ public class MultiplayerController : MonoBehaviour
 
         #endregion
 
+        // Create player based on nectwork connection
+        Instantiate(serverPlayer, Vector3.zero, Quaternion.identity, null);
     }
 
     #endregion
@@ -173,7 +186,6 @@ public class MultiplayerController : MonoBehaviour
     /// </summary>
     void SetScore()
     {
-        
         // set turn count
         turnText.text = "Turns: " + turns;
     }
@@ -202,19 +214,16 @@ public class MultiplayerController : MonoBehaviour
     /// <param name="player"></param>
     public void SetPlayers(GameObject player)
     {
-        if (!NetworkServer.active)
-        {
-            SetUpServer();
-        }
-        else
-        {
-            SetUpClient();
-        }
+        // try setting up a network client
+        //SetUpClient();
 
-        //if (!UI.isActiveAndEnabled)
+        // if there was no connection, create server
+        //if (!myClient.isConnected)
         //{
-        //    UI.gameObject.SetActive(true);
+        //    SetUpServer();
+        //    //SetUpClient();
         //}
+
     }
 
     #endregion
@@ -235,13 +244,15 @@ public class MultiplayerController : MonoBehaviour
     public void SetUpClient()
     {
         myClient = new NetworkClient();
-        myClient.RegisterHandler(MsgType.Connect, OnConnected);
         myClient.Connect("128.198.115.51", 4444);
+        myClient.RegisterHandler(MsgType.Connect, OnConnected);
+        
     }
 
     #endregion
 
     #region GameOver
+
     /// <summary>
     /// Sets game to game over state showing final score and end game options
     /// </summary>
