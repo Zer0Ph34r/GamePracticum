@@ -210,6 +210,9 @@ public class NetworkPlayerScript : MonoBehaviour
     #endregion
 
     NetworkClient myClient;
+    NetworkMessageDelegate OnConnected;
+
+    public bool isClient = true;
 
     #endregion
 
@@ -335,9 +338,18 @@ public class NetworkPlayerScript : MonoBehaviour
         #endregion
 
         // get reference to multiplayer manager
-        manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<MultiplayerController>();
+        //manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<MultiplayerController>();
         // Set reference in multiplayer manager to this object
-        manager.SetPlayers(gameObject);
+        //manager.SetPlayers(gameObject);
+
+        if (isClient)
+        {
+            SetUpClient();
+        }
+        else
+        {
+            SetUpServer();
+        }
     }
 
     #region Methods
@@ -1341,6 +1353,27 @@ public class NetworkPlayerScript : MonoBehaviour
         // Remove methods from events
         GemScript.Selected -= lockGems;
         GemScript.checkGems -= CheckGems;
+    }
+
+    #endregion
+
+    #region Set Up Server
+
+    public void SetUpServer()
+    {
+        NetworkServer.Listen(4445);
+
+    }
+
+    #endregion
+
+    #region Set Up Client
+
+    public void SetUpClient()
+    {
+        myClient = new NetworkClient();
+        //myClient.RegisterHandler(MsgType.Connect, OnConnected);
+        myClient.Connect("174.24.34.179", 4445);
     }
 
     #endregion

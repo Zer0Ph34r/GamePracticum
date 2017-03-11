@@ -50,7 +50,7 @@ public class MultiplayerController : MonoBehaviour
     #region Server Fields
     // variables for getting server client connections
     NetworkClient myClient;
-    NetworkMessageDelegate OnConnected;
+    //NetworkMessageDelegate OnConnected;
     #endregion
 
     #endregion
@@ -145,8 +145,8 @@ public class MultiplayerController : MonoBehaviour
 
         #endregion
 
-        // Create player based on nectwork connection
-        Instantiate(serverPlayer, Vector3.zero, Quaternion.identity, null);
+        
+        
     }
 
     #endregion
@@ -228,28 +228,28 @@ public class MultiplayerController : MonoBehaviour
 
     #endregion
 
-    #region Set Up Server
+    //#region Set Up Server
 
-    public void SetUpServer()
-    {
-        NetworkServer.Listen(4444);
-        //myClient = ClientScene.ConnectLocalServer();
-        //myClient.RegisterHandler(MsgType.Connect, OnConnected);
-    } 
+    //public void SetUpServer()
+    //{
+    //    NetworkServer.Listen(4444);
+    //    //myClient = ClientScene.ConnectLocalServer();
+    //    //myClient.RegisterHandler(MsgType.Connect, OnConnected);
+    //} 
 
-    #endregion
+    //#endregion
 
-    #region Set Up Client
+    //#region Set Up Client
 
-    public void SetUpClient()
-    {
-        myClient = new NetworkClient();
-        myClient.Connect("128.198.115.51", 4444);
-        myClient.RegisterHandler(MsgType.Connect, OnConnected);
+    //public void SetUpClient()
+    //{
+    //    myClient = new NetworkClient();
+    //    myClient.Connect("174.24.34.179", 4444);
+    //    myClient.RegisterHandler(MsgType.Connect, OnConnected);
         
-    }
+    //}
 
-    #endregion
+    //#endregion
 
     #region GameOver
 
