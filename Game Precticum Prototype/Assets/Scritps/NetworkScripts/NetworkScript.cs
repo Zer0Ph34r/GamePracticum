@@ -48,10 +48,10 @@ public class GemMessageAssistant
     /// Method is called when a connection is made witht the server
     /// </summary>
     /// <param name="netMsg"></param>
-    public void OnConnected(NetworkMessage netMsg)
-    {
-        Debug.Log("Connected to server");
-    }
+    //public void OnConnected(NetworkMessage netMsg)
+    //{
+    //    Debug.Log("Connected to server");
+    //}
     #endregion
 
 }

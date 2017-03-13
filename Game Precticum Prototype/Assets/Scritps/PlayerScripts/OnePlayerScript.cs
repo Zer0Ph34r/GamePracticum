@@ -666,7 +666,7 @@ public class OnePlayerScript : NetworkBehaviour
         {
             if (nonDuplicate[0].sameX() &&
                 nonDuplicate[0].returnPiece(2).
-                transform.position.y == tableSize - 1)
+                transform.position.y - (worldSize - tableSize) == tableSize - 1)
             {
                 topSwapped = true;
             }
@@ -677,7 +677,7 @@ public class OnePlayerScript : NetworkBehaviour
             if (nonDuplicate.Count == 1 &&
             nonDuplicate[0].sameX() &&
             nonDuplicate[0].returnPiece(3).
-            transform.position.y == tableSize - 1)
+            transform.position.y - (worldSize - tableSize) == tableSize - 1)
             {
                 topSwapped = true;
             }
@@ -688,13 +688,13 @@ public class OnePlayerScript : NetworkBehaviour
             if (nonDuplicate.Count == 1 &&
             nonDuplicate[0].sameX() &&
             nonDuplicate[0].returnPiece(4).
-            transform.position.y == tableSize - 1)
+            transform.position.y - (worldSize - tableSize) == tableSize - 1)
             {
                 topSwapped = true;
             }
         }
 
-
+        // Return list of non duplicates gems
         return nonDuplicate;
 
         #endregion
@@ -776,7 +776,7 @@ public class OnePlayerScript : NetworkBehaviour
 
                 #endregion
 
-                if (boardPos.y == tableSize - 1)
+                if (boardPos.y - (worldSize - tableSize) == tableSize - 1)
                 {
                     topSwapped = true;
                 }
