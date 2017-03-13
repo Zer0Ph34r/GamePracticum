@@ -82,7 +82,7 @@ public class GemScript : MonoBehaviour
         }
         #endregion
 
-        serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
+        SetGemInfo();
     }
 
     public GemScript()
@@ -95,6 +95,11 @@ public class GemScript : MonoBehaviour
     #endregion
 
     #region Methods
+
+    public void SetGemInfo()
+    {
+        serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
+    }
 
     #region Select
     // When the Mouse clicks on a gem
