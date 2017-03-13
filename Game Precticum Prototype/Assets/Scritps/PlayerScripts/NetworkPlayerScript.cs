@@ -1217,8 +1217,36 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #endregion
 
+    #region Networking Methods
+
+    /// <summary>
+    /// Send players currne tboard config to opponant through messages
+    /// </summary>
+    public void SendBoard()
+    {
+        // loops through all gems in array 2D
+        foreach (GameObject gem in gems)
+        {
+            short x = gem.GetComponent<GemScript>().serialGem.xPos;
+            short y = gem.GetComponent<GemScript>().serialGem.yPos;
+            short color = gem.GetComponent<GemScript>().serialGem.colorEnum;
+
+            // send message
+            NetworkScript.instance.SendInfo(x, y, color);
+            
+        }
+    }
+
+    #endregion
+
     #region Set Opponant Board
 
+    /// <summary>
+    /// Using sent data, set opponantTable accordingly
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="color"></param>
     public void SetOpponantBoard(short x, short y, short color)
     {
         Destroy(opponantTable[x, y]);
@@ -1257,6 +1285,12 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Set Opponant hand
 
+    /// <summary>
+    /// Using sent data set oppanantHand accordingly
+    /// </summary>
+    /// <param name="x"></param>
+    /// <param name="y"></param>
+    /// <param name="color"></param>
     public void SetOpponantHand(short x, short y, short color)
     {
         Destroy(opponantHand[x]);

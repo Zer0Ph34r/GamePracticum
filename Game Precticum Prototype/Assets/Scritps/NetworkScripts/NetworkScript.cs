@@ -26,7 +26,7 @@ public class GemMessageAssistant
         msg.gemColor = color;
 
         messageClient.Send(GemMsg.messageType, msg);
-        //NetworkServer.SendToAll(GemMsg.messageType, msg);
+
     }
 
     #endregion
@@ -115,11 +115,13 @@ public class NetworkScript : NetworkManager
 
     #endregion
 
-    NetworkClient myClient;
-
     public static NetworkScript instance;
 
+    [SerializeField]
+    GameObject playerInstance;
+
     public bool isClient = true;
+    public bool canSend { get; set; }
 
     #region Awake
     private void Awake()
@@ -137,24 +139,30 @@ public class NetworkScript : NetworkManager
         {
             StartClient();
             client.RegisterHandler(GemMsg.messageType, OnMessageReceive);
-            gemMessenger.SendGemInfo(client, 0, 0, 0);
+            
         }
         else
         {
             // ctart a server
             StartServer();
-
-            //NetworkConnection.
+            //NetworkServer.
             NetworkServer.RegisterHandler(GemMsg.messageType, OnMessageReceive);
         }
     }
     #endregion
+
+    public void SendInfo(short xPos, short yPos, short color)
+    {
+        gemMessenger.SendGemInfo(client, xPos, yPos, color);
+    }
 
     #region On Connected Client
     public override void OnClientConnect(NetworkConnection conn)
     {
         base.OnClientConnect(conn);
         Debug.Log("This client has connected to the server - NetConn: " + conn);
+        canSend = true;
+        playerInstance.GetComponent<NetworkPlayerScript>();
     }
     #endregion
 
