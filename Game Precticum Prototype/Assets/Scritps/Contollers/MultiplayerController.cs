@@ -51,6 +51,7 @@ public class MultiplayerController : MonoBehaviour
     // variables for getting server client connections
     NetworkClient myClient;
     //NetworkMessageDelegate OnConnected;
+    NetworkMessageDelegate OnMessageReceive;
     #endregion
 
     #endregion

@@ -7,20 +7,13 @@ using Random = UnityEngine.Random;
 
 #region Custom Gem Message Class
 
-public class GemMessageAssistant : MonoBehaviour
+public class GemMessageAssistant : MessageBase
 {
 
     #region Fields
     // reference to this client
     NetworkClient myClient;
 
-    #endregion
-
-    #region Message Type
-    public class MyMsgType
-    {
-        public static short gemInfo = 1000;
-    };
     #endregion
 
     #region Gem Message Class
@@ -41,7 +34,9 @@ public class GemMessageAssistant : MonoBehaviour
         msg.yPosition = yPos;
         msg.gemColor = color;
 
-        NetworkServer.SendToAll(MyMsgType.gemInfo, msg);
+        Debug.Log("Message Received");
+
+        NetworkServer.SendToAll(GemMsg.messageType, msg);
     }
 
     #endregion
@@ -52,7 +47,7 @@ public class GemMessageAssistant : MonoBehaviour
     {
         myClient = new NetworkClient();
         myClient.RegisterHandler(MsgType.Connect, OnConnected);
-        myClient.RegisterHandler(MyMsgType.gemInfo, OnChange);
+        myClient.RegisterHandler(GemMsg.messageType, OnChange);
         Debug.Log("Both handlers were registered");
         //myClient.Connect("127.0.0.1", 4444);
     }
@@ -84,6 +79,15 @@ public class GemMessageAssistant : MonoBehaviour
     }
     #endregion
 
+}
+
+#endregion
+
+#region Gem Message Type Class
+
+public class GemMsg
+{
+    public static short messageType = 1000;
 }
 
 #endregion
@@ -120,7 +124,7 @@ public class SyncGem
 
 #region NetworkPlayer Class
 
-public class NetworkPlayerScript : MonoBehaviour
+public class NetworkPlayerScript : NetworkManager
 {
 
     #region Fields
@@ -210,7 +214,8 @@ public class NetworkPlayerScript : MonoBehaviour
     #endregion
 
     NetworkClient myClient;
-    NetworkMessageDelegate OnConnected;
+    
+    public static NetworkPlayerScript instance;
 
     public bool isClient = true;
 
@@ -218,6 +223,11 @@ public class NetworkPlayerScript : MonoBehaviour
 
     public void Awake()
     {
+        if (instance == null)
+        {
+            instance = this;
+        }
+
         // initialize score
         score = 0;
 
@@ -338,19 +348,31 @@ public class NetworkPlayerScript : MonoBehaviour
         #endregion
 
         // get reference to multiplayer manager
-        //manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<MultiplayerController>();
+        manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<MultiplayerController>();
         // Set reference in multiplayer manager to this object
-        //manager.SetPlayers(gameObject);
+        manager.SetPlayers(gameObject);
+
+        gemMessenger = new GemMessageAssistant();
 
         if (isClient)
         {
-            SetUpClient();
+            StartClient();
+            client.RegisterHandler(GemMsg.messageType, OnMessageReceive);
+            //client.Send(GemMsg.messageType, new Message());
         }
         else
         {
-            SetUpServer();
+            StartServer();
+            NetworkServer.RegisterHandler(GemMsg.messageType, OnMessageReceive);
         }
     }
+
+    public override void OnClientConnect(NetworkConnection conn)
+    {
+        base.OnClientConnect(conn);
+        Debug.Log("This client has connected to the server");
+    }
+
 
     #region Methods
 
@@ -1357,32 +1379,21 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #endregion
 
-    #region Set Up Server
-
-    public void SetUpServer()
-    {
-        NetworkServer.Listen(4445);
-
-    }
-
-    #endregion
-
-    #region Set Up Client
-
-    public void SetUpClient()
-    {
-        myClient = new NetworkClient();
-        //myClient.RegisterHandler(MsgType.Connect, OnConnected);
-        myClient.Connect("174.24.34.179", 4445);
-    }
-
-    #endregion
-
     #region Send Message
 
     public void SendMessage()
     {
         gemMessenger.SendGemInfo(0,0,0);
+    }
+
+    #endregion
+
+    #region On Message Recieve
+
+    // Method called when message is recieved
+    void OnMessageReceive(NetworkMessage netMsg)
+    {
+        Debug.Log("Message Recieved" + netMsg);
     }
 
     #endregion
