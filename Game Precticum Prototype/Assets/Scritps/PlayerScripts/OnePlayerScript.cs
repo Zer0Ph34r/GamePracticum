@@ -111,15 +111,16 @@ public class OnePlayerScript : NetworkBehaviour
         {
             // Add gem to hand array for checking later on
             GameObject go = (GameObject)Instantiate(RandomizeObject(), 
-                new Vector3(transform.localPosition.x + i /*+ (worldSize - tableSize)*/,
-                tableSize + 1 /*+ (worldSize - tableSize)*/, 0), Quaternion.identity, transform);
+                new Vector3(transform.localPosition.x + i + (worldSize - tableSize),
+                tableSize + 1 + (worldSize - tableSize), 0), Quaternion.identity, transform);
             go.GetComponent<GemScript>().isHand = true;
             playerHand[i] = go;
             GameObject handBG = new GameObject();
             handBG.transform.SetParent(transform);
             handBG.AddComponent<SpriteRenderer>();
             handBG.GetComponent<SpriteRenderer>().sprite = gridBackground;
-            handBG.transform.position = new Vector3(transform.localPosition.x + i /*+ (worldSize - tableSize)*/, tableSize + 1, -0.5f);
+            handBG.transform.position = new Vector3(transform.localPosition.x + i + (worldSize - tableSize),
+                tableSize + 1 + (worldSize - tableSize), -0.5f);
         }
 
         #endregion
@@ -223,7 +224,7 @@ public class OnePlayerScript : NetworkBehaviour
                 go.transform.SetParent(transform);
                 go.AddComponent<SpriteRenderer>();
                 go.GetComponent<SpriteRenderer>().sprite = gridBackground;
-                go.transform.localPosition = new Vector3(i /*+ (worldSize - tableSize)*/, k /*+ (worldSize - tableSize)*/, -0.5f);
+                go.transform.localPosition = new Vector3(i + (worldSize - tableSize), k + (worldSize - tableSize), -0.5f);
             }
         }
     }
@@ -238,8 +239,8 @@ public class OnePlayerScript : NetworkBehaviour
     /// <param name="y"></param>
     void CreateBoardPiece(int x, int y)
     {
-        GameObject go = Instantiate(RandomizeObject(), new Vector3((int)transform.localPosition.x + x /*+ (worldSize - tableSize)*/,
-            (int)transform.localPosition.y + y /*+ (worldSize - tableSize)*/, 0), Quaternion.identity, transform);
+        GameObject go = Instantiate(RandomizeObject(), new Vector3((int)transform.localPosition.x + x + (worldSize - tableSize),
+            (int)transform.localPosition.y + y + (worldSize - tableSize), 0), Quaternion.identity, transform);
         go.GetComponent<GemScript>().isHand = false;
         gems[x, y] = go;
     }
@@ -256,8 +257,8 @@ public class OnePlayerScript : NetworkBehaviour
     void FillBoardPiece(int x, int y)
     {
         // create new piece at array position plus parent transform
-        GameObject go = Instantiate(RandomizeObject(), new Vector3((int)transform.localPosition.x + x /*+ (worldSize - tableSize)*/,
-            (int)transform.localPosition.y + y /*+ (worldSize - tableSize)*/, 0), Quaternion.identity, transform);
+        GameObject go = Instantiate(RandomizeObject(), new Vector3((int)transform.localPosition.x + x + (worldSize - tableSize),
+            (int)transform.localPosition.y + y + (worldSize - tableSize), 0), Quaternion.identity, transform);
         // set handpiece to new game object for checking 
         handPiece = go;
         go.GetComponent<GemScript>().isHand = false;
@@ -421,7 +422,8 @@ public class OnePlayerScript : NetworkBehaviour
             gems[x, y - 1] == null)
         {
             // Move gem into correct position
-            gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x, y - 1, 0);
+            gems[x, y].transform.position = new Vector3((int)transform.localPosition.x + x + (worldSize - tableSize),
+                y - 1 + (worldSize - tableSize), 0);
             // set gem to new grid position
             gems[x, y - 1] = gems[x, y];
             // set old position to null
@@ -465,8 +467,8 @@ public class OnePlayerScript : NetworkBehaviour
                 // Check for null objects
                 if (go)
                 {
-                    gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
-                        (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
+                    gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x - (worldSize - tableSize)),
+                        (int)go.GetComponent<GemScript>().transform.localPosition.y - (worldSize - tableSize)] = null;
                     Destroy(go);
                 }
             }
@@ -658,6 +660,7 @@ public class OnePlayerScript : NetworkBehaviour
             }
         }
 
+        // Check if swap has created a string of three or more that does not create a fall down effect
         if (nonDuplicate.Count == 1 &&
             nonDuplicate[0].GetList.Count == 3)
         {
@@ -713,8 +716,8 @@ public class OnePlayerScript : NetworkBehaviour
                 // Check for null objects
                 if (go != null)
                 {
-                    gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
-                        (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
+                    gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x - (worldSize - tableSize)),
+                        (int)go.GetComponent<GemScript>().transform.localPosition.y - (worldSize - tableSize)] = null;
                     // delete game object and set score
                     go.GetComponent<GemScript>().BlowUp();
                     score++;
@@ -733,12 +736,12 @@ public class OnePlayerScript : NetworkBehaviour
     void SwapPieces()
     {
         // set positions
-        handPos = handPiece.transform.localPosition;
-        boardPos = boardPiece.transform.localPosition;
+        handPos = handPiece.transform.position;
+        boardPos = boardPiece.transform.position;
 
         // check if it's a valid swap
         if (canSelect &&
-            CheckValidSwap((int)boardPos.x, (int)boardPos.y))
+            CheckValidSwap((int)(boardPos.x - (worldSize - tableSize)), ((int)boardPos.y - (worldSize - tableSize))))
         {
             //Check if game is over when game board is done reseting
             if (turns == 0)
@@ -756,7 +759,7 @@ public class OnePlayerScript : NetworkBehaviour
                 // Move board piece to hand position
                 boardPiece.GetComponent<GemScript>().RunSwap(handPos);
                 // Add board piece to player hand
-                playerHand[(int)handPos.x] = boardPiece;
+                playerHand[(int)handPos.x - (worldSize - tableSize)] = boardPiece;
                 // Turn board piece into hand piece
                 boardPiece.GetComponent<GemScript>().isHand = true;
 
@@ -769,7 +772,7 @@ public class OnePlayerScript : NetworkBehaviour
                 // make handPiece a board piece
                 handPiece.GetComponent<GemScript>().isHand = false;
                 // set handPiece into gem array
-                gems[(int)boardPos.x, (int)boardPos.y] = handPiece;
+                gems[(int)boardPos.x - (worldSize - tableSize), (int)boardPos.y - (worldSize - tableSize)] = handPiece;
 
                 #endregion
 
@@ -988,7 +991,9 @@ public class OnePlayerScript : NetworkBehaviour
             gems[x, y] = null;
 
             // tell gem to move and where to move to
-            gems[x, y - 1].GetComponent<GemScript>().RunFall(new Vector3((int)transform.localPosition.x + x, y - 1, 0));
+            gems[x, y - 1].GetComponent<GemScript>().RunFall(
+                new Vector3((int)transform.localPosition.x + x + (worldSize - tableSize),
+                y - 1 + (worldSize - tableSize), 0));
 
             // check below this new position
             CheckFalling(x, y - 1);
@@ -1066,7 +1071,7 @@ public class OnePlayerScript : NetworkBehaviour
             {
                 for (short k = 0; k < tableSize; ++k)
                 {
-                    gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                    gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i + (worldSize - tableSize), k + (worldSize - tableSize), 0));
                 }
             }
         }
@@ -1105,7 +1110,7 @@ public class OnePlayerScript : NetworkBehaviour
             {
                 for (short k = 0; k < tableSize; ++k)
                 {
-                    gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
+                    gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i + (worldSize - tableSize), k + (worldSize - tableSize), 0));
                 }
             }
         }

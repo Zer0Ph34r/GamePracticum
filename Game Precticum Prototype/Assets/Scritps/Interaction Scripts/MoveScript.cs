@@ -76,6 +76,7 @@ public class MoveScript {
     /// <returns></returns>
     public bool sameX()
     {
+
         if (chain[0].transform.position.x == chain[1].transform.position.x &&
             chain[1].transform.position.x == chain[2].transform.position.x)
         {
