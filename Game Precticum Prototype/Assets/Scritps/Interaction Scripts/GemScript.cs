@@ -17,7 +17,7 @@ public class GemScript : MonoBehaviour
     public bool canSelect { get; set; }
 
     // Serialable field
-    public SyncGem serialGem;//{ get; set; }
+    public SyncGem serialGem { get; set; }
 
     // particle effect for destruction
     [SerializeField]

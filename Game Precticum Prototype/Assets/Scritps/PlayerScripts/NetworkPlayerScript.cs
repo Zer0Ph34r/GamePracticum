@@ -127,7 +127,7 @@ public class NetworkPlayerScript : MonoBehaviour
             // Add gem to hand array for checking later on
             GameObject go = Instantiate(RandomizeObject(), new Vector3(transform.localPosition.x + i, tableSize + 1, 0), Quaternion.identity, transform);
             go.GetComponent<GemScript>().isHand = true;
-            handSync[i] = go.GetComponent<GemScript>().serialGem;
+            //handSync[i] = go.GetComponent<GemScript>().serialGem;
             playerHand[i] = go;
 
             // Create BG Squares for hand gems
@@ -307,7 +307,7 @@ public class NetworkPlayerScript : MonoBehaviour
             (int)transform.localPosition.y + y,
             0), Quaternion.identity, transform);
         gem.GetComponent<GemScript>().isHand = false;
-        boardSync[x, y] = gem.GetComponent<GemScript>().serialGem;
+        //boardSync[x, y] = gem.GetComponent<GemScript>().serialGem;
         gems[x, y] = gem;
     }
 
@@ -342,7 +342,7 @@ public class NetworkPlayerScript : MonoBehaviour
         // set handpiece to new game object for checking 
         handPiece = gem;
         gem.GetComponent<GemScript>().isHand = false;
-        boardSync[x, y] = gem.GetComponent<GemScript>().serialGem;
+        //boardSync[x, y] = gem.GetComponent<GemScript>().serialGem;
         // Check if this new gem creates a chain
         if (CheckValidSwap(x, y))
         {

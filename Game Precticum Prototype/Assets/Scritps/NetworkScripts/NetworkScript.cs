@@ -8,8 +8,16 @@ public class GemMessageAssistant
 {
 
     #region Send Message Method
+    /// <summary>
+    /// Send gem data to server
+    /// </summary>
+    /// <param name="messageClient"></param>
+    /// <param name="xPos"></param>
+    /// <param name="yPos"></param>
+    /// <param name="color"></param>
     public void SendGemInfo(NetworkClient messageClient, short xPos, short yPos, short color)
     {
+        // create a new GemMessage object
         GemMessage msg = new GemMessage();
         msg.xPosition = xPos;
         msg.yPosition = yPos;
@@ -26,13 +34,13 @@ public class GemMessageAssistant
     /// Called when message is recieved
     /// </summary>
     /// <param name="netMsg"></param>
-    public void OnChange(NetworkMessage netMsg)
-    {
-        GemMessage msg = netMsg.ReadMessage<GemMessage>();
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        player.GetComponent<NetworkPlayerScript>().SetOpponantBoard(msg.xPosition, msg.yPosition, msg.gemColor);
+    //public void OnChange(NetworkMessage netMsg)
+    //{
+    //    GemMessage msg = netMsg.ReadMessage<GemMessage>();
+    //    GameObject player = GameObject.FindGameObjectWithTag("Player");
+    //    player.GetComponent<NetworkPlayerScript>().SetOpponantBoard(msg.xPosition, msg.yPosition, msg.gemColor);
 
-    }
+    //}
     #endregion
 
     #region On Connected Method
@@ -56,6 +64,10 @@ public class GemMessage : MessageBase
     public short xPosition { get; set; }
     public short yPosition { get; set; }
     public short gemColor { get; set; }
+
+    public GemMessage()
+    {
+    }
 }
 
 #endregion
@@ -169,12 +181,15 @@ public class NetworkScript : NetworkManager
     // Method called when message is recieved
     void OnMessageReceive(NetworkMessage netMsg)
     {
-        Debug.Log("Message Recieved - " + netMsg.ReadMessage<GemMessage>().xPosition + " " +
-            netMsg.ReadMessage<GemMessage>().yPosition + " " + netMsg.ReadMessage<GemMessage>().gemColor);
+        // Exctract data from message
+        GemMessage msg = netMsg.ReadMessage<GemMessage>();
+
+        Debug.Log("Message Data - X " + msg.xPosition + " Y " +
+            msg.yPosition + " Color " + msg.gemColor);
         // get info from message
-        short x = netMsg.ReadMessage<GemMessage>().xPosition;
-        short y = netMsg.ReadMessage<GemMessage>().yPosition;
-        short color = netMsg.ReadMessage<GemMessage>().gemColor;
+        short x = msg.xPosition;
+        short y = msg.yPosition;
+        short color = msg.gemColor;
 
         // set piece
         playerInstance.GetComponent<NetworkPlayerScript>().SetOpponantBoard(x, y, color);
