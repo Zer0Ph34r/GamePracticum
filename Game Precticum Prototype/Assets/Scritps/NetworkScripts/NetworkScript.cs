@@ -21,9 +21,9 @@ public class GemMessageAssistant
         GemMessage sentMsg = new GemMessage();
 
         // Set message data
-        sentMsg.positionX = xPos;
-        sentMsg.positionY = yPos;
-        sentMsg.Color = color;
+        sentMsg.xPos = xPos;
+        sentMsg.yPos = yPos;
+        sentMsg.gemColor = color;
 
         //  Send message data to server
         messageClient.Send(GemMsg.messageType, sentMsg);
@@ -67,60 +67,15 @@ public class GemMessage : MessageBase
     #region Fields
 
     // all info to be sent over message
-    short m_x = 5;
-    short m_y = 5;
-    short m_color = 5;
+    public short xPos;
+    public short yPos;
+    public short gemColor;
 
     #endregion
 
     // Empty Constructor
     public GemMessage() { }
 
-    #region Properties
-
-    #region X
-    public short positionX
-    {
-        get
-        {
-            return m_x;
-        }
-        set
-        {
-            m_x = value;
-        }
-    }
-    #endregion
-
-    #region Y
-    public short positionY
-    {
-        get
-        {
-            return m_y;
-        }
-        set
-        {
-            m_y = value;
-        }
-    }
-    #endregion
-
-    #region Color
-    public short Color
-    {
-        get
-        {
-            return m_color;
-        }
-        set
-        {
-            m_color = value;
-        }
-    }
-    #endregion
-
-    #endregion
 }
 
 #endregion
@@ -206,13 +161,13 @@ public class NetworkScript : NetworkManager
         if (isClient)
         {
             StartClient();
-            client.RegisterHandler(GemMsg.messageType, OnMessageReceive);
+            client.RegisterHandler(GemMsg.messageType, OnMessageReceived);
         }
         else
         {
             // start a server
             StartServer();
-            NetworkServer.RegisterHandler(GemMsg.messageType, OnMessageReceive);
+            NetworkServer.RegisterHandler(GemMsg.messageType, OnMessageReceived);
         }
     }
     #endregion
@@ -246,15 +201,15 @@ public class NetworkScript : NetworkManager
     #region On Message Recieve
 
     // Method called when message is recieved
-    void OnMessageReceive(NetworkMessage netMsg)
+    void OnMessageReceived(NetworkMessage netMsg)
     {
         // Exctract data from message
         GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
 
         // get info from message
-        short x = receivedMsg.positionX;
-        short y = receivedMsg.positionY;
-        short color = receivedMsg.Color;
+        short x = receivedMsg.xPos;
+        short y = receivedMsg.yPos;
+        short color = receivedMsg.gemColor;
 
         // display sent data to console
         Debug.Log("Message Data - X " + x + " Y " + y + " Color " + color);
