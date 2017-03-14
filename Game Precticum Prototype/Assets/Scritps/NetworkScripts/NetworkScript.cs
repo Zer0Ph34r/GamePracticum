@@ -67,9 +67,9 @@ public class GemMessage : MessageBase
     #region Fields
 
     // all info to be sent over message
-    short m_x;
-    short m_y;
-    short m_color;
+    short m_x = 5;
+    short m_y = 5;
+    short m_color = 5;
 
     #endregion
 
@@ -250,7 +250,7 @@ public class NetworkScript : NetworkManager
     {
         // Exctract data from message
         GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
-        NetworkReader text = netMsg.reader;
+
         // get info from message
         short x = receivedMsg.positionX;
         short y = receivedMsg.positionY;
