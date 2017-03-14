@@ -19,13 +19,14 @@ public class GemMessageAssistant
     {
         // create a new GemMessage object
         GemMessage sentMsg = new GemMessage();
-        sentMsg.xPosition = xPos;
-        sentMsg.yPosition = yPos;
-        sentMsg.gemColor = color;
+
+        // Set message data
+        sentMsg.positionX = xPos;
+        sentMsg.positionY = yPos;
+        sentMsg.Color = color;
 
         //  Send message data to server
         messageClient.Send(GemMsg.messageType, sentMsg);
-
     }
 
     #endregion
@@ -63,13 +64,63 @@ public class GemMessageAssistant
 // Container for all data to be sent over network
 public class GemMessage : MessageBase
 {
-    // all data to be sent over message
-    public short xPosition { get; set; }
-    public short yPosition { get; set; }
-    public short gemColor { get; set; }
+    #region Fields
+
+    // all info to be sent over message
+    short m_x;
+    short m_y;
+    short m_color;
+
+    #endregion
 
     // Empty Constructor
     public GemMessage() { }
+
+    #region Properties
+
+    #region X
+    public short positionX
+    {
+        get
+        {
+            return m_x;
+        }
+        set
+        {
+            m_x = value;
+        }
+    }
+    #endregion
+
+    #region Y
+    public short positionY
+    {
+        get
+        {
+            return m_y;
+        }
+        set
+        {
+            m_y = value;
+        }
+    }
+    #endregion
+
+    #region Color
+    public short Color
+    {
+        get
+        {
+            return m_color;
+        }
+        set
+        {
+            m_color = value;
+        }
+    }
+    #endregion
+
+    #endregion
 }
 
 #endregion
@@ -199,15 +250,14 @@ public class NetworkScript : NetworkManager
     {
         // Exctract data from message
         GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
+        NetworkReader text = netMsg.reader;
+        // get info from message
+        short x = receivedMsg.positionX;
+        short y = receivedMsg.positionY;
+        short color = receivedMsg.Color;
 
         // display sent data to console
-        Debug.Log("Message Data - X " + receivedMsg.xPosition + " Y " +
-            receivedMsg.yPosition + " Color " + receivedMsg.gemColor);
-
-        // get info from message
-        short x = receivedMsg.xPosition;
-        short y = receivedMsg.yPosition;
-        short color = receivedMsg.gemColor;
+        Debug.Log("Message Data - X " + x + " Y " + y + " Color " + color);
 
         // set piece in opponant board
         playerInstance.GetComponent<NetworkPlayerScript>().SetOpponantBoard(x, y, color);
