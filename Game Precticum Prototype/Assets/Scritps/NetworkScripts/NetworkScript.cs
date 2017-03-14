@@ -18,12 +18,13 @@ public class GemMessageAssistant
     public void SendGemInfo(NetworkClient messageClient, short xPos, short yPos, short color)
     {
         // create a new GemMessage object
-        GemMessage msg = new GemMessage();
-        msg.xPosition = xPos;
-        msg.yPosition = yPos;
-        msg.gemColor = color;
+        GemMessage sentMsg = new GemMessage();
+        sentMsg.xPosition = xPos;
+        sentMsg.yPosition = yPos;
+        sentMsg.gemColor = color;
 
-        messageClient.Send(GemMsg.messageType, msg);
+        //  Send message data to server
+        messageClient.Send(GemMsg.messageType, sentMsg);
 
     }
 
@@ -59,15 +60,16 @@ public class GemMessageAssistant
 #endregion
 
 #region Gem Message Class
+// Container for all data to be sent over network
 public class GemMessage : MessageBase
 {
+    // all data to be sent over message
     public short xPosition { get; set; }
     public short yPosition { get; set; }
     public short gemColor { get; set; }
 
-    public GemMessage()
-    {
-    }
+    // Empty Constructor
+    public GemMessage() { }
 }
 
 #endregion
@@ -126,11 +128,14 @@ public class NetworkScript : NetworkManager
 
     #endregion
 
+    // instance of this object
     public static NetworkScript instance;
 
+    // player object using this script
     [SerializeField]
     GameObject playerInstance;
 
+    // bool for switching between client and server objects
     public bool isClient = true;
     public bool canSend { get; set; }
 
@@ -143,6 +148,7 @@ public class NetworkScript : NetworkManager
             instance = this;
         }
 
+        // create gemMessenger that will send messages to server
         gemMessenger = new GemMessageAssistant();
 
         // if this is the client machine
@@ -150,7 +156,6 @@ public class NetworkScript : NetworkManager
         {
             StartClient();
             client.RegisterHandler(GemMsg.messageType, OnMessageReceive);
-            
         }
         else
         {
@@ -161,17 +166,28 @@ public class NetworkScript : NetworkManager
     }
     #endregion
 
+    #region Send Info
+    /// <summary>
+    /// Pass through method for sending data to other player with client info
+    /// </summary>
+    /// <param name="xPos"></param>
+    /// <param name="yPos"></param>
+    /// <param name="color"></param>
     public void SendInfo(short xPos, short yPos, short color)
     {
         gemMessenger.SendGemInfo(client, xPos, yPos, color);
     }
+    #endregion
 
     #region On Connected Client
+    // when this client connects with the server
     public override void OnClientConnect(NetworkConnection conn)
     {
+        // call base OnClientConnect method
         base.OnClientConnect(conn);
         Debug.Log("This client has connected to the server - NetConn: " + conn);
         canSend = true;
+        // send client info to server to set opponant's board
         playerInstance.GetComponent<NetworkPlayerScript>().SendBoard();
     }
     #endregion
@@ -182,16 +198,18 @@ public class NetworkScript : NetworkManager
     void OnMessageReceive(NetworkMessage netMsg)
     {
         // Exctract data from message
-        GemMessage msg = netMsg.ReadMessage<GemMessage>();
+        GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
 
-        Debug.Log("Message Data - X " + msg.xPosition + " Y " +
-            msg.yPosition + " Color " + msg.gemColor);
+        // display sent data to console
+        Debug.Log("Message Data - X " + receivedMsg.xPosition + " Y " +
+            receivedMsg.yPosition + " Color " + receivedMsg.gemColor);
+
         // get info from message
-        short x = msg.xPosition;
-        short y = msg.yPosition;
-        short color = msg.gemColor;
+        short x = receivedMsg.xPosition;
+        short y = receivedMsg.yPosition;
+        short color = receivedMsg.gemColor;
 
-        // set piece
+        // set piece in opponant board
         playerInstance.GetComponent<NetworkPlayerScript>().SetOpponantBoard(x, y, color);
     }
 
