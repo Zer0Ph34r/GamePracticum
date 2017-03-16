@@ -8,6 +8,7 @@ public class GemMessageAssistant
 {
 
     #region Send Message Method
+
     /// <summary>
     /// Send gem data to server
     /// </summary>
@@ -15,7 +16,7 @@ public class GemMessageAssistant
     /// <param name="xPos"></param>
     /// <param name="yPos"></param>
     /// <param name="color"></param>
-    public void SendGemInfo(NetworkClient messageClient, short xPos, short yPos, short color)
+    public void SendGemBoardInfo(NetworkClient messageClient, short xPos, short yPos, short color)
     {
         // create a new GemMessage object
         GemMessage sentMsg = new GemMessage();
@@ -26,7 +27,32 @@ public class GemMessageAssistant
         sentMsg.gemColor = color;
 
         //  Send message data to server
-        messageClient.Send(GemMsg.messageType, sentMsg);
+        messageClient.Send(GemMsg.boardMessage, sentMsg);
+    }
+
+    #endregion
+
+    #region Send Hand Info
+
+    /// <summary>
+    /// Send gem data to server
+    /// </summary>
+    /// <param name="messageClient"></param>
+    /// <param name="xPos"></param>
+    /// <param name="yPos"></param>
+    /// <param name="color"></param>
+    public void SendGemHandInfo(NetworkClient messageClient, short xPos, short yPos, short color)
+    {
+        // create a new GemMessage object
+        GemMessage sentMsg = new GemMessage();
+
+        // Set message data
+        sentMsg.xPos = xPos;
+        sentMsg.yPos = yPos;
+        sentMsg.gemColor = color;
+
+        //  Send message data to server
+        messageClient.Send(GemMsg.boardMessage, sentMsg);
     }
 
     #endregion
@@ -80,11 +106,33 @@ public class GemMessage : MessageBase
 
 #endregion
 
+#region Info Message Class
+
+/// <summary>
+/// Class for sending score and turn info
+/// </summary>
+public class InfoMessage : MessageBase
+{
+    #region Fields
+
+    // turn count, score info 
+    public short turnCount;
+    public short score;
+
+    #endregion
+
+}
+
+#endregion
+
 #region Gem Message Type Class
 
 public class GemMsg
 {
-    public static short messageType = 1000;
+    // Message types for sending baord messages and hand messages
+    public static short boardMessage = 1000;
+    public static short handMessage = 1100;
+    public static short infoMessage = 1200;
 }
 
 #endregion
@@ -130,6 +178,7 @@ public class NetworkScript : NetworkManager
     GemMessageAssistant gemMessenger;
 
     NetworkClient m_client;
+    int connection;
     uint myNetID;
 
     #endregion
@@ -161,13 +210,14 @@ public class NetworkScript : NetworkManager
         if (isClient)
         {
             StartClient();
-            client.RegisterHandler(GemMsg.messageType, OnMessageReceived);
+            client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
+
         }
         else
         {
             // start a server
             StartServer();
-            NetworkServer.RegisterHandler(GemMsg.messageType, OnMessageReceived);
+            NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
         }
     }
     #endregion
@@ -181,7 +231,7 @@ public class NetworkScript : NetworkManager
     /// <param name="color"></param>
     public void SendInfo(short xPos, short yPos, short color)
     {
-        gemMessenger.SendGemInfo(client, xPos, yPos, color);
+        gemMessenger.SendGemBoardInfo(client, xPos, yPos, color);
     }
     #endregion
 
@@ -191,17 +241,30 @@ public class NetworkScript : NetworkManager
     {
         // call base OnClientConnect method
         base.OnClientConnect(conn);
-        Debug.Log("This client has connected to the server - NetConn: " + conn);
+        //Debug.Log("This client has connected to the server - NetConn: " + conn);
         canSend = true;
         // send client info to server to set opponant's board
         playerInstance.GetComponent<NetworkPlayerScript>().SendBoard();
     }
     #endregion
 
-    #region On Message Recieve
+    #region On Server Connect
+    // When the server connects to a client
+    public override void OnServerConnect(NetworkConnection conn)
+    {
+        base.OnServerConnect(conn);
+        connection = conn.connectionId;
+        //Debug.Log("Client successfully connected to server");
+    }
+    #endregion
 
-    // Method called when message is recieved
-    void OnMessageReceived(NetworkMessage netMsg)
+    #region On Board Message Recieve
+
+    /// <summary>
+    /// Method called when message is recieved
+    /// </summary>
+    /// <param name="netMsg"></param>
+    void OnBoardMessageReceived(NetworkMessage netMsg)
     {
         // Exctract data from message
         GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
@@ -212,10 +275,50 @@ public class NetworkScript : NetworkManager
         short color = receivedMsg.gemColor;
 
         // display sent data to console
-        Debug.Log("Message Data - X " + x + " Y " + y + " Color " + color);
+        //Debug.Log("Message Data - X " + x + " Y " + y + " Color " + color);
 
         // set piece in opponant board
         playerInstance.GetComponent<NetworkPlayerScript>().SetOpponantBoard(x, y, color);
+    }
+
+    #endregion
+
+    #region On Hand Message Recieved
+
+    /// <summary>
+    /// Method called when message is recieved
+    /// </summary>
+    /// <param name="netMsg"></param>
+    void OnHandMessageReceived(NetworkMessage netMsg)
+    {
+        // Exctract data from message
+        GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
+
+        // get info from message
+        short x = receivedMsg.xPos;
+        short y = receivedMsg.yPos;
+        short color = receivedMsg.gemColor;
+
+        // display sent data to console
+        //Debug.Log("Message Data - X " + x + " Y " + y + " Color " + color);
+
+        // set piece in opponant board
+        playerInstance.GetComponent<NetworkPlayerScript>().SetOpponantHand(x, y, color);
+    }
+
+    #endregion
+
+    #region On Info Message Recieved
+
+    public void OnInfoMessageReceived(NetworkMessage netMsg)
+    {
+        // Read in received message
+        InfoMessage receivedMsg = netMsg.ReadMessage<InfoMessage>();
+
+        // Set info to temp variables
+        short turnCount = receivedMsg.turnCount;
+        short score = receivedMsg.score;
+
     }
 
     #endregion

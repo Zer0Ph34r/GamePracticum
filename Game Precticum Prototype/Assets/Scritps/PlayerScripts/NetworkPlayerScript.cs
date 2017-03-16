@@ -1219,6 +1219,7 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Networking Methods
 
+    #region Send Board
     /// <summary>
     /// Send players currne tboard config to opponant through messages
     /// </summary>
@@ -1236,6 +1237,34 @@ public class NetworkPlayerScript : MonoBehaviour
             
         }
     }
+
+    #endregion
+
+    #region Send Hand
+
+    public void SendHand()
+    {
+        foreach (GameObject gem in playerHand)
+        {
+            short x = gem.GetComponent<GemScript>().serialGem.xPos;
+            short y = gem.GetComponent<GemScript>().serialGem.yPos;
+            short color = gem.GetComponent<GemScript>().serialGem.colorEnum;
+
+            // send message
+            NetworkScript.instance.SendInfo(x, y, color);
+        }
+    }
+
+    #endregion
+
+    #region Send Info
+
+    public void SendInfo()
+    {
+
+    }
+
+    #endregion
 
     #endregion
 
@@ -1299,8 +1328,10 @@ public class NetworkPlayerScript : MonoBehaviour
         switch (color)
         {
             case 0: // White gem
-                opponantHand[x] = Instantiate(whiteGem, new Vector3((int)transform.localPosition.x + x,
+                GameObject go = Instantiate(whiteGem, new Vector3((int)transform.localPosition.x + x,
             (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
+                go.GetComponent<GemScript>().isHand = true;
+                opponantHand[x] = go;
                 break;
             case 1: //Yellow Gem
                 opponantHand[x] = Instantiate(yellowGem, new Vector3((int)transform.localPosition.x + x,
@@ -1323,6 +1354,15 @@ public class NetworkPlayerScript : MonoBehaviour
             (int)transform.localPosition.y + y + 50, 0), Quaternion.identity, transform);
                 break;
         }
+    }
+
+    #endregion
+
+    #region Set Info
+
+    public void SetInfo(int turns, int score)
+    {
+        
     }
 
     #endregion
