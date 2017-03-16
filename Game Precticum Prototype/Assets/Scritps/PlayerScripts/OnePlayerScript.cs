@@ -140,7 +140,7 @@ public class OnePlayerScript : NetworkBehaviour
         //get main camera
         mainCamera = Camera.main;
         // set camera's position according to table size
-        mainCamera.transform.localPosition = new Vector3(worldSize / 2 + transform.position.x,
+        mainCamera.transform.localPosition = new Vector3((worldSize * 0.45f) + transform.position.x,
             worldSize * (6 / 8f) + transform.position.y,
             worldSize * 5);
         // Move Camera to face the gems instantiated
