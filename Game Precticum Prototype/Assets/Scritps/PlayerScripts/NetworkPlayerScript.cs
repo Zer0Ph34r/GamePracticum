@@ -105,7 +105,7 @@ public class NetworkPlayerScript : MonoBehaviour
         #region Create Game Board
         // create table
         gems = new GameObject[tableSize, tableSize];
-        boardSync = new SyncGem[tableSize, tableSize];
+        //boardSync = new SyncGem[tableSize, tableSize];
         opponantTable = new GameObject[tableSize, tableSize];
         // fill table and create game board
         CreateGameBoard();
@@ -116,7 +116,7 @@ public class NetworkPlayerScript : MonoBehaviour
         #region Create Player Hand
         // Create Player Hand Empty
         playerHand = new GameObject[3];
-        handSync = new SyncGem[3];
+        //handSync = new SyncGem[3];
         opponantHand = new GameObject[3];
         // Fill Player Hand with random gems
         for (int i = 0; i < 3; ++i)
@@ -220,19 +220,16 @@ public class NetworkPlayerScript : MonoBehaviour
     {
         // set falling to 0
         int falling = 0;
-        //for (int i = 0; i < gems; i++)
-        //{
-            foreach (GameObject gem in gems)
+        foreach (GameObject gem in gems)
+        {
+            // Add 1 if a gem cannot be selected, which means it is falling
+            if (gem != null &&
+                !gem.GetComponent<GemScript>().canSelect)
             {
-                // Add 1 if a gem cannot be selected, which means it is falling
-                if (gem != null &&
-                    !gem.GetComponent<GemScript>().canSelect)
-                {
-                    falling++;
-                }
+                falling++;
             }
-       //}
-        
+        }
+
         if (falling > 0)
         {
             // If all gems are in their place
