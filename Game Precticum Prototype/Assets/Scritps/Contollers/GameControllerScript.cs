@@ -54,9 +54,9 @@ public class GameControllerScript : MonoBehaviour {
         // Save reference to canvas'
         UI = GameObject.FindGameObjectWithTag("UI");
         pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
-        pauseMenu.gameObject.SetActive(false);
+        pauseMenu.SetActive(false);
         endScreen = GameObject.FindGameObjectWithTag("EndScreen");
-        endScreen.gameObject.SetActive(false);
+        endScreen.SetActive(false);
 
         // Load in sound effects
         break1 = Resources.Load<AudioClip>("Sounds/Break1");

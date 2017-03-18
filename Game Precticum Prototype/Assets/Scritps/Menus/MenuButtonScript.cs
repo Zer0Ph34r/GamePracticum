@@ -8,9 +8,9 @@ public class MenuButtonScript : MonoBehaviour {
 
     // other canvases
     [SerializeField]
-    Canvas CreditsCanvas;
+    GameObject CreditsCanvas;
     [SerializeField]
-    Canvas InstructionsCanvas;
+    GameObject InstructionsCanvas;
     [SerializeField]
     Text TurnSliderText;
     [SerializeField]
@@ -102,10 +102,10 @@ public class MenuButtonScript : MonoBehaviour {
     /// <summary>
     /// Disable given game object
     /// </summary>
-    public void Disable()
+    public void Disable(GameObject go)
     {
         audioSource.PlayOneShot(click);
-        gameObject.SetActive(false);
+        go.SetActive(false);
     }
     #endregion
 
