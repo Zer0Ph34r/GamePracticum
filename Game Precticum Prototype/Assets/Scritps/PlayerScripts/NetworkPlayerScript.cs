@@ -88,9 +88,6 @@ public class NetworkPlayerScript : MonoBehaviour
         // initialize score
         score = 0;
 
-        // set currTurn
-        currTurn = true;
-
         #region Load Assets
 
         // Load Gems
@@ -206,8 +203,6 @@ public class NetworkPlayerScript : MonoBehaviour
 
         // get reference to multiplayer manager
         manager = GameObject.FindGameObjectWithTag("Manager").GetComponent<MultiplayerController>();
-        // Set reference in multiplayer manager to this object
-        manager.SetPlayers(gameObject);
 
     }
     #endregion
@@ -586,6 +581,11 @@ public class NetworkPlayerScript : MonoBehaviour
 
             // Fill all holes in grid
             RefillGrid();
+        }
+        else
+        {
+            NextTurn();
+            fireScore();
         }
     }
 
@@ -1241,6 +1241,9 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Send Hand
 
+    /// <summary>
+    /// Sends current state of hand to other player
+    /// </summary>
     public void SendHand()
     {
         foreach (GameObject gem in playerHand)
@@ -1258,6 +1261,9 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Send Info
 
+    /// <summary>
+    /// Sends current turn and score info to other player
+    /// </summary>
     public void SendInfo()
     {
         // set variables
@@ -1271,6 +1277,8 @@ public class NetworkPlayerScript : MonoBehaviour
     #endregion
 
     #endregion
+
+    #region Received Methods
 
     #region Set Opponant Board
 
@@ -1366,12 +1374,38 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Set Info
 
+    // Set turn and score display
     public void SetInfo(int turns, int score)
     {
+        // Set currTurn to true
+        currTurn = true;
+
         // Set info in manager
         manager.player2Score = score;
         manager.turns = turns;
+
+        // change display
+        manager.SetTurn();
+        manager.SetScore();
         
+    }
+
+    #endregion
+
+    #endregion
+
+    #region Next Turn Methods
+
+    public void NextTurn()
+    {
+        // subtract turn count
+        manager.turns--;
+
+        // send player info to opponant
+        SendBoard();
+        SendHand();
+        SendInfo();
+
     }
 
     #endregion

@@ -8,9 +8,11 @@ public class MenuButtonScript : MonoBehaviour {
 
     // other canvases
     [SerializeField]
-    GameObject CreditsCanvas;
+    GameObject CreditsStuff;
     [SerializeField]
-    GameObject InstructionsCanvas;
+    GameObject InstructionsStuff;
+    [SerializeField]
+    GameObject MainMenuStuff;
     [SerializeField]
     Text TurnSliderText;
     [SerializeField]
@@ -28,7 +30,7 @@ public class MenuButtonScript : MonoBehaviour {
 
     #endregion
 
-    #region Start Method
+    #region Start
 
     private void Start()
     {
@@ -63,8 +65,8 @@ public class MenuButtonScript : MonoBehaviour {
     public void TutorialButton()
     {
         audioSource.PlayOneShot(click);
-        gameObject.SetActive(false);
-        InstructionsCanvas.transform.gameObject.SetActive(true);
+        MainMenuStuff.transform.gameObject.SetActive(false);
+        InstructionsStuff.transform.gameObject.SetActive(true);
     }
     #endregion
 
@@ -75,8 +77,8 @@ public class MenuButtonScript : MonoBehaviour {
     public void CreditsButton()
     {
         audioSource.PlayOneShot(click);
-        CreditsCanvas.transform.gameObject.SetActive(true);
-        gameObject.SetActive(false);
+        CreditsStuff.transform.gameObject.SetActive(true);
+        MainMenuStuff.transform.gameObject.SetActive(false);
     }
     #endregion
 

@@ -503,6 +503,16 @@ public class OnePlayerScript : NetworkBehaviour
             // Fill all holes in grid
             RefillGrid();
         }
+        else
+        {
+            turns--;
+            fireScore();
+            if (turns == 0)
+            {
+                canSelect = false;
+                endGame();
+            }
+        }
         
     }
 
@@ -743,46 +753,36 @@ public class OnePlayerScript : NetworkBehaviour
         if (canSelect &&
             CheckValidSwap((int)(boardPos.x - ((worldSize - tableSize) / 2)), ((int)boardPos.y - ((worldSize - tableSize) / 2))))
         {
-            //Check if game is over when game board is done reseting
-            if (turns == 0)
+
+            #region Move Board Piece
+
+            // Move board piece to hand position
+            boardPiece.GetComponent<GemScript>().RunSwap(handPos);
+            // Add board piece to player hand
+            playerHand[(int)handPos.x - ((worldSize - tableSize) / 2)] = boardPiece;
+            // Turn board piece into hand piece
+            boardPiece.GetComponent<GemScript>().isHand = true;
+
+            #endregion
+
+            #region Move Hand Piece
+
+            // set new positions to hand Piece
+            handPiece.GetComponent<GemScript>().RunSwap(boardPos);
+            // make handPiece a board piece
+            handPiece.GetComponent<GemScript>().isHand = false;
+            // set handPiece into gem array
+            gems[(int)boardPos.x - ((worldSize - tableSize) / 2), (int)boardPos.y - ((worldSize - tableSize) / 2)] = handPiece;
+
+            #endregion
+
+            if (boardPos.y - ((worldSize - tableSize) / 2) == tableSize - 1)
             {
-                canSelect = false;
-                endGame();
+                topSwapped = true;
             }
-            else
-            {
-                // deduct turn count
-                turns--;
 
-                #region Move Board Piece
+            GemScript.runNextMethod += ContinueSwap;
 
-                // Move board piece to hand position
-                boardPiece.GetComponent<GemScript>().RunSwap(handPos);
-                // Add board piece to player hand
-                playerHand[(int)handPos.x - ((worldSize - tableSize) / 2)] = boardPiece;
-                // Turn board piece into hand piece
-                boardPiece.GetComponent<GemScript>().isHand = true;
-
-                #endregion
-
-                #region Move Hand Piece
-
-                // set new positions to hand Piece
-                handPiece.GetComponent<GemScript>().RunSwap(boardPos);
-                // make handPiece a board piece
-                handPiece.GetComponent<GemScript>().isHand = false;
-                // set handPiece into gem array
-                gems[(int)boardPos.x - ((worldSize - tableSize) / 2), (int)boardPos.y - ((worldSize - tableSize) / 2)] = handPiece;
-
-                #endregion
-
-                if (boardPos.y - ((worldSize - tableSize) / 2) == tableSize - 1)
-                {
-                    topSwapped = true;
-                }
-
-                GemScript.runNextMethod += ContinueSwap;
-            }        
         }
         else
         {

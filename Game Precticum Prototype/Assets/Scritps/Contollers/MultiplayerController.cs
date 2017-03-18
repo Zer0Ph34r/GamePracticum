@@ -10,10 +10,6 @@ public class MultiplayerController : MonoBehaviour
     // table size int X int
     int tableSize = GlobalVariables.SCREEN_POSITION;
 
-    // load in player prefabs
-    GameObject serverPlayer;
-    GameObject clientPlayer;
-
     #region UI Display Info
     // Score Tracker
     public int player1Score { get; set; }
@@ -70,9 +66,6 @@ public class MultiplayerController : MonoBehaviour
             gameObject.AddComponent<AudioSource>();
             audioSource = GetComponent<AudioSource>();
         }
-
-        serverPlayer = Resources.Load<GameObject>("Prefabs/ServerPlayerPrefab");
-        clientPlayer = Resources.Load<GameObject>("Prefabs/ClientPlayerPrefab");
 
         // Save reference ot pause canvas
         pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
@@ -146,9 +139,13 @@ public class MultiplayerController : MonoBehaviour
 
         #endregion
 
+        // set starting count
         player1Score = 0;
         player2Score = 0;
         turns = GlobalVariables.MULTIPLAYER_TURNS;
+
+        // set text
+        turnText.text = "Turns: " + turns;
 
     }
 
@@ -187,7 +184,7 @@ public class MultiplayerController : MonoBehaviour
     /// <summary>
     /// Updates current score values
     /// </summary>
-    void SetScore()
+    public void SetScore()
     {
         // set turn count
         turnText.text = "Turns: " + turns;
@@ -208,51 +205,6 @@ public class MultiplayerController : MonoBehaviour
     }
 
     #endregion
-
-    #region Set Players
-
-    /// <summary>
-    /// Set player script references
-    /// </summary>
-    /// <param name="player"></param>
-    public void SetPlayers(GameObject player)
-    {
-        // try setting up a network client
-        //SetUpClient();
-
-        // if there was no connection, create server
-        //if (!myClient.isConnected)
-        //{
-        //    SetUpServer();
-        //    //SetUpClient();
-        //}
-
-    }
-
-    #endregion
-
-    //#region Set Up Server
-
-    //public void SetUpServer()
-    //{
-    //    NetworkServer.Listen(4444);
-    //    //myClient = ClientScene.ConnectLocalServer();
-    //    //myClient.RegisterHandler(MsgType.Connect, OnConnected);
-    //} 
-
-    //#endregion
-
-    //#region Set Up Client
-
-    //public void SetUpClient()
-    //{
-    //    myClient = new NetworkClient();
-    //    myClient.Connect("174.24.34.179", 4444);
-    //    myClient.RegisterHandler(MsgType.Connect, OnConnected);
-        
-    //}
-
-    //#endregion
 
     #region GameOver
 
