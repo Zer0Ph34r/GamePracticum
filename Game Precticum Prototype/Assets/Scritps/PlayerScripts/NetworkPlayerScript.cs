@@ -1233,8 +1233,7 @@ public class NetworkPlayerScript : MonoBehaviour
             short color = gem.GetComponent<GemScript>().serialGem.colorEnum;
 
             // send message
-            NetworkScript.instance.SendInfo(x, y, color, true);
-            
+            NetworkScript.instance.SendInfo(x, y, color, InfoType.board);
         }
     }
 
@@ -1251,7 +1250,7 @@ public class NetworkPlayerScript : MonoBehaviour
             short color = gem.GetComponent<GemScript>().serialGem.colorEnum;
 
             // send message
-            NetworkScript.instance.SendInfo(x, y, color, true);
+            NetworkScript.instance.SendInfo(x, y, color, InfoType.hand);
         }
     }
 
@@ -1362,6 +1361,8 @@ public class NetworkPlayerScript : MonoBehaviour
 
     public void SetInfo(int turns, int score)
     {
+        int t = turns;
+        int s = score;
         
     }
 

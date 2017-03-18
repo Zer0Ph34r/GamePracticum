@@ -16,9 +16,9 @@ public class MultiplayerController : MonoBehaviour
 
     #region UI Display Info
     // Score Tracker
-    int player1Score = 0;
+    int player1Score { get; set; }
     Text player1ScoreText;
-    int player2Score = 0;
+    int player2Score { get; set; }
     Text player2ScoreText;
     int turns = GlobalVariables.MULTIPLAYER_TURNS;
     Text turnText;
@@ -146,7 +146,8 @@ public class MultiplayerController : MonoBehaviour
 
         #endregion
 
-        
+        player1Score = 0;
+        player2Score = 0;
         
     }
 

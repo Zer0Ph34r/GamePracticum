@@ -2,6 +2,8 @@
 using UnityEngine.Networking;
 using System;
 
+public enum InfoType { board, hand, info};
+
 #region Custom Gem Message Class
 
 public class GemMessageAssistant
@@ -251,12 +253,14 @@ public class NetworkScript : NetworkManager
         // if this is the client machine
         if (isClient)
         {
+            playerInstance.GetComponent<NetworkPlayerScript>().currTurn = false;
             StartClient();
             client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
 
         }
         else
         {
+            playerInstance.GetComponent<NetworkPlayerScript>().currTurn = true;
             // start a server
             StartServer();
             NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
@@ -271,8 +275,9 @@ public class NetworkScript : NetworkManager
     /// <param name="xPos"></param>
     /// <param name="yPos"></param>
     /// <param name="color"></param>
-    public void SendInfo(short xPos, short yPos, short color, bool isClient)
+    public void SendInfo(short xPos, short yPos, short color, InfoType type)
     {
+        // check if the message should be sent over from the server or from the client
         if (isClient)
         {
             gemMessenger.SendGemBoardInfo(client, xPos, yPos, color);
