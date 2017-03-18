@@ -1260,7 +1260,12 @@ public class NetworkPlayerScript : MonoBehaviour
 
     public void SendInfo()
     {
+        // set variables
+        int turn = manager.turns;
+        int score = manager.player1Score;
 
+        // send info
+        NetworkScript.instance.SendInfo(0, 0, 0, InfoType.info);
     }
 
     #endregion
@@ -1321,8 +1326,10 @@ public class NetworkPlayerScript : MonoBehaviour
     /// <param name="color"></param>
     public void SetOpponantHand(short x, short y, short color)
     {
+        // delete gem in this position
         Destroy(opponantHand[x]);
         opponantHand[x] = null;
+
         // Create correct gem in correct position
         switch (color)
         {
@@ -1361,8 +1368,9 @@ public class NetworkPlayerScript : MonoBehaviour
 
     public void SetInfo(int turns, int score)
     {
-        int t = turns;
-        int s = score;
+        // Set info in manager
+        manager.player2Score = score;
+        manager.turns = turns;
         
     }
 

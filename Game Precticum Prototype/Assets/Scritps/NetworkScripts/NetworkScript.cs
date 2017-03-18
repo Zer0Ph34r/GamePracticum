@@ -18,14 +18,14 @@ public class GemMessageAssistant
     /// <param name="xPos"></param>
     /// <param name="yPos"></param>
     /// <param name="color"></param>
-    public void SendGemBoardInfo(NetworkClient messageClient, short xPos, short yPos, short color)
+    public void SendGemBoardInfo(NetworkClient messageClient, int xPos, int yPos, short color)
     {
         // create a new GemMessage object
         GemMessage sentMsg = new GemMessage();
 
         // Set message data
-        sentMsg.xPos = xPos;
-        sentMsg.yPos = yPos;
+        sentMsg.xPos = (short)xPos;
+        sentMsg.yPos = (short)yPos;
         sentMsg.gemColor = color;
 
         //  Send message data to server
@@ -38,14 +38,14 @@ public class GemMessageAssistant
     /// <param name="xPos"></param>
     /// <param name="yPos"></param>
     /// <param name="color"></param>
-    public void SendBoardInfoServer(short xPos, short yPos, short color)
+    public void SendBoardInfoServer(int xPos, int yPos, short color)
     {
         // create a new GemMessage object
         GemMessage sentMsg = new GemMessage();
 
         // Set message data
-        sentMsg.xPos = xPos;
-        sentMsg.yPos = yPos;
+        sentMsg.xPos = (short)xPos;
+        sentMsg.yPos = (short)yPos;
         sentMsg.gemColor = color;
 
         //  Send message data to client
@@ -64,14 +64,14 @@ public class GemMessageAssistant
     /// <param name="xPos"></param>
     /// <param name="yPos"></param>
     /// <param name="color"></param>
-    public void SendGemHandInfo(NetworkClient messageClient, short xPos, short yPos, short color)
+    public void SendGemHandInfo(NetworkClient messageClient, int xPos, int yPos, short color)
     {
         // create a new GemMessage object
         GemMessage sentMsg = new GemMessage();
 
         // Set message data
-        sentMsg.xPos = xPos;
-        sentMsg.yPos = yPos;
+        sentMsg.xPos = (short)xPos;
+        sentMsg.yPos = (short)yPos;
         sentMsg.gemColor = color;
 
         //  Send message data to server
@@ -85,18 +85,44 @@ public class GemMessageAssistant
     /// <param name="xPos"></param>
     /// <param name="yPos"></param>
     /// <param name="color"></param>
-    public void SendHandInfoServer(short xPos, short yPos, short color)
+    public void SendHandInfoServer(int xPos, int yPos, short color)
     {
         // create a new GemMessage object
         GemMessage sentMsg = new GemMessage();
 
         // Set message data
-        sentMsg.xPos = xPos;
-        sentMsg.yPos = yPos;
+        sentMsg.xPos = (short)xPos;
+        sentMsg.yPos = (short)yPos;
         sentMsg.gemColor = color;
 
         //  Send message data to server
         NetworkServer.SendToClient(1, GemMsg.handMessage, sentMsg);
+    }
+
+    #endregion
+
+    #region Send Game Info
+
+    public void SendGameInfo(NetworkClient messageClient, int score, short turns)
+    {
+        InfoMessage sentMsg = new InfoMessage();
+
+        sentMsg.score = score;
+        sentMsg.turnCount = turns;
+
+        //  Send message data to server
+        messageClient.Send(GemMsg.infoMessage, sentMsg);
+    }
+
+    public void SendGameInfoServer(int score, short turns)
+    {
+        InfoMessage sentMsg = new InfoMessage();
+
+        sentMsg.score = score;
+        sentMsg.turnCount = turns;
+
+        //  Send message data to server
+        NetworkServer.SendToClient(1, GemMsg.infoMessage, sentMsg);
     }
 
     #endregion
@@ -161,7 +187,7 @@ public class InfoMessage : MessageBase
 
     // turn count, score info 
     public short turnCount;
-    public short score;
+    public int score;
 
     #endregion
 
@@ -253,17 +279,25 @@ public class NetworkScript : NetworkManager
         // if this is the client machine
         if (isClient)
         {
+            // set client player to not have the current turn
             playerInstance.GetComponent<NetworkPlayerScript>().currTurn = false;
+            // star client and connect to server
             StartClient();
+            // register all messages with their perspective methods
             client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
-
+            client.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
+            client.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
         }
         else
         {
+            // set server player to active turn
             playerInstance.GetComponent<NetworkPlayerScript>().currTurn = true;
             // start a server
             StartServer();
+            // register all methods for the different messages
             NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
+            NetworkServer.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
+            NetworkServer.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
         }
     }
     #endregion
@@ -275,18 +309,41 @@ public class NetworkScript : NetworkManager
     /// <param name="xPos"></param>
     /// <param name="yPos"></param>
     /// <param name="color"></param>
-    public void SendInfo(short xPos, short yPos, short color, InfoType type)
+    public void SendInfo(int xPos, int yPos, short color, InfoType type)
     {
         // check if the message should be sent over from the server or from the client
         if (isClient)
         {
-            gemMessenger.SendGemBoardInfo(client, xPos, yPos, color);
+            // send massage based on message type to server
+            switch (type)
+            {
+                case InfoType.board:
+                    gemMessenger.SendGemBoardInfo(client, xPos, yPos, color);
+                    break;
+                case InfoType.hand:
+                    gemMessenger.SendGemHandInfo(client, xPos, yPos, color);
+                    break;
+                case InfoType.info:
+                    gemMessenger.SendGameInfo(client, xPos, (short)yPos);
+                    break;
+            }
         }
         else
         {
-            gemMessenger.SendBoardInfoServer(xPos, yPos, color); 
+            // send message based on message type to client
+            switch (type)
+            {
+                case InfoType.board:
+                    gemMessenger.SendBoardInfoServer(xPos, yPos, color);
+                    break;
+                case InfoType.hand:
+                    gemMessenger.SendHandInfoServer(xPos, yPos, color);
+                    break;
+                case InfoType.info:
+                    gemMessenger.SendGameInfoServer(xPos, (short)yPos);
+                    break;
+            }
         }
-        
     }
     #endregion
 
@@ -374,7 +431,7 @@ public class NetworkScript : NetworkManager
 
         // Set info to temp variables
         short turnCount = receivedMsg.turnCount;
-        short score = receivedMsg.score;
+        int score = receivedMsg.score;
 
     }
 
