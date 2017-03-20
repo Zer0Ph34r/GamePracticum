@@ -2,124 +2,125 @@
 using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
 using UnityEngine.Networking.Match;
+using UnityEngine.Networking.NetworkSystem;
 using System.Collections.Generic;
 
-public class MatchmakerScript : NetworkMatch
-{
+//public class MatchmakerScript : NetworkMatch
+//{
 
-    #region Fields
+//    #region Fields
 
-    // List of matches availible to join
-    List<MatchDesc> matchList = new List<MatchDesc>();
-    // wether a match has been created or not
-    bool matchCreated;
-    // Netwrok match object
-    NetworkMatch networkMatch;
+//    // List of matches availible to join
+//    List<MatchInfoSnapshot> matchList = new List<MatchInfoSnapshot>();
+//    // wether a match has been created or not
+//    bool matchCreated;
+//    // Netwrok match object
+//    NetworkMatch networkMatch;
 
-    #endregion
+//    #endregion
 
-    #region Awake
+//    #region Awake
 
-    void Awake()
-    {
-        networkMatch = gameObject.AddComponent<NetworkMatch>();
-    }
+//    void Awake()
+//    {
+//        networkMatch = gameObject.AddComponent<NetworkMatch>();
+//    }
 
-    #endregion
+//    #endregion
 
-    #region On GUI
+//    #region On GUI
 
-    void OnGUI()
-    {
-        // You would normally not join a match you created yourself but this is possible here for demonstration purposes.
-        if (GUILayout.Button("Create Room"))
-        {
-            CreateMatchRequest create = new CreateMatchRequest();
-            create.name = "NewRoom";
-            create.size = 4;
-            create.advertise = true;
-            create.password = "";
+//    void OnGUI()
+//    {
+//        // You would normally not join a match you created yourself but this is possible here for demonstration purposes.
+//        if (GUILayout.Button("Create Room"))
+//        {
+//            CreateMatchRequest create = new CreateMatchRequest();
+//            create.name = "NewRoom";
+//            create.size = 4;
+//            create.advertise = true;
+//            create.password = "";
 
-            networkMatch.CreateMatch(create, OnMatchCreate);
-        }
+//            networkMatch.CreateMatch(create, OnMatchCreate);
+//        }
 
-        if (GUILayout.Button("List rooms"))
-        {
-            networkMatch.ListMatches(0, 20, "", OnMatchList);
-        }
+//        if (GUILayout.Button("List rooms"))
+//        {
+//            networkMatch.ListMatches(0, 20, "", OnMatchList);
+//        }
 
-        if (matchList.Count > 0)
-        {
-            GUILayout.Label("Current rooms");
-        }
-        foreach (var match in matchList)
-        {
-            if (GUILayout.Button(match.name))
-            {
-                networkMatch.JoinMatch(match.networkId, "", OnMatchJoined);
-            }
-        }
-    }
+//        if (matchList.Count > 0)
+//        {
+//            GUILayout.Label("Current rooms");
+//        }
+//        foreach (var match in matchList)
+//        {
+//            if (GUILayout.Button(match.name))
+//            {
+//                networkMatch.JoinMatch(match.networkId, "", OnMatchJoined);
+//            }
+//        }
+//    }
 
-    #endregion
+//    #endregion
 
-    #region Methods
+//    #region Methods
 
-    #region On Match Create
+//    #region On Match Create
 
-    public void OnMatchCreate(CreateMatchResponse matchResponse)
-    {
-        if (matchResponse.success)
-        {
-            Debug.Log("Create match succeeded");
-            matchCreated = true;
-            Utility.SetAccessTokenForNetwork(matchResponse.networkId, new NetworkAccessToken(matchResponse.accessTokenString));
-            NetworkServer.Listen(new MatchInfo(matchResponse), 9000);
-        }
-        else
-        {
-            Debug.LogError("Create match failed");
-        }
-    }
+//    public void OnMatchCreate(CreateMatchResponse matchResponse)
+//    {
+//        if (matchResponse.success)
+//        {
+//            Debug.Log("Create match succeeded");
+//            matchCreated = true;
+//            Utility.SetAccessTokenForNetwork(matchResponse.networkId, new NetworkAccessToken(matchResponse.accessTokenString));
+//            NetworkServer.Listen(new MatchInfo(matchResponse), 9000);
+//        }
+//        else
+//        {
+//            Debug.LogError("Create match failed");
+//        }
+//    }
 
-    #endregion
+//    #endregion
 
-    #region On Match List
+//    #region On Match List
 
-    public void OnMatchList(ListMatchResponse matchListResponse)
-    {
-        if (matchListResponse.success && matchListResponse.matches != null)
-        {
-            networkMatch.JoinMatch(matchListResponse.matches[0].networkId, "", OnMatchJoined);
-        }
-    }
+//    public void OnMatchList(ListMatchResponse matchListResponse)
+//    {
+//        if (matchListResponse.success && matchListResponse.matches != null)
+//        {
+//            networkMatch.JoinMatch(matchListResponse.matches[0].networkId, "", OnMatchJoined);
+//        }
+//    }
 
-    #endregion
+//    #endregion
 
-    #region On Match Joined
+//    #region On Match Joined
 
-    public void OnMatchJoined(JoinMatchResponse matchJoin)
-    {
-        if (matchJoin.success)
-        {
-            Debug.Log("Join match succeeded");
-            if (matchCreated)
-            {
-                Debug.LogWarning("Match already set up, aborting...");
-                return;
-            }
-            Utility.SetAccessTokenForNetwork(matchJoin.networkId, new NetworkAccessToken(matchJoin.accessTokenString));
-            NetworkClient myClient = new NetworkClient();
-            myClient.RegisterHandler(MsgType.Connect, OnConnected);
-            myClient.Connect(new MatchInfo(matchJoin));
-        }
-        else
-        {
-            Debug.LogError("Join match failed");
-        }
-    }
+//    public void OnMatchJoined(JoinMatchResponse matchJoin)
+//    {
+//        if (matchJoin.success)
+//        {
+//            Debug.Log("Join match succeeded");
+//            if (matchCreated)
+//            {
+//                Debug.LogWarning("Match already set up, aborting...");
+//                return;
+//            }
+//            Utility.SetAccessTokenForNetwork(matchJoin.networkId, new NetworkAccessToken(matchJoin.accessTokenString));
+//            NetworkClient myClient = new NetworkClient();
+//            myClient.RegisterHandler(MsgType.Connect, OnConnected);
+//            myClient.Connect(new MatchInfo(matchJoin));
+//        }
+//        else
+//        {
+//            Debug.LogError("Join match failed");
+//        }
+//    }
 
-    #endregion
+//    #endregion
 
-    #endregion
-}
+//    #endregion
+//}

@@ -49,6 +49,8 @@ public class OnePlayerScript : NetworkBehaviour
 
     #endregion
 
+    #region Misc
+
     // bool for checking if the top row has been destroyed in a swap
     bool topSwapped = false;
 
@@ -61,6 +63,12 @@ public class OnePlayerScript : NetworkBehaviour
     // Current number of turns
     public int turns { get; set; }
     bool canSelect = true;
+
+    // multiplier for multiple chains
+    int baseScore = 1;
+    int multiplier = 0;
+
+    #endregion
 
     #region Events
 
@@ -497,6 +505,7 @@ public class OnePlayerScript : NetworkBehaviour
 
         if (chains.Count > 0)
         {
+            multiplier++;
             // Remove all gems that form chains of 3 or more 
             DeleteChains(chains);
 
@@ -505,6 +514,7 @@ public class OnePlayerScript : NetworkBehaviour
         }
         else
         {
+            multiplier = 0;
             turns--;
             fireScore();
             if (turns == 0)
@@ -730,7 +740,7 @@ public class OnePlayerScript : NetworkBehaviour
                         (int)go.GetComponent<GemScript>().transform.localPosition.y - ((worldSize - tableSize) / 2)] = null;
                     // delete game object and set score
                     go.GetComponent<GemScript>().BlowUp();
-                    score++;
+                    score += baseScore * multiplier;
                     fireScore();
                 }
             }
