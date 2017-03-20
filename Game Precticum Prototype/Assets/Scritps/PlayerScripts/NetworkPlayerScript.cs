@@ -852,7 +852,7 @@ public class NetworkPlayerScript : MonoBehaviour
 
             GemScript.runNextMethod += ContinueSwap;
 
-            // set other player turn to true
+            // check if it's game over
             manager.SetTurn();
             // Player has made their turn, cannot move until other player moves
             currTurn = false;

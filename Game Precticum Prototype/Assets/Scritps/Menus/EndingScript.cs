@@ -41,18 +41,19 @@ public class EndingScript : MonoBehaviour {
     /// <summary>
     /// Set winning players score display and winner text
     /// </summary>
-    /// <param name="score"></param>
-    /// <param name="winner"></param>
-    public void SetMultiplayerEnd(int score, bool winner)
+    /// <param name="winnerScore">score of winning player</param>
+    /// <param name="loserScore">score of losing player</param>
+    /// <param name="winner">whether player 1 is the winner</param>
+    public void SetMultiplayerEnd(int winnerScore, int loserScore,bool winner)
     {
-        finalScore.text = "Winners Score: " + score * 10;
+        finalScore.text = "Winners Score: " + winnerScore * 10;
         if (winner)
         {
-            highScoreText.text = "Player 1 Wins!";
+            highScoreText.text = "Player 1 Wins!" + "\n" + (winnerScore * 10) + " to : " + (loserScore * 10);
         }
         else
         {
-            highScoreText.text = "Player 2 Wins";
+            highScoreText.text = "Player 2 Wins" + "\n" + (winnerScore * 10) + " to : " + (loserScore * 10);
         }
         
     }

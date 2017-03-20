@@ -50,6 +50,12 @@ public class MultiplayerController : MonoBehaviour
     NetworkMessageDelegate OnMessageReceive;
     #endregion
 
+    // Get reference to player 
+    NetworkPlayerScript player;
+
+    // bool to make sure info is sent only once
+    bool infoSent = false;
+
     #endregion
 
     #region Start Method
@@ -66,6 +72,9 @@ public class MultiplayerController : MonoBehaviour
             gameObject.AddComponent<AudioSource>();
             audioSource = GetComponent<AudioSource>();
         }
+
+        // save instance of player
+        player = GameObject.FindGameObjectWithTag("Player").GetComponent<NetworkPlayerScript>();
 
         // Save reference ot pause canvas
         pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
@@ -188,6 +197,11 @@ public class MultiplayerController : MonoBehaviour
     {
         // set turn count
         turnText.text = "Turns: " + turns;
+
+        // set score fields
+        player1Score = player.score;
+        player1ScoreText.text = "Player 1: " + player1Score;
+        player2ScoreText.text = "Player 2: " + player2Score;
     }
 
     #endregion
@@ -196,7 +210,6 @@ public class MultiplayerController : MonoBehaviour
 
     public void SetTurn()
     {
-        
         // check for game over
         if (turns == 0)
         {
@@ -219,11 +232,20 @@ public class MultiplayerController : MonoBehaviour
         // Check who is the winner
         if (player1Score > player2Score)
         {
-            endScreen.GetComponent<EndingScript>().SetMultiplayerEnd(player2Score, true);
+            endScreen.GetComponent<EndingScript>().SetMultiplayerEnd(player1Score, player2Score, true);
         }
         else if (player2Score > player1Score)
         {
-            endScreen.GetComponent<EndingScript>().SetMultiplayerEnd(player2Score, false);
+            endScreen.GetComponent<EndingScript>().SetMultiplayerEnd(player2Score, player1Score, false);
+        }
+
+        if (!infoSent)
+        {
+            // Send results to other player
+            player.SendInfo();
+            // Set infoSent to true
+            infoSent = true;
+            Debug.Log("sent");
         }
         
     }
