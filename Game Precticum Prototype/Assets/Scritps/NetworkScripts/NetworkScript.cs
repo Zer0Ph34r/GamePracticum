@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 using System;
+using UnityEngine.SceneManagement;
 
 public enum InfoType { board, hand, info};
 
@@ -127,31 +128,6 @@ public class GemMessageAssistant
         NetworkServer.SendToClient(1, GemMsg.infoMessage, sentMsg);
     }
 
-    #endregion
-
-    #region On Change Method
-    /// <summary>
-    /// Called when message is recieved
-    /// </summary>
-    /// <param name="netMsg"></param>
-    //public void OnChange(NetworkMessage netMsg)
-    //{
-    //    GemMessage msg = netMsg.ReadMessage<GemMessage>();
-    //    GameObject player = GameObject.FindGameObjectWithTag("Player");
-    //    player.GetComponent<NetworkPlayerScript>().SetOpponantBoard(msg.xPosition, msg.yPosition, msg.gemColor);
-
-    //}
-    #endregion
-
-    #region On Connected Method
-    /// <summary>
-    /// Method is called when a connection is made witht the server
-    /// </summary>
-    /// <param name="netMsg"></param>
-    //public void OnConnected(NetworkMessage netMsg)
-    //{
-    //    Debug.Log("Connected to server");
-    //}
     #endregion
 
 }
@@ -375,6 +351,42 @@ public class NetworkScript : NetworkManager
         playerInstance.GetComponent<NetworkPlayerScript>().SendHand();
 
     }
+    #endregion
+
+    #region On Client Disconnect
+
+    /// <summary>
+    /// Method called when the client is disconnected from the server
+    /// </summary>
+    /// <param name="conn"></param>
+    public override void OnClientDisconnect(NetworkConnection conn)
+    {
+        // Call base opperations
+        base.OnClientDisconnect(conn);
+        // send debug message
+        Debug.Log("This client has disconnected from the server.");
+        // return user to main menu
+        SceneManager.LoadScene("Main Menu");
+    }
+
+    #endregion
+
+    #region On Server Disconnect
+
+    /// <summary>
+    /// Method is called when server disconnects from the client
+    /// </summary>
+    /// <param name="conn"></param>
+    public override void OnServerDisconnect(NetworkConnection conn)
+    {
+        // call base opperations
+        base.OnServerDisconnect(conn);
+        // send debug message
+        Debug.Log("Client has disconnected from the server");
+        // Send user to main menu
+        SceneManager.LoadScene("Main Menu");
+    }
+
     #endregion
 
     #region On Board Message Recieve
