@@ -1123,7 +1123,6 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Rotate Board
 
-    ////[Command]
     /// <summary>
     /// Rotates board visually while just saving gems into a new array that is "rotated" 90 deg 
     /// </summary>
@@ -1163,10 +1162,11 @@ public class NetworkPlayerScript : MonoBehaviour
                     gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
                 }
             }
+            // send rotated board to oppanant
+            SendBoard();
         }
     }
 
-    ////[Command]
     /// <summary>
     /// Rotates all board peices 90 deg anti clockwise
     /// </summary>
@@ -1206,6 +1206,8 @@ public class NetworkPlayerScript : MonoBehaviour
                     gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
                 }
             }
+            // send rotated board to oppanant
+            SendBoard();
         }
     }
 
