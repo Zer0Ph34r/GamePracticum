@@ -56,6 +56,9 @@ public class SaveData
         // reference to this save data class
     public static SaveData current;
 
+    // Name of this game
+    public string gameName;
+
     // Save the lists of all gems in play at the moment
     public List<SyncGem> playerGems;
     public List<SyncGem> opponantGems;
@@ -65,6 +68,9 @@ public class SaveData
     // save both players current score
     public int playerScore;
     public int opponantScore;
+
+    // is player the server or client (0 == server, 1 == client)
+    public int isClient;
 
     // save current turn count
     public int turns;
@@ -82,16 +88,18 @@ public class SaveData
     /// <param name="PlayerScore">current player score</param>
     /// <param name="OpponantScore">current opponant score</param>
     /// <param name="Turns">current turn count</param>
-    public SaveData(List<SyncGem> PlayerBoard, List<SyncGem> OpponantBoard, List<SyncGem> PlayerHand, List<SyncGem> OpponantHand,
-        int PlayerScore, int OpponantScore, int Turns)
+    public SaveData(string GameName, List<SyncGem> PlayerBoard, List<SyncGem> OpponantBoard, List<SyncGem> PlayerHand, List<SyncGem> OpponantHand,
+        int PlayerScore, int OpponantScore, int IsClient, int Turns)
     {
         // Set all data to be saved
-        playerGems = PlayerBoard; // Capitalized values are submitted through code
+        gameName = GameName;  // Capitalized values are submitted through code
+        playerGems = PlayerBoard; 
         opponantGems = OpponantBoard;
         playerHand = PlayerHand;
         opponantHand = OpponantHand;
         playerScore = PlayerScore;
         opponantScore = OpponantScore;
+        isClient = IsClient;
         turns = Turns;
 
     }

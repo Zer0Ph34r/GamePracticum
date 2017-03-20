@@ -58,6 +58,17 @@ public class MenuButtonScript : MonoBehaviour {
     }
     #endregion
 
+    #region Mutliplayer Button
+
+    public void LoadMutliplayer()
+    {
+        SaveLoadScript.Load();
+        audioSource.PlayOneShot(click);
+        SceneManager.LoadScene("TwoPlayerSetUpScene");
+    }
+
+    #endregion
+
     #region Tutorial Button
     /// <summary>
     /// Open Tutoriel button

@@ -31,12 +31,14 @@ public class NetworkPlayerScript : MonoBehaviour
 
     // arrays and lists of content
     GameObject[,] gems;
-    SyncGem[,] boardSync;
+    public List<SyncGem> boardSync;
     GameObject[,] opponantTable;
+    public List<SyncGem> opponantBoardSync;
 
     GameObject[] playerHand;
-    SyncGem[] handSync;
+    public List<SyncGem> handSync;
     GameObject[] opponantHand;
+    public List<SyncGem> opponantHandSync;
 
     // save object positions for swapping
     Vector3 handPos;
@@ -109,8 +111,12 @@ public class NetworkPlayerScript : MonoBehaviour
         #region Create Game Board
         // create table
         gems = new GameObject[tableSize, tableSize];
-        //boardSync = new SyncGem[tableSize, tableSize];
+        // create list of syncGems for saving data
+        boardSync = new List<SyncGem>();
+        // create array of opponants board
         opponantTable = new GameObject[tableSize, tableSize];
+        // create list of opponant syncGems for saving
+        opponantBoardSync = new List<SyncGem>();
         // fill table and create game board
         CreateGameBoard();
         CreateOpponantBoard();
@@ -120,8 +126,12 @@ public class NetworkPlayerScript : MonoBehaviour
         #region Create Player Hand
         // Create Player Hand Empty
         playerHand = new GameObject[3];
-        //handSync = new SyncGem[3];
+        // list for saving hand data
+        handSync = new List<SyncGem>();
+        // Opoonant hand display gems
         opponantHand = new GameObject[3];
+        // list for saving opponants hand
+        opponantHandSync = new List<SyncGem>();
         // Fill Player Hand with random gems
         for (int i = 0; i < 3; ++i)
         {

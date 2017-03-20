@@ -226,7 +226,7 @@ public class MultiplayerController : MonoBehaviour
     /// </summary>
     public void SaveScene()
     {
-
+        //SaveData.current = new SaveData("TestGameSave", player.boardSync, );
     }
 
     #endregion
