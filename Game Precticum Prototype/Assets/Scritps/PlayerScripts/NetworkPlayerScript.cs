@@ -800,6 +800,8 @@ public class NetworkPlayerScript : MonoBehaviour
         // Iterate through each unique solution and delete all gems contained within
         foreach (MoveScript move in list)
         {
+            // Set score based on length of chain {3 = 1, 4 = 4, etc.}
+            baseScore = move.GetList.Count - 2;
             foreach (GameObject go in move.GetList)
             {
                 // Check for null objects
