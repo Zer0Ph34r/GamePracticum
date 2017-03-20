@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 public class EndingScript : MonoBehaviour {
 
-    #region fields
+    #region Fields
 
     // highscore field
     int highscore = GlobalVariables.HIGHSCORE;
@@ -51,7 +51,7 @@ public class EndingScript : MonoBehaviour {
         }
         else
         {
-            highScoreText.text = "You Lost, Too Bad" + "\n" + (winnerScore * 10) + " to : " + (loserScore * 10);
+            highScoreText.text = "You Lost, Too Bad" + "\n" + (loserScore * 10) + " to : " + (winnerScore * 10);
         }
         
     }
