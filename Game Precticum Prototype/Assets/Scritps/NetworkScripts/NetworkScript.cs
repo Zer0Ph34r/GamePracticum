@@ -95,6 +95,8 @@ public class GemMessageAssistant
         sentMsg.yPos = (short)yPos;
         sentMsg.gemColor = color;
 
+        //Debug.Log("Sent Data - X " + xPos + " Y " + yPos + " Color " + color);
+
         //  Send message data to server
         NetworkServer.SendToClient(1, GemMsg.handMessage, sentMsg);
     }
@@ -432,6 +434,9 @@ public class NetworkScript : NetworkManager
         // Set info to temp variables
         short turnCount = receivedMsg.turnCount;
         int score = receivedMsg.score;
+
+        // Set opponants score value
+        playerInstance.GetComponent<NetworkPlayerScript>().SetInfo(turnCount, score);
 
     }
 

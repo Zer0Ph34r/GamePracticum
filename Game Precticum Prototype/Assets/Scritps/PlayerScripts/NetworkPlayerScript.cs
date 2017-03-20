@@ -1268,7 +1268,7 @@ public class NetworkPlayerScript : MonoBehaviour
         int score = manager.player1Score;
 
         // send info
-        NetworkScript.instance.SendInfo(0, 0, 0, InfoType.info);
+        NetworkScript.instance.SendInfo(score, turn, 0, InfoType.info);
     }
 
     #endregion
@@ -1379,7 +1379,7 @@ public class NetworkPlayerScript : MonoBehaviour
 
         // Set info in manager
         manager.player2Score = score;
-        manager.turns = turns;
+        //manager.turns = turns;
 
         // change display
         manager.SetTurn();

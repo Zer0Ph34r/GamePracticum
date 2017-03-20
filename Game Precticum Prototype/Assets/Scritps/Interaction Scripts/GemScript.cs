@@ -186,11 +186,12 @@ public class GemScript : MonoBehaviour
         transform.localPosition = endPos;
         // No longer moving, can select gem
         canSelect = true;
+        // Reset Serializable Info
+        serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
         //Fire Event after coroutine ends
         if (runNextMethod != null &&
             checkGems())
         {
-            serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
             runNextMethod();
         }
         
@@ -213,11 +214,12 @@ public class GemScript : MonoBehaviour
         transform.position = endPos;
         // No longer moving, can select gem
         canSelect = true;
+        // Reset Serializable Info
+        serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
         //Fire Event after coroutine ends
         if (runNextMethod != null &&
             checkGems())
         {
-            serialGem = new SyncGem((short)transform.localPosition.x, (short)transform.localPosition.y, color);
             runNextMethod();
         }
         
