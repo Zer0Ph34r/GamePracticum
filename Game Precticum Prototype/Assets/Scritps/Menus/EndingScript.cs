@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class EndingScript : MonoBehaviour {
@@ -49,11 +47,11 @@ public class EndingScript : MonoBehaviour {
         finalScore.text = "Winners Score: " + winnerScore * 10;
         if (winner)
         {
-            highScoreText.text = "Player 1 Wins!" + "\n" + (winnerScore * 10) + " to : " + (loserScore * 10);
+            highScoreText.text = "You Won!" + "\n" + (winnerScore * 10) + " to : " + (loserScore * 10);
         }
         else
         {
-            highScoreText.text = "Player 2 Wins" + "\n" + (winnerScore * 10) + " to : " + (loserScore * 10);
+            highScoreText.text = "You Lost, Too Bad" + "\n" + (winnerScore * 10) + " to : " + (loserScore * 10);
         }
         
     }

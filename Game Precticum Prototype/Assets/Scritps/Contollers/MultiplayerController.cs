@@ -200,8 +200,8 @@ public class MultiplayerController : MonoBehaviour
 
         // set score fields
         player1Score = player.score;
-        player1ScoreText.text = "Player 1: " + player1Score;
-        player2ScoreText.text = "Player 2: " + player2Score;
+        player1ScoreText.text = "Player 1: " + player1Score * 10;
+        player2ScoreText.text = "Player 2: " + player2Score * 10;
     }
 
     #endregion
