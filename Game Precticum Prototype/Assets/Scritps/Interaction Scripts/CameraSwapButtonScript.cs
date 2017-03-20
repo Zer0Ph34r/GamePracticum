@@ -55,7 +55,7 @@ public class CameraSwapButtonScript : MonoBehaviour {
     void SetCamera(Vector3 Pos)
     {
         // set camera's position according to given object and table size
-        mainCamera.transform.position = new Vector3(tableSize / 2 + Pos.x,
+        mainCamera.transform.position = new Vector3((tableSize * 0.45f) + Pos.x,
             tableSize * (6 / 8f) + Pos.y,
             tableSize * 1.5f);
     }

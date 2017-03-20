@@ -18,6 +18,7 @@ public class NetworkPlayerScript : MonoBehaviour
 
     // grid for gems on table
     Sprite gridBackground;
+    Sprite twoPlayerDisplay;
 
     // background for making it easier to see everything
     Sprite background;
@@ -105,7 +106,7 @@ public class NetworkPlayerScript : MonoBehaviour
         purpleGem = Resources.Load<GameObject>("Prefabs/Gems/PurpleD10");
         // Load Sprites
         gridBackground = Resources.Load<Sprite>("Sprites/GridBacking");
-
+        twoPlayerDisplay = Resources.Load<Sprite>("Sprites/Player2");
         #endregion
 
         #region Create Game Board
@@ -182,7 +183,7 @@ public class NetworkPlayerScript : MonoBehaviour
         //get main camera
         mainCamera = Camera.main;
         // set camera's position according to table size
-        mainCamera.transform.localPosition = new Vector3(tableSize / 2 + transform.position.x,
+        mainCamera.transform.localPosition = new Vector3((tableSize * 0.45f) + transform.position.x,
             tableSize * (6 / 8f) + transform.position.y,
             tableSize * 1.5f);
         // Move Camera to face the gems instantiated
@@ -197,15 +198,23 @@ public class NetworkPlayerScript : MonoBehaviour
         GameObject bg = new GameObject();
         bg.transform.SetParent(transform);
         bg.AddComponent<SpriteRenderer>().sprite = background;
-        bg.transform.localPosition = new Vector3(tableSize / 2, tableSize / 2, -15);
+        bg.transform.localPosition = new Vector3((tableSize * 0.45f), tableSize / 2, -15);
         bg.GetComponent<SpriteRenderer>().sortingOrder = -20;
 
         // create opponant BG
         GameObject opponantBG = new GameObject();
         opponantBG.transform.SetParent(transform);
         opponantBG.AddComponent<SpriteRenderer>().sprite = background;
-        opponantBG.transform.localPosition = new Vector3(tableSize / 2, tableSize / 2 + 50, -15);
+        opponantBG.transform.localPosition = new Vector3((tableSize * 0.45f), tableSize / 2 + 50, -15);
         opponantBG.GetComponent<SpriteRenderer>().sortingOrder = -20;
+
+        // Create title for second player display to make it easy to know when you are on your screen
+        GameObject opponantTitle = new GameObject();
+        opponantTitle.transform.SetParent(transform);
+        opponantTitle.AddComponent<SpriteRenderer>().sprite = twoPlayerDisplay;
+        opponantTitle.transform.localPosition = new Vector3(tableSize * 0.8f, (tableSize * 1.1f) + 50, 0);
+        opponantTitle.GetComponent<SpriteRenderer>().sortingOrder = 15;
+
         #endregion
 
         #region Check Grid
