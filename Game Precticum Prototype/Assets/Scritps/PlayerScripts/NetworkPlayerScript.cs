@@ -69,6 +69,10 @@ public class NetworkPlayerScript : MonoBehaviour
     // Reference to multiplayer manager
     MultiplayerController manager;
 
+    // multiplier for multiple chains
+    int baseScore = 1;
+    int multiplier = 0;
+
     #endregion
 
     #region Events
@@ -573,6 +577,8 @@ public class NetworkPlayerScript : MonoBehaviour
 
         if (chains.Count > 0)
         {
+            // Add to multiplier
+            multiplier++;
             // Remove all gems that form chains of 3 or more 
             DeleteChains(chains);
 
@@ -581,7 +587,11 @@ public class NetworkPlayerScript : MonoBehaviour
         }
         else
         {
+            // reset multiplier
+            multiplier = 0;
+            // set turn count
             NextTurn();
+            // set score display
             fireScore();
         }
     }
@@ -798,7 +808,7 @@ public class NetworkPlayerScript : MonoBehaviour
                     gems[(int)(go.GetComponent<GemScript>().transform.localPosition.x),
                         (int)go.GetComponent<GemScript>().transform.localPosition.y] = null;
                     go.GetComponent<GemScript>().BlowUp();
-                    score++;
+                    score += baseScore * multiplier;
                     fireScore();
                 }
             }

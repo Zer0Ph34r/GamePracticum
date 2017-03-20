@@ -505,6 +505,7 @@ public class OnePlayerScript : NetworkBehaviour
 
         if (chains.Count > 0)
         {
+            // add to multiplier for each chain in a single turn
             multiplier++;
             // Remove all gems that form chains of 3 or more 
             DeleteChains(chains);
@@ -514,9 +515,13 @@ public class OnePlayerScript : NetworkBehaviour
         }
         else
         {
+            // reset multiplier
             multiplier = 0;
+            // decrement turn count
             turns--;
+            // set score view through manager
             fireScore();
+            // chack for game end
             if (turns == 0)
             {
                 canSelect = false;
