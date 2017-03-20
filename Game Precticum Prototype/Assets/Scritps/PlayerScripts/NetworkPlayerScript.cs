@@ -578,7 +578,6 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Resolve Grid
 
-    //[Command]
     /// <summary>
     /// Creates a new 2D array "Moves" which list all possible chains
     /// then sorts for unique chians and destroys all gems in those chains
@@ -840,7 +839,6 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Swap Pieces
 
-    //[Command]
     /// <summary>
     /// Swaps two pieces and then checks for validity
     /// </summary>
@@ -1000,7 +998,7 @@ public class NetworkPlayerScript : MonoBehaviour
     #endregion
 
     #region Cancel Swap
-    //[Command]
+
     // Resets gems back to starting position and writes out warning to player
     void CancelSwap()
     {
@@ -1015,7 +1013,6 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Refill Grid
 
-    //[Command]
     /// <summary>
     /// Has pieces "fall" into place, then creates new gems above the holes to 
     /// fill in grid completely
@@ -1052,7 +1049,6 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Fill Empty
 
-    //[Command]
     /// <summary>
     /// Fills all empty grid cells
     /// </summary>
@@ -1083,7 +1079,6 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Check Falling
 
-    //[Command]
     // Checks if there is a gem beneath this one and moves it
     // if there isn't one
     void CheckFalling(int x, int y)
@@ -1113,7 +1108,6 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Reset Board
 
-    //[Command]
     /// <summary>
     /// Resets all board and ahdn pieces so they can be selected again
     /// </summary>
@@ -1238,6 +1232,9 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region On Destroy
 
+    /// <summary>
+    /// Removes all events when this object is destroyed
+    /// </summary>
     private void OnDestroy()
     {
         // Remove methods from events
@@ -1426,6 +1423,9 @@ public class NetworkPlayerScript : MonoBehaviour
 
     #region Next Turn Methods
 
+    /// <summary>
+    /// Send Info to other player
+    /// </summary>
     public void NextTurn()
     {
         // subtract turn count
