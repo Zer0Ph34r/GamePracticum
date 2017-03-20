@@ -219,6 +219,30 @@ public class MultiplayerController : MonoBehaviour
 
     #endregion
 
+    #region Save Scene
+
+    /// <summary>
+    /// Saves game info to continue playing same game later later
+    /// </summary>
+    public void SaveScene()
+    {
+
+    }
+
+    #endregion
+
+    #region Load Scene
+
+    /// <summary>
+    /// Loads game info if there is a saved state
+    /// </summary>
+    public void LoadScene()
+    {
+
+    }
+
+    #endregion
+
     #region GameOver
 
     /// <summary>
@@ -260,6 +284,22 @@ public class MultiplayerController : MonoBehaviour
     {
         GemScript.fireSoundEvent -= PlaySound;
         NetworkPlayerScript.fireScore -= SetScore;
+    }
+
+    #endregion
+
+    #region On Application Exit
+
+    /// <summary>
+    /// What does the mutiplayer manager do when the application exits
+    /// </summary>
+    private void OnApplicationQuit()
+    {
+        if (turns > 0)
+        {
+            SaveScene();
+        }
+
     }
 
     #endregion
