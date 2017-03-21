@@ -14,7 +14,9 @@ public class AudioManager : MonoBehaviour {
     AudioSource soundEffectSource;
 
     // List of all sound effects and BGM
-    List<AudioClip> music;
+    List<AudioClip> soundEffects;
+
+    AudioClip currBGM;
 
     #endregion
 
@@ -52,31 +54,34 @@ public class AudioManager : MonoBehaviour {
         #region Load Sound Effects
 
         //Initialize music list
-        music = new List<AudioClip>();
+        soundEffects = new List<AudioClip>();
 
         // Load in sound effects (music 0 - 3 = crash, 4 = click)
-        music.Add(Resources.Load<AudioClip>("Sounds/Break1"));
-        music.Add(Resources.Load<AudioClip>("Sounds/Break2"));
-        music.Add(Resources.Load<AudioClip>("Sounds/Break3"));
-        music.Add(Resources.Load<AudioClip>("Sounds/Break4"));
-        music.Add(Resources.Load<AudioClip>("Sounds/Click"));
+        soundEffects.Add(Resources.Load<AudioClip>("Sounds/Break1"));
+        soundEffects.Add(Resources.Load<AudioClip>("Sounds/Break2"));
+        soundEffects.Add(Resources.Load<AudioClip>("Sounds/Break3"));
+        soundEffects.Add(Resources.Load<AudioClip>("Sounds/Break4"));
+        soundEffects.Add(Resources.Load<AudioClip>("Sounds/Click"));
 
         #endregion
 
         #region Load BGM
 
+        
+
         // Load all the BGM (music 5 - 12 = BGM)
-        music.Add(Resources.Load<AudioClip>("Sounds/Music/BGM0"));
-        music.Add(Resources.Load<AudioClip>("Sounds/Music/BGM1"));
-        music.Add(Resources.Load<AudioClip>("Sounds/Music/BGM2"));
-        music.Add(Resources.Load<AudioClip>("Sounds/Music/BGM3"));
-        music.Add(Resources.Load<AudioClip>("Sounds/Music/BGM4"));
-        music.Add(Resources.Load<AudioClip>("Sounds/Music/BGM5"));
-        music.Add(Resources.Load<AudioClip>("Sounds/Music/BGM6"));
-        music.Add(Resources.Load<AudioClip>("Sounds/Music/BGM7"));
+        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM0"));
+        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM1"));
+        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM2"));
+        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM3"));
+        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM4"));
+        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM5"));
+        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM6"));
+        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM7"));
 
         #endregion
 
+        PlayBGM();
     }
 
     #endregion
@@ -93,16 +98,16 @@ public class AudioManager : MonoBehaviour {
         switch (Random.Range(0,4))
         {
             case 0:
-                soundEffectSource.PlayOneShot(music[0]);
+                soundEffectSource.PlayOneShot(soundEffects[0]);
                 break;
             case 1:
-                soundEffectSource.PlayOneShot(music[1]);
+                soundEffectSource.PlayOneShot(soundEffects[1]);
                 break;
             case 2:
-                soundEffectSource.PlayOneShot(music[2]);
+                soundEffectSource.PlayOneShot(soundEffects[2]);
                 break;
             case 3:
-                soundEffectSource.PlayOneShot(music[3]);
+                soundEffectSource.PlayOneShot(soundEffects[3]);
                 break;
         }
 
@@ -116,7 +121,7 @@ public class AudioManager : MonoBehaviour {
     /// </summary>
     public void PlayClick()
     {
-        soundEffectSource.PlayOneShot(music[4]);
+        soundEffectSource.PlayOneShot(soundEffects[4]);
     }
 
     #endregion
@@ -127,32 +132,40 @@ public class AudioManager : MonoBehaviour {
     /// </summary>
     public void PlayBGM()
     {
-        // Play a random BGM
+        // Load and Play a random BGM (Saves on load time when starting game)
         switch (Random.Range(0, 8))
         {
             case 0:
-                BGMSource.PlayOneShot(music[5]);
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM0");
+                BGMSource.PlayOneShot(currBGM);
                 break;
             case 1:
-                BGMSource.PlayOneShot(music[6]);
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM1");
+                BGMSource.PlayOneShot(currBGM);
                 break;
             case 2:
-                BGMSource.PlayOneShot(music[7]);
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM2");
+                BGMSource.PlayOneShot(currBGM);
                 break;
             case 3:
-                BGMSource.PlayOneShot(music[8]);
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM3");
+                BGMSource.PlayOneShot(currBGM);
                 break;
             case 4:
-                BGMSource.PlayOneShot(music[9]);
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM4");
+                BGMSource.PlayOneShot(currBGM);
                 break;
             case 5:
-                BGMSource.PlayOneShot(music[10]);
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM5");
+                BGMSource.PlayOneShot(currBGM);
                 break;
             case 6:
-                BGMSource.PlayOneShot(music[11]);
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM6");
+                BGMSource.PlayOneShot(currBGM);
                 break;
             case 7:
-                BGMSource.PlayOneShot(music[12]);
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM7");
+                BGMSource.PlayOneShot(currBGM);
                 break;
         }
     }
