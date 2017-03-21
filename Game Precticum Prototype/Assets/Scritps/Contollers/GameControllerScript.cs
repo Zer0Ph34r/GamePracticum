@@ -54,9 +54,6 @@ public class GameControllerScript : MonoBehaviour {
 
         #endregion
 
-        // Star new song
-        audioManager.PlayBGM();
-
         #region Set Event Methods
 
         // add method to event call

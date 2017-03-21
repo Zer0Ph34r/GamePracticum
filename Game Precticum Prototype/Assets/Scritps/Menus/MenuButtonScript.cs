@@ -60,27 +60,12 @@ public class MenuButtonScript : MonoBehaviour {
     {
         // play click
         audioManager.PlayClick();
-        // stop BGM
-        audioManager.StopBGM();
         // get laoding text
         loadingText();
         // laod scene
         SceneManager.LoadScene(sceneName);
 
     }
-    #endregion
-
-    #region Mutliplayer Button
-
-    public void LoadMutliplayer()
-    {
-        SaveLoadScript.Load();
-        audioManager.PlayClick();
-        audioManager.StopBGM();
-        loadingText();
-        SceneManager.LoadScene("TwoPlayerSetUpScene");
-    }
-
     #endregion
 
     #region Tutorial Button
@@ -178,7 +163,7 @@ public class MenuButtonScript : MonoBehaviour {
         GameObject loading = new GameObject();
         loading.AddComponent<SpriteRenderer>().sprite = loadingIcon;
         loading.transform.position = new Vector3(GlobalVariables.TABLE_SIZE * 0.1f, (GlobalVariables.TABLE_SIZE * -0.8f), 10);
-        loading.GetComponent<SpriteRenderer>().sortingOrder = 1;
+        loading.GetComponent<SpriteRenderer>().sortingOrder = 20;
 
         // Pauses game in unity editor
         //UnityEditor.EditorApplication.isPaused = true;

@@ -12,7 +12,7 @@ public class GlobalVariables {
     public static int SCREEN_POSITION = 10;
     public static int TABLE_SIZE = 10;
     public static int MULIPLAYER_TABLE_SIZE = 10;
-    public static float MOVE_SPEED = 11f;
+    public static float MOVE_SPEED = 15f;
     public static int TURNS = 10;
     public static int MULTIPLAYER_TURNS = 5;
     public static int HIGHSCORE = 0;

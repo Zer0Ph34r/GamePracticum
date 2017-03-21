@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AudioManager : MonoBehaviour {
 
@@ -65,21 +66,8 @@ public class AudioManager : MonoBehaviour {
 
         #endregion
 
-        #region Load BGM
-
-        
-
-        // Load all the BGM (music 5 - 12 = BGM)
-        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM0"));
-        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM1"));
-        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM2"));
-        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM3"));
-        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM4"));
-        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM5"));
-        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM6"));
-        //soundEffects.Add(Resources.Load<AudioClip>("Sounds/Music/BGM7"));
-
-        #endregion
+        // Add even for scene loading and unloading
+        SceneManager.sceneLoaded += OnSceneLoad;
 
         PlayBGM();
     }
@@ -94,7 +82,7 @@ public class AudioManager : MonoBehaviour {
     /// </summary>
     public void PlayCrash()
     {
-        soundEffectSource.pitch = Random.Range(0, 1);
+        //soundEffectSource.pitch = Random.Range(0, 1);
         switch (Random.Range(0,4))
         {
             case 0:
@@ -132,6 +120,7 @@ public class AudioManager : MonoBehaviour {
     /// </summary>
     public void PlayBGM()
     {
+        StopBGM();
         // Load and Play a random BGM (Saves on load time when starting game)
         switch (Random.Range(0, 8))
         {
@@ -180,6 +169,24 @@ public class AudioManager : MonoBehaviour {
         BGMSource.Stop();
     }
 
+    #endregion
+
+    #region On Scene Loaded
+
+    // method to register with sceneLoaded event
+    public void OnSceneLoad(Scene scene, LoadSceneMode mode)
+    {
+        PlayBGM();
+    }
+
+    #endregion
+
+    #region On Destroy
+    private void OnDestroy()
+    {
+        // remove this registration
+        SceneManager.sceneLoaded -= OnSceneLoad;
+    }
     #endregion
 
     #endregion

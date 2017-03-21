@@ -79,9 +79,6 @@ public class MultiplayerController : MonoBehaviour
 
         #endregion
 
-        // Play Loaded Music
-        audioManager.PlayBGM();
-
         #region Set Event Methods
 
         // add method to event call
