@@ -1,126 +1,89 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.Networking.Types;
 using UnityEngine.Networking.Match;
-using UnityEngine.Networking.NetworkSystem;
+using UnityEngine.Networking.Types;
+using System.Collections;
 using System.Collections.Generic;
 
-//public class MatchmakerScript : NetworkMatch
-//{
+public class MyMatchMaker : MonoBehaviour
+{
+    #region Fields
+    //bool for checking status
+    bool done;
 
-//    #region Fields
+    #endregion
 
-//    // List of matches availible to join
-//    List<MatchInfoSnapshot> matchList = new List<MatchInfoSnapshot>();
-//    // wether a match has been created or not
-//    bool matchCreated;
-//    // Netwrok match object
-//    NetworkMatch networkMatch;
+    #region Start
+    // Use this for initialization
+    void Start()
+    {
+        NetworkManager.singleton.StartMatchMaker();
+        NetworkManager.singleton.matchMaker.ListMatches(0, 20, "Match", false, 0, 1, OnMatchList);
+        Debug.Log("Searching");
+    }
+    #endregion
 
-//    #endregion
+    #region On Match List
+    public virtual void OnMatchList(bool success, string extendedInfo, List<MatchInfoSnapshot> matchList)
+    {
+        if (success)
+        {
+            if (matchList.Count != 0)
+            {
+                Debug.Log("Matches Found");
+                NetworkManager.singleton.matchMaker.JoinMatch(matchList[0].networkId, "", "", "", 0, 1, OnMatchJoined);
+            }
+            else
+            {
+                Debug.Log("No Matches Found");
+                Debug.Log("Creating Match");
+                NetworkManager.singleton.matchMaker.CreateMatch("Match", 2, true, "", "", "", 0, 1, OnMatchCreate);
+            }
+        }
+        else
+        {
+            Debug.Log("ERROR : Match Search Failure");
+        }
+    }
+    #endregion
 
-//    #region Awake
 
-//    void Awake()
-//    {
-//        networkMatch = gameObject.AddComponent<NetworkMatch>();
-//    }
+    #region On Match Joined
+    public virtual void OnMatchJoined(bool success, string extendedInfo, MatchInfo matchInfo)
+    {
+        if (success)
+        {
+            Debug.Log("Match Joined");
+            MatchInfo hostInfo = matchInfo;
+            NetworkManager.singleton.StartClient(hostInfo);
 
-//    #endregion
+            //OnConnect();
+        }
+        else
+        {
+            Debug.Log("ERROR : Match Join Failure");
+        }
 
-//    #region On GUI
+    }
+    #endregion
 
-//    void OnGUI()
-//    {
-//        // You would normally not join a match you created yourself but this is possible here for demonstration purposes.
-//        if (GUILayout.Button("Create Room"))
-//        {
-//            CreateMatchRequest create = new CreateMatchRequest();
-//            create.name = "NewRoom";
-//            create.size = 4;
-//            create.advertise = true;
-//            create.password = "";
+    #region On Match Create
+    public virtual void OnMatchCreate(bool success, string extendedInfo, MatchInfo matchInfo)
+    {
+        if (success)
+        {
+            Debug.Log("Match Created");
 
-//            networkMatch.CreateMatch(create, OnMatchCreate);
-//        }
+            MatchInfo hostInfo = matchInfo;
+            NetworkServer.Listen(hostInfo, 9000);
+            NetworkManager.singleton.StartHost(hostInfo);
 
-//        if (GUILayout.Button("List rooms"))
-//        {
-//            networkMatch.ListMatches(0, 20, "", OnMatchList);
-//        }
-
-//        if (matchList.Count > 0)
-//        {
-//            GUILayout.Label("Current rooms");
-//        }
-//        foreach (var match in matchList)
-//        {
-//            if (GUILayout.Button(match.name))
-//            {
-//                networkMatch.JoinMatch(match.networkId, "", OnMatchJoined);
-//            }
-//        }
-//    }
-
-//    #endregion
-
-//    #region Methods
-
-//    #region On Match Create
-
-//    public void OnMatchCreate(CreateMatchResponse matchResponse)
-//    {
-//        if (matchResponse.success)
-//        {
-//            Debug.Log("Create match succeeded");
-//            matchCreated = true;
-//            Utility.SetAccessTokenForNetwork(matchResponse.networkId, new NetworkAccessToken(matchResponse.accessTokenString));
-//            NetworkServer.Listen(new MatchInfo(matchResponse), 9000);
-//        }
-//        else
-//        {
-//            Debug.LogError("Create match failed");
-//        }
-//    }
-
-//    #endregion
-
-//    #region On Match List
-
-//    public void OnMatchList(ListMatchResponse matchListResponse)
-//    {
-//        if (matchListResponse.success && matchListResponse.matches != null)
-//        {
-//            networkMatch.JoinMatch(matchListResponse.matches[0].networkId, "", OnMatchJoined);
-//        }
-//    }
-
-//    #endregion
-
-//    #region On Match Joined
-
-//    public void OnMatchJoined(JoinMatchResponse matchJoin)
-//    {
-//        if (matchJoin.success)
-//        {
-//            Debug.Log("Join match succeeded");
-//            if (matchCreated)
-//            {
-//                Debug.LogWarning("Match already set up, aborting...");
-//                return;
-//            }
-//            Utility.SetAccessTokenForNetwork(matchJoin.networkId, new NetworkAccessToken(matchJoin.accessTokenString));
-//            NetworkClient myClient = new NetworkClient();
-//            myClient.RegisterHandler(MsgType.Connect, OnConnected);
-//            myClient.Connect(new MatchInfo(matchJoin));
-//        }
-//        else
-//        {
-//            Debug.LogError("Join match failed");
-//        }
-//    }
-
-//    #endregion
-
-//    #endregion
-//}
+            //OnConnect();
+        }
+        else
+        {
+            Debug.Log("ERROR : Match Create Failure");
+        }
+    }
+    #endregion
+}
