@@ -32,7 +32,6 @@ public class OnePlayerScript : NetworkBehaviour
 
     // 2D array of table contents
     GameObject[,] gems;
-    GameObject[,] rotation;
     GameObject[] playerHand;
 
     // save object positions for swapping

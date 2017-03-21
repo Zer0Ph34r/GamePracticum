@@ -177,7 +177,11 @@ public class MenuButtonScript : MonoBehaviour {
         // create loading object and set its position
         GameObject loading = new GameObject();
         loading.AddComponent<SpriteRenderer>().sprite = loadingIcon;
-        loading.transform.position = new Vector3(0,0,0);
+        loading.transform.position = new Vector3(GlobalVariables.TABLE_SIZE * 0.1f, (GlobalVariables.TABLE_SIZE * -0.8f), 10);
+        loading.GetComponent<SpriteRenderer>().sortingOrder = 1;
+
+        // Pauses game in unity editor
+        //UnityEditor.EditorApplication.isPaused = true;
 
     }
 
