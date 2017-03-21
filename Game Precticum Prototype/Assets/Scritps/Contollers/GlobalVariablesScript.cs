@@ -10,7 +10,7 @@ public class GlobalVariables {
     #region Feilds
 
     public static int SCREEN_POSITION = 10;
-    public static int TABLE_SIZE = 5;
+    public static int TABLE_SIZE = 10;
     public static int MULIPLAYER_TABLE_SIZE = 10;
     public static float MOVE_SPEED = 11f;
     public static int TURNS = 10;

@@ -30,19 +30,6 @@ public class MultiplayerController : MonoBehaviour
     GameObject endScreen;
     #endregion
 
-    #region Sound Effect Fields
-    // Sound Stuff
-    AudioSource audioSource;
-    AudioClip break1;
-    AudioClip break2;
-    AudioClip break3;
-    AudioClip break4;
-
-    // BGM
-    AudioClip BGMusic;
-
-    #endregion
-
     #region Server Fields
     // variables for getting server client connections
     NetworkClient myClient;
@@ -52,6 +39,8 @@ public class MultiplayerController : MonoBehaviour
 
     // Get reference to player 
     NetworkPlayerScript player;
+
+    AudioManager audioManager;
 
     // bool to make sure info is sent only once
     bool infoSent = false;
@@ -67,11 +56,7 @@ public class MultiplayerController : MonoBehaviour
         #region Get / Save Objects
 
         // Save reference to audio source
-        if (audioSource == null)
-        {
-            gameObject.AddComponent<AudioSource>();
-            audioSource = GetComponent<AudioSource>();
-        }
+        audioManager = AudioManager.instance;
 
         // save instance of player
         player = GameObject.FindGameObjectWithTag("Player").GetComponent<NetworkPlayerScript>();
@@ -80,16 +65,6 @@ public class MultiplayerController : MonoBehaviour
         pauseMenu = GameObject.FindGameObjectWithTag("PauseMenu");
         pauseMenu.gameObject.SetActive(false);
         endScreen.gameObject.SetActive(false);
-
-        #region Sounds
-
-        // Load in sound effects
-        break1 = Resources.Load<AudioClip>("Sounds/Break1");
-        break2 = Resources.Load<AudioClip>("Sounds/Break2");
-        break3 = Resources.Load<AudioClip>("Sounds/Break3");
-        break4 = Resources.Load<AudioClip>("Sounds/Break4");
-
-        #endregion
 
         #region Score Display
 
@@ -104,41 +79,8 @@ public class MultiplayerController : MonoBehaviour
 
         #endregion
 
-        #region Load BGM
-
-        switch (Random.Range(0, 8))
-        {
-            case 0:
-                BGMusic = Resources.Load<AudioClip>("Sounds/Music/BGM0");
-                break;
-            case 1:
-                BGMusic = Resources.Load<AudioClip>("Sounds/Music/BGM1");
-                break;
-            case 2:
-                BGMusic = Resources.Load<AudioClip>("Sounds/Music/BGM2");
-                break;
-            case 3:
-                BGMusic = Resources.Load<AudioClip>("Sounds/Music/BGM3");
-                break;
-            case 4:
-                BGMusic = Resources.Load<AudioClip>("Sounds/Music/BGM4");
-                break;
-            case 5:
-                BGMusic = Resources.Load<AudioClip>("Sounds/Music/BGM5");
-                break;
-            case 6:
-                BGMusic = Resources.Load<AudioClip>("Sounds/Music/BGM6");
-                break;
-            case 7:
-                BGMusic = Resources.Load<AudioClip>("Sounds/Music/BGM7");
-                break;
-        }
-
-
-        #endregion
-
         // Play Loaded Music
-        audioSource.PlayOneShot(BGMusic);
+        audioManager.PlayBGM();
 
         #region Set Event Methods
 
@@ -168,23 +110,7 @@ public class MultiplayerController : MonoBehaviour
     /// </summary>
     void PlaySound()
     {
-        // Play random sound effect
-        switch (Random.Range(0, 4))
-        {
-            case 0:
-                audioSource.PlayOneShot(break1);
-                break;
-            case 1:
-                audioSource.PlayOneShot(break2);
-                break;
-            case 2:
-                audioSource.PlayOneShot(break3);
-                break;
-            case 3:
-                audioSource.PlayOneShot(break4);
-                break;
-        }
-
+        audioManager.PlayCrash();
     }
 
     #endregion

@@ -18,9 +18,8 @@ public class MenuButtonScript : MonoBehaviour {
     [SerializeField]
     Text GridSizeSliderText;
 
-    // Sound Effect for clicking on buttons
-    AudioClip click;
-    AudioSource audioSource;
+    // Get reference ot audio manager
+    AudioManager audioManager;
 
     // Set all static events to null
     GemScript.callMethod Selected = null;
@@ -32,16 +31,10 @@ public class MenuButtonScript : MonoBehaviour {
 
     #region Start
 
+    // Get Audio Manager
     private void Start()
     {
-        click = Resources.Load<AudioClip>("Sounds/Click");
-
-        // Save reference to audio source
-        if (audioSource == null)
-        {
-            gameObject.AddComponent<AudioSource>();
-            audioSource = GetComponent<AudioSource>();
-        }
+        audioManager = AudioManager.instance;
     }
     #endregion
 
@@ -53,7 +46,8 @@ public class MenuButtonScript : MonoBehaviour {
     /// </summary>
     public void LoadSceneButton(string sceneName)
     {
-        audioSource.PlayOneShot(click);
+        audioManager.PlayClick();
+        audioManager.StopBGM();
         SceneManager.LoadScene(sceneName);
     }
     #endregion
@@ -63,7 +57,8 @@ public class MenuButtonScript : MonoBehaviour {
     public void LoadMutliplayer()
     {
         SaveLoadScript.Load();
-        audioSource.PlayOneShot(click);
+        audioManager.PlayClick();
+        audioManager.StopBGM();
         SceneManager.LoadScene("TwoPlayerSetUpScene");
     }
 
@@ -75,7 +70,7 @@ public class MenuButtonScript : MonoBehaviour {
     /// </summary>
     public void TutorialButton()
     {
-        audioSource.PlayOneShot(click);
+        audioManager.PlayClick();
         MainMenuStuff.transform.gameObject.SetActive(false);
         InstructionsStuff.transform.gameObject.SetActive(true);
     }
@@ -87,7 +82,7 @@ public class MenuButtonScript : MonoBehaviour {
     /// </summary>
     public void CreditsButton()
     {
-        audioSource.PlayOneShot(click);
+        audioManager.PlayClick();
         CreditsStuff.transform.gameObject.SetActive(true);
         MainMenuStuff.transform.gameObject.SetActive(false);
     }
@@ -117,7 +112,7 @@ public class MenuButtonScript : MonoBehaviour {
     /// </summary>
     public void Disable(GameObject go)
     {
-        audioSource.PlayOneShot(click);
+        audioManager.PlayClick();
         go.SetActive(false);
     }
     #endregion
@@ -129,7 +124,7 @@ public class MenuButtonScript : MonoBehaviour {
     /// <param name="go"></param>
     public void Enable(GameObject go)
     {
-        audioSource.PlayOneShot(click);
+        audioManager.PlayClick();
         go.SetActive(true);
     }
     #endregion
@@ -140,7 +135,7 @@ public class MenuButtonScript : MonoBehaviour {
     /// </summary>
     public void QuitButton()
     {
-        audioSource.PlayOneShot(click);
+        audioManager.PlayClick();
         Application.Quit();
     }
     #endregion

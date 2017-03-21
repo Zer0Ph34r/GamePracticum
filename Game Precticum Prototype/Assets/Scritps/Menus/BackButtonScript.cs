@@ -1,20 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class BackButtonScript : MonoBehaviour {
 
     [SerializeField]
     Canvas Main;
 
-    // Sound Effect for clicking on buttons
-    AudioClip click;
-    AudioSource audioSource;
+    // Reference to audio manager
+    AudioManager audioManager;
 
     private void Start()
     {
-        click = Resources.Load<AudioClip>("Sounds/Click");
-        audioSource = GetComponent<AudioSource>();
+        audioManager = AudioManager.instance;
     }
 
     /// <summary>
@@ -22,7 +18,7 @@ public class BackButtonScript : MonoBehaviour {
     /// </summary>
     public void BackButton()
     {
-        audioSource.PlayOneShot(click);
+        audioManager.PlayClick();
         Main.transform.gameObject.SetActive(true);
         gameObject.SetActive(false);
     }
