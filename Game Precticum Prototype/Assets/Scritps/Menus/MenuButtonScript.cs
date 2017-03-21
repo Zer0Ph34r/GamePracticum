@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -6,6 +7,7 @@ public class MenuButtonScript : MonoBehaviour {
 
     #region Fields
 
+    #region Serializable Fields
     // other canvases
     [SerializeField]
     GameObject CreditsStuff;
@@ -17,15 +19,22 @@ public class MenuButtonScript : MonoBehaviour {
     Text TurnSliderText;
     [SerializeField]
     Text GridSizeSliderText;
+    #endregion
 
     // Get reference ot audio manager
     AudioManager audioManager;
 
+    // Get laoding Icon
+    Sprite loadingIcon;
+
+    #region Reset Events
     // Set all static events to null
     GemScript.callMethod Selected = null;
     GemScript.runNext fireSoundEvent = null;
     GemScript.runNext runNextMethod = null;
     GemScript.check checkGems = null;
+
+    #endregion
 
     #endregion
 
@@ -35,6 +44,9 @@ public class MenuButtonScript : MonoBehaviour {
     private void Start()
     {
         audioManager = AudioManager.instance;
+
+        // load in loading sprite
+        loadingIcon = Resources.Load<Sprite>("Sprites/LoadingIcon");
     }
     #endregion
 
@@ -46,9 +58,15 @@ public class MenuButtonScript : MonoBehaviour {
     /// </summary>
     public void LoadSceneButton(string sceneName)
     {
+        // play click
         audioManager.PlayClick();
+        // stop BGM
         audioManager.StopBGM();
+        // get laoding text
+        loadingText();
+        // laod scene
         SceneManager.LoadScene(sceneName);
+
     }
     #endregion
 
@@ -59,6 +77,7 @@ public class MenuButtonScript : MonoBehaviour {
         SaveLoadScript.Load();
         audioManager.PlayClick();
         audioManager.StopBGM();
+        loadingText();
         SceneManager.LoadScene("TwoPlayerSetUpScene");
     }
 
@@ -138,6 +157,30 @@ public class MenuButtonScript : MonoBehaviour {
         audioManager.PlayClick();
         Application.Quit();
     }
+    #endregion
+
+    #region Create Loading Text
+
+    /// <summary>
+    /// Deactivate 
+    /// </summary>
+    public void loadingText()
+    {
+        // Get all canvases in the scene
+        Canvas[] canvases = new Canvas[FindObjectsOfType<Canvas>().Length];
+        canvases = FindObjectsOfType<Canvas>();
+        // disable all convases
+        foreach (Canvas c in canvases)
+        {
+            c.gameObject.SetActive(false);
+        }
+        // create loading object and set its position
+        GameObject loading = new GameObject();
+        loading.AddComponent<SpriteRenderer>().sprite = loadingIcon;
+        loading.transform.position = new Vector3(0,0,0);
+
+    }
+
     #endregion
 
     #endregion
