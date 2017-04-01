@@ -194,6 +194,7 @@ public class NetworkPlayerScript : MonoBehaviour
         #region Create Background
         // Load in Sprite
         background = Resources.Load<Sprite>("Sprites/Gembg2");
+
         // create empty object, set parent and then add sprite renderer
         GameObject bg = new GameObject();
         bg.transform.SetParent(transform);

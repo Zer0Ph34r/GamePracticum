@@ -1,12 +1,10 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.Match;
-using UnityEngine.Networking.Types;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class MyMatchMaker : MonoBehaviour
+public class MatchmakerScript : MonoBehaviour
 {
     #region Fields
     //bool for checking status 
@@ -22,7 +20,7 @@ public class MyMatchMaker : MonoBehaviour
     [SerializeField]
     InputField passwordField;
 
-
+    int screenSize = GlobalVariables.SCREEN_POSITION;
 
     #endregion
 
@@ -40,6 +38,15 @@ public class MyMatchMaker : MonoBehaviour
         // initialize lists
         matches = new List<MatchInfoSnapshot>();
     }
+    #endregion
+
+    #region On GUI
+
+    private void OnGUI()
+    {
+        
+    }
+
     #endregion
 
     #region On Match List
