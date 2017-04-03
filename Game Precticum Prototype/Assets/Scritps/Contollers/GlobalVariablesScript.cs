@@ -17,5 +17,7 @@ public class GlobalVariables {
     public static int MULTIPLAYER_TURNS = 5;
     public static int HIGHSCORE = 0;
 
+    public static float LERP_TIME = 0;
+
     #endregion
 }

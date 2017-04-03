@@ -1,13 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class BackgroundColorLERP : MonoBehaviour {
 
     #region Fields
 
     float duration = 7;
-    float t = 0;
+    float t = GlobalVariables.LERP_TIME;
 
     SpriteRenderer spriteRenderer;
 
@@ -73,6 +71,8 @@ public class BackgroundColorLERP : MonoBehaviour {
         {
             t = 0;
         }
+
+        GlobalVariables.LERP_TIME = t;
 
     }
     #endregion

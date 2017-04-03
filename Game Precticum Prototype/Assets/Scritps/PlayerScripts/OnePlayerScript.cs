@@ -162,6 +162,7 @@ public class OnePlayerScript : NetworkBehaviour
         GameObject bg = new GameObject();
         bg.transform.SetParent(transform);
         bg.AddComponent<SpriteRenderer>().sprite = background;
+        bg.AddComponent<BackgroundColorLERP>();
         bg.transform.position = new Vector3((worldSize * 0.45f), worldSize / 2, -40);
 
         #endregion

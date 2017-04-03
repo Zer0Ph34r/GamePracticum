@@ -199,6 +199,7 @@ public class NetworkPlayerScript : MonoBehaviour
         GameObject bg = new GameObject();
         bg.transform.SetParent(transform);
         bg.AddComponent<SpriteRenderer>().sprite = background;
+        bg.AddComponent<BackgroundColorLERP>();
         bg.transform.localPosition = new Vector3((tableSize * 0.45f), tableSize / 2, -15);
         bg.GetComponent<SpriteRenderer>().sortingOrder = -20;
 
@@ -206,6 +207,7 @@ public class NetworkPlayerScript : MonoBehaviour
         GameObject opponantBG = new GameObject();
         opponantBG.transform.SetParent(transform);
         opponantBG.AddComponent<SpriteRenderer>().sprite = background;
+        opponantBG.AddComponent<BackgroundColorLERP>();
         opponantBG.transform.localPosition = new Vector3((tableSize * 0.45f), tableSize / 2 + 50, -15);
         opponantBG.GetComponent<SpriteRenderer>().sortingOrder = -20;
 
