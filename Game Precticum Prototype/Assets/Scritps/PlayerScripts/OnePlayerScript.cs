@@ -32,6 +32,7 @@ public class OnePlayerScript : NetworkBehaviour
 
     // 2D array of table contents
     GameObject[,] gems;
+    List<GameObject> gemBG;
     GameObject[] playerHand;
 
     // save object positions for swapping
@@ -105,6 +106,7 @@ public class OnePlayerScript : NetworkBehaviour
         #region Create Game Board
         // create table
         gems = new GameObject[tableSize, tableSize];
+        gemBG = new List<GameObject>();
         // fill table and create game board
         CreateGameBoard();
 
@@ -128,6 +130,7 @@ public class OnePlayerScript : NetworkBehaviour
             handBG.GetComponent<SpriteRenderer>().sprite = gridBackground;
             handBG.transform.position = new Vector3(transform.localPosition.x + i + ((worldSize - tableSize) / 2),
                 tableSize + 1 + ((worldSize - tableSize) / 2), -0.5f);
+            gemBG.Add(handBG);
         }
 
         #endregion
@@ -164,6 +167,7 @@ public class OnePlayerScript : NetworkBehaviour
         bg.AddComponent<SpriteRenderer>().sprite = background;
         bg.AddComponent<BackgroundColorLERP>();
         bg.transform.position = new Vector3((worldSize * 0.45f), worldSize / 2, -40);
+        bg.GetComponent<SpriteRenderer>().sortingOrder = -10;
 
         #endregion
 
@@ -233,6 +237,7 @@ public class OnePlayerScript : NetworkBehaviour
                 go.AddComponent<SpriteRenderer>();
                 go.GetComponent<SpriteRenderer>().sprite = gridBackground;
                 go.transform.localPosition = new Vector3(i + ((worldSize - tableSize) / 2), k + ((worldSize - tableSize) / 2), -0.5f);
+                gemBG.Add(go);
             }
         }
     }
@@ -1145,6 +1150,32 @@ public class OnePlayerScript : NetworkBehaviour
         // Remove methods from events
         GemScript.Selected -= lockGems;
         GemScript.checkGems -= CheckGems;
+    }
+
+    #endregion
+
+    #region Turn Off Children
+
+    /// <summary>
+    /// Turns off all gem and gem bg objects associated with this player
+    /// </summary>
+    public void TurnOffChildren()
+    {
+        // turn off all gem objects in table
+        foreach (GameObject gem in gems)
+        {
+            gem.SetActive(false);
+        }
+        // turn off all gem bg objects
+        foreach (GameObject bg in gemBG)
+        {
+            bg.SetActive(false);
+        }
+        // Turn off all hand gems
+        foreach (GameObject gem in playerHand)
+        {
+            gem.SetActive(false);
+        }
     }
 
     #endregion

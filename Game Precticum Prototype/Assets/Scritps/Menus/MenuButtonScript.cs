@@ -154,14 +154,24 @@ public class MenuButtonScript : MonoBehaviour {
         // Get all canvases in the scene
         Canvas[] canvases = new Canvas[FindObjectsOfType<Canvas>().Length];
         canvases = FindObjectsOfType<Canvas>();
+
+        // turn off player childeren
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player)
+        {
+            player.GetComponent<OnePlayerScript>().TurnOffChildren();
+        }
+
         // disable all convases
         foreach (Canvas c in canvases)
         {
             c.gameObject.SetActive(false);
         }
+
         // create loading object and set its position
         GameObject loading = new GameObject();
         loading.AddComponent<SpriteRenderer>().sprite = loadingIcon;
+        loading.AddComponent<BackgroundColorLERP>();
         loading.transform.position = new Vector3(GlobalVariables.TABLE_SIZE * 0.1f, (GlobalVariables.TABLE_SIZE * -0.8f), 10);
         loading.GetComponent<SpriteRenderer>().sortingOrder = 20;
 

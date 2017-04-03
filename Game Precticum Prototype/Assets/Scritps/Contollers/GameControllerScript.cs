@@ -93,6 +93,7 @@ public class GameControllerScript : MonoBehaviour {
     {
         // turn off all objects other than the ending canvas
         UI.SetActive(false);
+        player.GetComponent<OnePlayerScript>().TurnOffChildren();
         endScreen.SetActive(true);
         // Set endign score values
         endScreen.GetComponent<EndingScript>().setEnd(score);
