@@ -29,14 +29,14 @@ public class BackgroundColorLERP : MonoBehaviour {
         if (t < 1)
         { 
             // lerp from blue to red
-            spriteRenderer.material.color = Color.Lerp(Color.white, Color.blue, t);
+            spriteRenderer.material.color = Color.Lerp(Color.white, Color.cyan, t);
             t += Time.deltaTime / duration;
         }
         else if (t > 1 &&
             t < 2)
         {
             // lerp from red to blue
-            spriteRenderer.material.color = Color.Lerp(Color.blue, Color.magenta, t - 1);
+            spriteRenderer.material.color = Color.Lerp(Color.cyan, Color.magenta, t - 1);
             t += Time.deltaTime / duration;
         }
         else if (t > 2 &&

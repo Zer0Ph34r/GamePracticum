@@ -35,13 +35,13 @@ public class ButtonColorLERP : MonoBehaviour {
         if (t < 1)
         {
             // lerp from blue to red
-             buttonImage.material.color = Color.Lerp(Color.white, Color.blue, t);
+             buttonImage.material.color = Color.Lerp(Color.white, Color.cyan, t);
         }
         else if (t > 1 &&
             t < 2)
         {
             // lerp from red to blue
-             buttonImage.material.color = Color.Lerp(Color.blue, Color.magenta, t - 1);
+             buttonImage.material.color = Color.Lerp(Color.cyan, Color.magenta, t - 1);
         }
         else if (t > 2 &&
             t < 3)

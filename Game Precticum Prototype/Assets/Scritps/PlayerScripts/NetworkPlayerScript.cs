@@ -32,6 +32,7 @@ public class NetworkPlayerScript : MonoBehaviour
 
     // arrays and lists of content
     GameObject[,] gems;
+    List<GameObject> gemBG;
     public List<SyncGem> boardSync;
     GameObject[,] opponantTable;
     public List<SyncGem> opponantBoardSync;
@@ -112,6 +113,7 @@ public class NetworkPlayerScript : MonoBehaviour
         #region Create Game Board
         // create table
         gems = new GameObject[tableSize, tableSize];
+        gemBG = new List<GameObject>();
         // create list of syncGems for saving data
         boardSync = new List<SyncGem>();
         // create array of opponants board
@@ -148,6 +150,7 @@ public class NetworkPlayerScript : MonoBehaviour
             handBG.AddComponent<SpriteRenderer>();
             handBG.GetComponent<SpriteRenderer>().sprite = gridBackground;
             handBG.transform.position = new Vector3(transform.localPosition.x + i, tableSize + 1, -0.5f);
+            gemBG.Add(handBG);
         }
 
         // Create Opponant Hand
@@ -215,6 +218,7 @@ public class NetworkPlayerScript : MonoBehaviour
         GameObject opponantTitle = new GameObject();
         opponantTitle.transform.SetParent(transform);
         opponantTitle.AddComponent<SpriteRenderer>().sprite = twoPlayerDisplay;
+        opponantBG.AddComponent<BackgroundColorLERP>();
         opponantTitle.transform.localPosition = new Vector3(tableSize * 0.8f, (tableSize * 1.1f) + 50, 0);
         opponantTitle.GetComponent<SpriteRenderer>().sortingOrder = 15;
 
@@ -289,6 +293,7 @@ public class NetworkPlayerScript : MonoBehaviour
                 go.AddComponent<SpriteRenderer>();
                 go.GetComponent<SpriteRenderer>().sprite = gridBackground;
                 go.transform.localPosition = new Vector3(i, k, -0.5f);
+                gemBG.Add(go);
             }
         }
     }
@@ -1226,6 +1231,32 @@ public class NetworkPlayerScript : MonoBehaviour
             }
             // send rotated board to oppanant
             SendBoard();
+        }
+    }
+
+    #endregion
+
+    #region Turn Off Children
+
+    /// <summary>
+    /// Turns off all gem and gem bg objects associated with this player
+    /// </summary>
+    public void TurnOffChildren()
+    {
+        // turn off all gem objects in table
+        foreach (GameObject gem in gems)
+        {
+            gem.SetActive(false);
+        }
+        // turn off all gem bg objects
+        foreach (GameObject bg in gemBG)
+        {
+            bg.SetActive(false);
+        }
+        // Turn off all hand gems
+        foreach (GameObject gem in playerHand)
+        {
+            gem.SetActive(false);
         }
     }
 

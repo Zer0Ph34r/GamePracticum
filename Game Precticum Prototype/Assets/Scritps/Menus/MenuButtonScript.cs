@@ -157,7 +157,8 @@ public class MenuButtonScript : MonoBehaviour {
 
         // turn off player childeren
         GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player)
+        if (player &&
+            player.name == "Player1")
         {
             player.GetComponent<OnePlayerScript>().TurnOffChildren();
         }
