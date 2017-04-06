@@ -217,35 +217,35 @@ public class OptionsMenuScript : MonoBehaviour {
                 break;
             case 1:
 
-                SongSelectText.text = "Song 0";
+                SongSelectText.text = "Depart";
                 break;
             case 2:
 
-                SongSelectText.text = "Song 1";
+                SongSelectText.text = "Fallwind";
                 break;
             case 3:
 
-                SongSelectText.text = "Song 2";
+                SongSelectText.text = "Homesick";
                 break;
             case 4:
 
-                SongSelectText.text = "Song 3";
+                SongSelectText.text = "I Dunno";
                 break;
             case 5:
 
-                SongSelectText.text = "Song 4";
+                SongSelectText.text = "Like Music";
                 break;
             case 6:
 
-                SongSelectText.text = "Song 5";
+                SongSelectText.text = "Paper Planes";
                 break;
             case 7:
 
-                SongSelectText.text = "Song 6";
+                SongSelectText.text = "Sunday";
                 break;
             case 8:
 
-                SongSelectText.text = "Song 7";
+                SongSelectText.text = "Who We Are";
                 break;
             case 9:
                 SongSelect = 0;
@@ -267,7 +267,7 @@ public class OptionsMenuScript : MonoBehaviour {
             case -1:
                 SongSelect = 8;
                 AudioManager.instance.SetSong(8);
-                SongSelectText.text = "Song 7";
+                SongSelectText.text = "Who We Are";
                 break;
             case 0:
 
@@ -276,35 +276,35 @@ public class OptionsMenuScript : MonoBehaviour {
                 break;
             case 1:
 
-                SongSelectText.text = "Song 0";
+                SongSelectText.text = "Depart";
                 break;
             case 2:
 
-                SongSelectText.text = "Song 1";
+                SongSelectText.text = "Fallwind";
                 break;
             case 3:
 
-                SongSelectText.text = "Song 2";
+                SongSelectText.text = "Homesick";
                 break;
             case 4:
 
-                SongSelectText.text = "Song 3";
+                SongSelectText.text = "I Dunno";
                 break;
             case 5:
 
-                SongSelectText.text = "Song 4";
+                SongSelectText.text = "Like Music";
                 break;
             case 6:
 
-                SongSelectText.text = "Song 5";
+                SongSelectText.text = "Paper Planes";
                 break;
             case 7:
 
-                SongSelectText.text = "Song 6";
+                SongSelectText.text = "Sunday";
                 break;
             case 8:
 
-                SongSelectText.text = "Song 7";
+                SongSelectText.text = "Who We Are";
                 break;
         }
         
