@@ -21,6 +21,9 @@ public class AudioManager : MonoBehaviour {
 
     #endregion
 
+    // bool for setting whether player has chosen a song or not
+    bool playerPick = false;
+
     #endregion
 
     #region Singleton
@@ -121,42 +124,38 @@ public class AudioManager : MonoBehaviour {
     public void PlayBGM()
     {
         StopBGM();
-        // Load and Play a random BGM (Saves on load time when starting game)
-        switch (Random.Range(0, 8))
+        if (!playerPick)
         {
-            case 0:
-                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM0");
-                BGMSource.PlayOneShot(currBGM);
-                break;
-            case 1:
-                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM1");
-                BGMSource.PlayOneShot(currBGM);
-                break;
-            case 2:
-                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM2");
-                BGMSource.PlayOneShot(currBGM);
-                break;
-            case 3:
-                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM3");
-                BGMSource.PlayOneShot(currBGM);
-                break;
-            case 4:
-                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM4");
-                BGMSource.PlayOneShot(currBGM);
-                break;
-            case 5:
-                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM5");
-                BGMSource.PlayOneShot(currBGM);
-                break;
-            case 6:
-                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM6");
-                BGMSource.PlayOneShot(currBGM);
-                break;
-            case 7:
-                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM7");
-                BGMSource.PlayOneShot(currBGM);
-                break;
+            // Load and Play a random BGM (Saves on load time when starting game)
+            switch (Random.Range(0, 8))
+            {
+                case 0:
+                    currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM0");
+                    break;
+                case 1:
+                    currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM1");
+                    break;
+                case 2:
+                    currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM2");
+                    break;
+                case 3:
+                    currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM3");
+                    break;
+                case 4:
+                    currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM4");
+                    break;
+                case 5:
+                    currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM5");
+                    break;
+                case 6:
+                    currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM6");
+                    break;
+                case 7:
+                    currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM7");
+                    break;
+            }
         }
+        BGMSource.PlayOneShot(currBGM);
     }
     #endregion
 
@@ -167,6 +166,71 @@ public class AudioManager : MonoBehaviour {
     public void StopBGM()
     {
         BGMSource.Stop();
+    }
+
+    #endregion
+
+    #region Set Song
+
+    /// <summary>
+    /// Sets currBGM to what the player chose
+    /// </summary>
+    /// <param name="choice"></param>
+    public void SetSong(int choice)
+    {
+        playerPick = true;
+        switch (choice)
+        {
+            case 0:
+                playerPick = false;
+                break;
+            case 1:
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM0");
+                break;
+            case 2:
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM1");
+                break;
+            case 3:
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM2");
+                break;
+            case 4:
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM3");
+                break;
+            case 5:
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM4");
+                break;
+            case 6:
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM5");
+                break;
+            case 7:
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM6");
+                break;
+            case 8:
+                currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM7");
+                break;
+            case 9:
+                playerPick = false;
+                break;
+        }
+        PlayBGM();
+    }
+
+    #endregion
+
+    #region Set Music Volume
+
+    public void SetMusicVolume(float value)
+    {
+        BGMSource.volume = (value / 100f);
+    }
+
+    #endregion
+
+    #region Set Sound Effect Volume
+
+    public void SetEffectVolume(float value)
+    {
+        soundEffectSource.volume = (value / 100f);
     }
 
     #endregion

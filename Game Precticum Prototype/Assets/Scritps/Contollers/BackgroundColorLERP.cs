@@ -35,54 +35,64 @@ public class BackgroundColorLERP : MonoBehaviour {
             {
                 // lerp from blue to red
                 spriteRenderer.material.color = Color.Lerp(Color.white, Color.cyan, t);
-                t += Time.deltaTime / duration;
+                //t += Time.deltaTime / duration;
             }
             else if (t > 1 &&
                 t < 2)
             {
                 // lerp from red to blue
                 spriteRenderer.material.color = Color.Lerp(Color.cyan, Color.magenta, t - 1);
-                t += Time.deltaTime / duration;
+                //t += Time.deltaTime / duration;
             }
             else if (t > 2 &&
                 t < 3)
             {
                 // lerp from red to blue
                 spriteRenderer.material.color = Color.Lerp(Color.magenta, Color.red, t - 2);
-                t += Time.deltaTime / duration;
+                //t += Time.deltaTime / duration;
             }
             else if (t > 3 &&
                 t < 4)
             {
                 // lerp from red to blue
                 spriteRenderer.material.color = Color.Lerp(Color.red, Color.yellow, t - 3);
-                t += Time.deltaTime / duration;
+                //t += Time.deltaTime / duration;
             }
             else if (t > 4 &&
                 t < 5)
             {
                 // lerp from red to blue
                 spriteRenderer.material.color = Color.Lerp(Color.yellow, Color.green, t - 4);
-                t += Time.deltaTime / duration;
+                //t += Time.deltaTime / duration;
             }
             else if (t > 5 &&
                 t < 6)
             {
                 // lerp from red to blue
                 spriteRenderer.material.color = Color.Lerp(Color.green, Color.white, t - 5);
-                t += Time.deltaTime / duration;
+                //t += Time.deltaTime / duration;
             }
             else
             {
-                t = 0;
+                //t = 0;
             }
-
-            GlobalVariables.LERP_TIME = t;
         }
         else
         {
             spriteRenderer.material.color = setBGColor;
         }
+
+        //Increment Time
+        if (t < 6)
+        {
+            t += Time.deltaTime / duration;
+        }
+        else
+        {
+            t = 0;
+        }
+
+        GlobalVariables.LERP_TIME = t;
     }
     #endregion
 
