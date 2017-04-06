@@ -10,10 +10,10 @@ public class GemScript : MonoBehaviour
     // bool for being selected
     public bool isSelected { get; set; }
     // Bool for hand pieces
-    public bool isHand; /*{ get; set; }*/
+    public bool isHand { get; set; }
 
-    // Bool to prevent gem selectoin while gem is moving
-    public bool canSelect { get; set; }
+// Bool to prevent gem selectoin while gem is moving
+public bool canSelect { get; set; }
 
     // Serialable field
     public SyncGem serialGem { get; set; }

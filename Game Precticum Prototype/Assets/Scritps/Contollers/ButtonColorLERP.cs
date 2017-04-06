@@ -5,6 +5,9 @@ public class ButtonColorLERP : MonoBehaviour {
 
     #region Fields
 
+    // setColor variable for options
+    public static Color setGUIColor = Color.black;
+
     // how long it takes to move from one color to the next
     float duration = 7;
 
@@ -28,47 +31,67 @@ public class ButtonColorLERP : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        // get current color time
-        t = GlobalVariables.LERP_TIME;
 
-        // check the different t times and lerp accordingly
-        if (t < 1)
+        if (setGUIColor == Color.black)
         {
-            // lerp from blue to red
-             buttonImage.material.color = Color.Lerp(Color.white, Color.cyan, t);
-        }
-        else if (t > 1 &&
-            t < 2)
-        {
-            // lerp from red to blue
-             buttonImage.material.color = Color.Lerp(Color.cyan, Color.magenta, t - 1);
-        }
-        else if (t > 2 &&
-            t < 3)
-        {
-            // lerp from red to blue
-             buttonImage.material.color = Color.Lerp(Color.magenta, Color.red, t - 2);
-        }
-        else if (t > 3 &&
-            t < 4)
-        {
-            // lerp from red to blue
-             buttonImage.material.color = Color.Lerp(Color.red, Color.yellow, t - 3);
-        }
-        else if (t > 4 &&
-            t < 5)
-        {
-            // lerp from red to blue
-             buttonImage.material.color = Color.Lerp(Color.yellow, Color.green, t - 4);
-        }
-        else if (t > 5 &&
-            t < 6)
-        {
-            // lerp from red to blue
-             buttonImage.material.color = Color.Lerp(Color.green, Color.white, t - 5);
-        }
+            // get current color time
+            t = GlobalVariables.LERP_TIME;
 
+            // check the different t times and lerp accordingly
+            if (t < 1)
+            {
+                // lerp from blue to red
+                buttonImage.material.color = Color.Lerp(Color.white, Color.cyan, t);
+            }
+            else if (t > 1 &&
+                t < 2)
+            {
+                // lerp from red to blue
+                buttonImage.material.color = Color.Lerp(Color.cyan, Color.magenta, t - 1);
+            }
+            else if (t > 2 &&
+                t < 3)
+            {
+                // lerp from red to blue
+                buttonImage.material.color = Color.Lerp(Color.magenta, Color.red, t - 2);
+            }
+            else if (t > 3 &&
+                t < 4)
+            {
+                // lerp from red to blue
+                buttonImage.material.color = Color.Lerp(Color.red, Color.yellow, t - 3);
+            }
+            else if (t > 4 &&
+                t < 5)
+            {
+                // lerp from red to blue
+                buttonImage.material.color = Color.Lerp(Color.yellow, Color.green, t - 4);
+            }
+            else if (t > 5 &&
+                t < 6)
+            {
+                // lerp from red to blue
+                buttonImage.material.color = Color.Lerp(Color.green, Color.white, t - 5);
+            }
+        }
+        else
+        {
+            buttonImage.material.color = setGUIColor;
+        }
 
     }
+    #endregion
+
+    #region Methods
+
+    /// <summary>
+    /// Sets the setColor variable
+    /// </summary>
+    /// <param name="color"></param>
+    public void SetColor(Color color)
+    {
+        setGUIColor = color;
+    }
+
     #endregion
 }
