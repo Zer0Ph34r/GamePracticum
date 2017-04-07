@@ -22,7 +22,7 @@ public class AudioManager : MonoBehaviour {
     #endregion
 
     // bool for setting whether player has chosen a song or not
-    bool playerPick = false;
+    bool playerPick;
 
     #endregion
 
@@ -38,6 +38,7 @@ public class AudioManager : MonoBehaviour {
         {
             DontDestroyOnLoad(gameObject);
             instance = this;
+            playerPick = false;
         }
         else
         {
@@ -106,7 +107,7 @@ public class AudioManager : MonoBehaviour {
 
     #endregion
 
-    #region Play CLick Sound
+    #region Play Click Sound
     /// <summary>
     /// Play clicking sound
     /// </summary>
@@ -119,7 +120,7 @@ public class AudioManager : MonoBehaviour {
 
     #region Play Music
     /// <summary>
-    /// Play a random BGM
+    /// Play a random BGM or song selected by player
     /// </summary>
     public void PlayBGM()
     {
@@ -208,9 +209,9 @@ public class AudioManager : MonoBehaviour {
             case 8:
                 currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM7");
                 break;
-            case 9:
-                playerPick = false;
-                break;
+            //case 9:
+            //    playerPick = false;
+            //    break;
         }
         PlayBGM();
     }
