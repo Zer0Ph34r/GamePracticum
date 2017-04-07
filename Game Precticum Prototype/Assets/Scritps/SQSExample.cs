@@ -27,9 +27,9 @@ namespace AWSSDK.Examples
     public class SQSExample : MonoBehaviour
     {
         //identity pool id for cognito credentials
-        public string IdentityPoolId = "us-west-2_nrUgOeh8p";
+        public string IdentityPoolId = "";
 
-        public string CognitoIdentityRegion = RegionEndpoint.USEast1.SystemName;
+        public string CognitoIdentityRegion = RegionEndpoint.USWest2.SystemName;
 
         private RegionEndpoint _CognitoIdentityRegion
         {
@@ -53,6 +53,7 @@ namespace AWSSDK.Examples
             get
             {
                 if (_credentials == null)
+                    IdentityPoolId = "us-west-2_nrUgOeh8p";
                     _credentials = new CognitoAWSCredentials(IdentityPoolId, _CognitoIdentityRegion);
                 return _credentials;
             }
