@@ -36,7 +36,7 @@ namespace AWSSDK.Examples
             get { return RegionEndpoint.GetBySystemName(CognitoIdentityRegion); }
         }
 
-        public string SQSRegion = RegionEndpoint.USEast1.SystemName;
+        public string SQSRegion = RegionEndpoint.USWest2.SystemName;
 
         private RegionEndpoint _SQSRegion
         {
