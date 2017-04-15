@@ -62,6 +62,7 @@ public class GameControllerScript : MonoBehaviour {
         OnePlayerScript.endGame += GameOver;
 
         #endregion
+
     }
 
     #endregion
@@ -97,6 +98,10 @@ public class GameControllerScript : MonoBehaviour {
         endScreen.SetActive(true);
         // Set endign score values
         endScreen.GetComponent<EndingScript>().setEnd(score);
+        if (GlobalVariables.HIGHSCORE < score)
+        {
+            GlobalVariables.HIGHSCORE = score;
+        }
     }
 
     #endregion

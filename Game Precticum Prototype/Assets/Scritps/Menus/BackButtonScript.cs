@@ -23,4 +23,12 @@ public class BackButtonScript : MonoBehaviour {
         gameObject.SetActive(false);
     }
 
+    public void ResetScore()
+    {
+        if (PlayerPrefs.HasKey("Highscore"))
+        {
+            PlayerPrefs.SetInt("Highscore", 0);
+        }
+    }
+
 }

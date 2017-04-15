@@ -47,6 +47,22 @@ public class MenuButtonScript : MonoBehaviour {
 
         // load in loading sprite
         loadingIcon = Resources.Load<Sprite>("Sprites/LoadingIcon");
+
+        #region Set Up Highscore Player Pref
+
+        // checks if playerPrefs contains a highscore
+        if (!PlayerPrefs.HasKey("Highscore"))
+        {
+            // create new player pref key and value
+            PlayerPrefs.SetInt("Highscore", GlobalVariables.HIGHSCORE);
+        }
+        else
+        {
+            // set global highscore based on players previous highscore
+            GlobalVariables.HIGHSCORE = PlayerPrefs.GetInt("Highscore");
+        }
+
+        #endregion
     }
     #endregion
 

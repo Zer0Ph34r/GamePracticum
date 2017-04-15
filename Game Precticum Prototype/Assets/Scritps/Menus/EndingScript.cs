@@ -24,15 +24,16 @@ public class EndingScript : MonoBehaviour {
     /// <param name="score"></param>
     public void setEnd(int score)
     {
-        finalScore.text = "Final Score: " + score * 10;
+        finalScore.text = "Final Score: " + score;
         if (score > highscore)
         {
             highscore = score;
-            highScoreText.text = "New High Score!" + "\n" + highscore * 10;
+            PlayerPrefs.SetInt("Highscore", highscore);
+            highScoreText.text = "New High Score!" + "\n" + highscore;
         }
         else
         {
-            highScoreText.text = "High Score: " + highscore * 10;
+            highScoreText.text = "High Score: " + highscore;
         }
     }
 
