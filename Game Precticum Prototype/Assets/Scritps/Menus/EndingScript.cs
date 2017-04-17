@@ -30,7 +30,7 @@ public class EndingScript : MonoBehaviour {
         if (score > highscore)
         {
             highscore = score;
-            PlayerPrefs.SetInt("Highscore" + (turns / 10) + (tableSize - 5), highscore);
+            PlayerPrefs.SetInt("Highscore" + ((turns - 1) / 10) + (tableSize - 5), highscore);
             highScoreText.text = "New High Score!" + "\n" + highscore;
         }
         else

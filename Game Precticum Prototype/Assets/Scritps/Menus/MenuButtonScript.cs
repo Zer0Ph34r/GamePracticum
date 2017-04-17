@@ -51,15 +51,15 @@ public class MenuButtonScript : MonoBehaviour {
         #region Set Up Highscore Player Pref
 
         // check if highscores have been added to the player prefs
-        if (!PlayerPrefs.HasKey("Highscore00"))
+        if (!PlayerPrefs.HasKey("Highscore59"))
         {
             // create a new 2D array of highscores
             GlobalVariables.HIGHSCORE_TABLE = new int[6, 10];
 
             // set a new player prefbased highscore table
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 6; i++)
             {
-                for (int k = 0; k < 11; k++)
+                for (int k = 0; k < 10; k++)
                 {
                     PlayerPrefs.SetInt(("Highscore" + i + k), GlobalVariables.HIGHSCORE_TABLE[i, k]);
                 }
@@ -71,9 +71,9 @@ public class MenuButtonScript : MonoBehaviour {
             GlobalVariables.HIGHSCORE_TABLE = new int[6, 10];
 
             // set highscores based on saved highscores
-            for (int i = 0; i < 7; i++)
+            for (int i = 0; i < 6; i++)
             {
-                for (int k = 0; k < 11; k++)
+                for (int k = 0; k < 10; k++)
                 {
                     GlobalVariables.HIGHSCORE_TABLE[i, k] = PlayerPrefs.GetInt("Highscore" + i + k);
                 }
