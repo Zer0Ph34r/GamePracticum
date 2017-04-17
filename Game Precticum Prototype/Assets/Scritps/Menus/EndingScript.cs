@@ -5,8 +5,9 @@ public class EndingScript : MonoBehaviour {
 
     #region Fields
 
-    // highscore field
-    int highscore = GlobalVariables.HIGHSCORE;
+    int turns = GlobalVariables.TURNS;
+    int tableSize = GlobalVariables.TABLE_SIZE;
+    int highscore;
 
     // reference to Text boxes
     [SerializeField]
@@ -24,11 +25,12 @@ public class EndingScript : MonoBehaviour {
     /// <param name="score"></param>
     public void setEnd(int score)
     {
+        highscore = GlobalVariables.HIGHSCORE_TABLE[turns / 10, tableSize - 5];
         finalScore.text = "Final Score: " + score;
         if (score > highscore)
         {
             highscore = score;
-            PlayerPrefs.SetInt("Highscore", highscore);
+            PlayerPrefs.SetInt("Highscore" + (turns / 10) + (tableSize - 5), highscore);
             highScoreText.text = "New High Score!" + "\n" + highscore;
         }
         else
@@ -45,14 +47,14 @@ public class EndingScript : MonoBehaviour {
     /// <param name="winner">whether player 1 is the winner</param>
     public void SetMultiplayerEnd(int winnerScore, int loserScore,bool winner)
     {
-        finalScore.text = "Winners Score: " + winnerScore * 10;
+        finalScore.text = "Winners Score: " + winnerScore;
         if (winner)
         {
-            highScoreText.text = "You Won!" + "\n" + (winnerScore * 10) + " to : " + (loserScore * 10);
+            highScoreText.text = "You Won!" + "\n" + (winnerScore) + " to : " + (loserScore);
         }
         else
         {
-            highScoreText.text = "You Lost, Too Bad" + "\n" + (loserScore * 10) + " to : " + (winnerScore * 10);
+            highScoreText.text = "You Lost, Too Bad" + "\n" + (loserScore) + " to : " + (winnerScore);
         }
         
     }

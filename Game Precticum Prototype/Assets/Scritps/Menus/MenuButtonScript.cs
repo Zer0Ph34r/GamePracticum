@@ -50,17 +50,48 @@ public class MenuButtonScript : MonoBehaviour {
 
         #region Set Up Highscore Player Pref
 
-        // checks if playerPrefs contains a highscore
-        if (!PlayerPrefs.HasKey("Highscore"))
+        // check if highscores have been added to the player prefs
+        if (!PlayerPrefs.HasKey("Highscore00"))
         {
-            // create new player pref key and value
-            PlayerPrefs.SetInt("Highscore", GlobalVariables.HIGHSCORE);
+            // create a new 2D array of highscores
+            GlobalVariables.HIGHSCORE_TABLE = new int[6, 10];
+
+            // set a new player prefbased highscore table
+            for (int i = 0; i < 7; i++)
+            {
+                for (int k = 0; k < 11; k++)
+                {
+                    PlayerPrefs.SetInt(("Highscore" + i + k), GlobalVariables.HIGHSCORE_TABLE[i, k]);
+                }
+            }
         }
         else
         {
-            // set global highscore based on players previous highscore
-            GlobalVariables.HIGHSCORE = PlayerPrefs.GetInt("Highscore");
+            // create a new 2D array of highscores
+            GlobalVariables.HIGHSCORE_TABLE = new int[6, 10];
+
+            // set highscores based on saved highscores
+            for (int i = 0; i < 7; i++)
+            {
+                for (int k = 0; k < 11; k++)
+                {
+                    GlobalVariables.HIGHSCORE_TABLE[i, k] = PlayerPrefs.GetInt("Highscore" + i + k);
+                }
+            }
         }
+        
+
+        //// checks if playerPrefs contains a highscore
+        //if (!PlayerPrefs.HasKey("Highscore"))
+        //{
+        //    // create new player pref key and value
+        //    PlayerPrefs.SetInt("Highscore", GlobalVariables.HIGHSCORE);
+        //}
+        //else
+        //{
+        //    // set global highscore based on players previous highscore
+        //    GlobalVariables.HIGHSCORE = PlayerPrefs.GetInt("Highscore");
+        //}
 
         #endregion
     }
@@ -112,9 +143,52 @@ public class MenuButtonScript : MonoBehaviour {
     // Gets current slider setting
     public void SubmitSliderSetting(Slider mainSlider)
     {
-        //Displays the value of the slider in the console.
-        GlobalVariables.TURNS = (int)mainSlider.value;
-        TurnSliderText.text = "# of Turns: " + mainSlider.value;
+        #region Lock Slider
+        //Locks slider value to increments of 10
+        if (mainSlider.value < 20)
+        {
+            GlobalVariables.TURNS = 10;
+        }
+        else if (mainSlider.value < 30)
+        {
+            GlobalVariables.TURNS = 20;
+        }
+        else if (mainSlider.value < 40)
+        {
+            GlobalVariables.TURNS = 30;
+        }
+        else if (mainSlider.value < 50)
+        {
+            GlobalVariables.TURNS = 40;
+        }
+        else if (mainSlider.value < 60)
+        {
+            GlobalVariables.TURNS = 50;
+        }
+        else if (mainSlider.value < 70)
+        {
+            GlobalVariables.TURNS = 60;
+        }
+        else if (mainSlider.value < 80)
+        {
+            GlobalVariables.TURNS = 70;
+        }
+        else if (mainSlider.value < 90)
+        {
+            GlobalVariables.TURNS = 80;
+        }
+        else if (mainSlider.value < 100)
+        {
+            GlobalVariables.TURNS = 90;
+        }
+        else
+        {
+            GlobalVariables.TURNS = 100;
+        }
+        #endregion
+
+        // displays vlaue to player
+        TurnSliderText.text = "# of Turns: " + GlobalVariables.TURNS;
     }
 
     // Gets current slider setting
