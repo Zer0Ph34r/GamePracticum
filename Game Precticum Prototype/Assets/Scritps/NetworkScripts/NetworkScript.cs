@@ -229,6 +229,10 @@ public class NetworkScript : NetworkManager
     int connection;
     uint myNetID;
 
+    public bool isAtStartup = true;
+
+    NetworkClient myClient;
+
     #endregion
 
     // instance of this object
@@ -260,7 +264,8 @@ public class NetworkScript : NetworkManager
             // set client player to not have the current turn
             playerInstance.GetComponent<NetworkPlayerScript>().currTurn = false;
             // star client and connect to server
-            StartClient();
+            //StartClient();
+            SetupClient();
             // register all messages with their perspective methods
             client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
             client.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
@@ -271,7 +276,8 @@ public class NetworkScript : NetworkManager
             // set server player to active turn
             playerInstance.GetComponent<NetworkPlayerScript>().currTurn = true;
             // start a server
-            StartServer();
+            //StartServer();
+            SetupServer();
             // register all methods for the different messages
             NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
             NetworkServer.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
@@ -454,4 +460,48 @@ public class NetworkScript : NetworkManager
 
     #endregion
 
+    #region SetUpServer
+
+    // Create a server and listen on a port
+    public void SetupServer()
+    {
+        NetworkServer.Listen(4444);
+        isAtStartup = false;
+    }
+    #endregion
+
+    #region Local Server
+    // Create a local client and connect to the local server
+    public void SetupLocalClient()
+    {
+        myClient = ClientScene.ConnectLocalServer();
+        myClient.RegisterHandler(MsgType.Connect, OnConnected);
+        isAtStartup = false;
+    }
+
+    #endregion
+
+
+    #region SetUpClient
+
+    // Create a client and connect to the server port
+    public void SetupClient()
+    {
+        myClient = new NetworkClient();
+        myClient.RegisterHandler(MsgType.Connect, OnConnected);
+        myClient.Connect("13.65.46.156", 7777);
+        isAtStartup = false;
+    }
+
+    #endregion
+
+    #region OnConnect
+
+    // client function
+    public void OnConnected(NetworkMessage netMsg)
+    {
+        Debug.Log("Connected to server");
+    }
+
+    #endregion
 }
