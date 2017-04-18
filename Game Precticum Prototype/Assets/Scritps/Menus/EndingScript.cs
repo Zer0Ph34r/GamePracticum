@@ -25,12 +25,12 @@ public class EndingScript : MonoBehaviour {
     /// <param name="score"></param>
     public void setEnd(int score)
     {
-        highscore = GlobalVariables.HIGHSCORE_TABLE[turns / 10, tableSize - 5];
+        highscore = GlobalVariables.HIGHSCORE_TABLE[tableSize - 5, turns / 10];
         finalScore.text = "Final Score: " + score;
         if (score > highscore)
         {
             highscore = score;
-            PlayerPrefs.SetInt("Highscore" + ((turns - 1) / 10) + (tableSize - 5), highscore);
+            PlayerPrefs.SetInt("Highscore" + (tableSize - 5) + ((turns - 1) / 10), highscore);
             highScoreText.text = "New High Score!" + "\n" + highscore;
         }
         else

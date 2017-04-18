@@ -25,19 +25,19 @@ public class BackButtonScript : MonoBehaviour {
 
     public void ResetScore()
     {
-        // if player prefs have been added
-        if (!PlayerPrefs.HasKey("Highscore610"))
+        // create a new 2D array of highscores
+        GlobalVariables.HIGHSCORE_TABLE = new int[6, 10];
+
+        // iterate through all parts of the table
+        for (int i = 0; i < 6; i++)
         {
-            // iterate through all parts of the table
-            for (int i = 0; i < 6; i++)
+            for (int k = 0; k < 10; k++)
             {
-                for (int k = 0; k < 10; k++)
-                {
-                    // reset the highscore to 0
-                    PlayerPrefs.SetInt(("Highscore" + i + k), GlobalVariables.HIGHSCORE_TABLE[i, k]);
-                }
+                // reset the highscore to 0
+                PlayerPrefs.SetInt(("Highscore" + i + k), GlobalVariables.HIGHSCORE_TABLE[i, k]);
             }
         }
+
     }
 
 }

@@ -1,3 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<?xml-stylesheet type="text/xsl" href="stylesheet.xsl"?>
-<logging logTo="UnityLogger" logResponses="Always" logMetrics="true" logMetricsFormat="JSON" />
