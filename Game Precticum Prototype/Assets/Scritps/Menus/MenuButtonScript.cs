@@ -18,13 +18,13 @@ public class MenuButtonScript : MonoBehaviour {
     Text TurnSliderText;
     [SerializeField]
     Text GridSizeSliderText;
+
+    [SerializeField]
+    GameObject loadingIcon;
     #endregion
 
     // Get reference ot audio manager
     AudioManager audioManager;
-
-    // Get laoding Icon
-    Sprite loadingIcon;
 
     #region Reset Events
     // Set all static events to null
@@ -43,9 +43,6 @@ public class MenuButtonScript : MonoBehaviour {
     private void Start()
     {
         audioManager = AudioManager.instance;
-
-        // load in loading sprite
-        loadingIcon = Resources.Load<Sprite>("Sprites/LoadingIcon");
 
         #region Set Up Highscore Player Pref
 
@@ -216,12 +213,7 @@ public class MenuButtonScript : MonoBehaviour {
             c.gameObject.SetActive(false);
         }
 
-        // create loading object and set its position
-        GameObject loading = new GameObject();
-        loading.AddComponent<SpriteRenderer>().sprite = loadingIcon;
-        loading.AddComponent<BackgroundColorLERP>();
-        loading.transform.position = new Vector3(GlobalVariables.TABLE_SIZE * 0.1f, (GlobalVariables.TABLE_SIZE * -0.8f), 10);
-        loading.GetComponent<SpriteRenderer>().sortingOrder = 20;
+        loadingIcon.SetActive(true);
 
         // Pauses game in unity editor
         //UnityEditor.EditorApplication.isPaused = true;
