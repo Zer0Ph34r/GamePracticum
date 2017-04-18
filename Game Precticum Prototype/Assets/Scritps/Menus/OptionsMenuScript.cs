@@ -6,10 +6,15 @@ public class OptionsMenuScript : MonoBehaviour
 
     #region Fields
 
+    // Numbers for iterating through each colr/song
     int GUIColor = 0;
     int BGColor = 0;
     int SongSelect = 0;
 
+    #region Serialze Fields
+
+    #region Text
+    // text fields
     [SerializeField]
     Text GUIColorText;
     [SerializeField]
@@ -20,11 +25,17 @@ public class OptionsMenuScript : MonoBehaviour
     Text MusicSliderText;
     [SerializeField]
     Text EffectSliderText;
+    #endregion
 
+    #region Sliders
+    // slider values
     [SerializeField]
     Slider musicSlider;
     [SerializeField]
     Slider effectSlider;
+    #endregion
+
+    #endregion
 
     #endregion
 

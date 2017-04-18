@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -143,49 +142,7 @@ public class MenuButtonScript : MonoBehaviour {
     // Gets current slider setting
     public void SubmitSliderSetting(Slider mainSlider)
     {
-        #region Lock Slider
-        //Locks slider value to increments of 10
-        if (mainSlider.value < 20)
-        {
-            GlobalVariables.TURNS = 10;
-        }
-        else if (mainSlider.value < 30)
-        {
-            GlobalVariables.TURNS = 20;
-        }
-        else if (mainSlider.value < 40)
-        {
-            GlobalVariables.TURNS = 30;
-        }
-        else if (mainSlider.value < 50)
-        {
-            GlobalVariables.TURNS = 40;
-        }
-        else if (mainSlider.value < 60)
-        {
-            GlobalVariables.TURNS = 50;
-        }
-        else if (mainSlider.value < 70)
-        {
-            GlobalVariables.TURNS = 60;
-        }
-        else if (mainSlider.value < 80)
-        {
-            GlobalVariables.TURNS = 70;
-        }
-        else if (mainSlider.value < 90)
-        {
-            GlobalVariables.TURNS = 80;
-        }
-        else if (mainSlider.value < 100)
-        {
-            GlobalVariables.TURNS = 90;
-        }
-        else
-        {
-            GlobalVariables.TURNS = 100;
-        }
-        #endregion
+        GlobalVariables.TURNS = (int)(mainSlider.value * 10);
 
         // displays vlaue to player
         TurnSliderText.text = "# of Turns: " + GlobalVariables.TURNS;

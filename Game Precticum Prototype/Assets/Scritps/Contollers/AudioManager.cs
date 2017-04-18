@@ -209,9 +209,6 @@ public class AudioManager : MonoBehaviour {
             case 8:
                 currBGM = Resources.Load<AudioClip>("Sounds/Music/BGM7");
                 break;
-            //case 9:
-            //    playerPick = false;
-            //    break;
         }
         PlayBGM();
     }
