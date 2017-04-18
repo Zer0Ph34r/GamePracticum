@@ -124,6 +124,7 @@ public class AudioManager : MonoBehaviour {
     /// </summary>
     public void PlayBGM()
     {
+
         StopBGM();
         if (!playerPick)
         {
@@ -157,6 +158,7 @@ public class AudioManager : MonoBehaviour {
             }
         }
         BGMSource.PlayOneShot(currBGM);
+
     }
     #endregion
 
@@ -238,7 +240,20 @@ public class AudioManager : MonoBehaviour {
     // method to register with sceneLoaded event
     public void OnSceneLoad(Scene scene, LoadSceneMode mode)
     {
-        PlayBGM();
+        if (GlobalVariables.RESET_MUSIC)
+        {
+            PlayBGM();
+        }
+        
+    }
+
+    #endregion
+
+    #region Sound Check
+
+    public bool IsPlaying()
+    {
+        return BGMSource.isPlaying;
     }
 
     #endregion

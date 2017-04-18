@@ -69,7 +69,8 @@ public class OptionsMenuScript : MonoBehaviour
             SetBGColor(BGColor);
         }
 
-        if (PlayerPrefs.HasKey("SongSelect"))
+        if (PlayerPrefs.HasKey("SongSelect") &&
+            !AudioManager.instance.IsPlaying())
         {
             SongSelect = PlayerPrefs.GetInt("SongSelect");
             SetSong(SongSelect);
@@ -372,41 +373,43 @@ public class OptionsMenuScript : MonoBehaviour
             case 0:
                 AudioManager.instance.SetSong(0);
                 SongSelectText.text = "Random";
+                GlobalVariables.RESET_MUSIC = true;
                 break;
             case 1:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Depart";
                 break;
             case 2:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Fallwind";
                 break;
             case 3:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Homesick";
                 break;
             case 4:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "I Dunno";
                 break;
             case 5:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Like Music";
                 break;
             case 6:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Paper Planes";
                 break;
             case 7:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Sunday";
                 break;
             case 8:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Who We Are";
                 break;
             case 9:
                 SongSelect = 0;
+                GlobalVariables.RESET_MUSIC = true;
                 AudioManager.instance.SetSong(0);
                 SongSelectText.text = "Random";
                 break;
@@ -427,42 +430,44 @@ public class OptionsMenuScript : MonoBehaviour
                 SongSelect = 8;
                 AudioManager.instance.SetSong(8);
                 SongSelectText.text = "Who We Are";
+                GlobalVariables.RESET_MUSIC = false;
                 break;
             case 0:
 
                 AudioManager.instance.SetSong(0);
                 SongSelectText.text = "Random";
+                GlobalVariables.RESET_MUSIC = true;
                 break;
             case 1:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Depart";
                 break;
             case 2:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Fallwind";
                 break;
             case 3:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Homesick";
                 break;
             case 4:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "I Dunno";
                 break;
             case 5:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Like Music";
                 break;
             case 6:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Paper Planes";
                 break;
             case 7:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Sunday";
                 break;
             case 8:
-
+                GlobalVariables.RESET_MUSIC = false;
                 SongSelectText.text = "Who We Are";
                 break;
         }
@@ -518,6 +523,7 @@ public class OptionsMenuScript : MonoBehaviour
                 SongSelectText.text = "Random";
                 break;
         }
+        AudioManager.instance.SetSong(value);
     }
 
     #endregion

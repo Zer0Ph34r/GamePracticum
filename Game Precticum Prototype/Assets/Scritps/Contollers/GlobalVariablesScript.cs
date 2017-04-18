@@ -15,7 +15,7 @@ public class GlobalVariables {
     public static float MOVE_SPEED = 15f;
     public static int TURNS = 10;
     public static int MULTIPLAYER_TURNS = 5;
-    //public static int HIGHSCORE = 0;
+    public static bool RESET_MUSIC = true;
     public static int[,] HIGHSCORE_TABLE;
 
     public static float LERP_TIME = 0;
