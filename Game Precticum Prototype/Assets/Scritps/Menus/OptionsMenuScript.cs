@@ -73,7 +73,12 @@ public class OptionsMenuScript : MonoBehaviour
             !AudioManager.instance.IsPlaying())
         {
             SongSelect = PlayerPrefs.GetInt("SongSelect");
+            GlobalVariables.RESET_MUSIC = false;
             SetSong(SongSelect);
+        }
+        else
+        {
+            GlobalVariables.RESET_MUSIC = true;
         }
 
     }

@@ -73,7 +73,12 @@ public class AudioManager : MonoBehaviour {
         // Add even for scene loading and unloading
         SceneManager.sceneLoaded += OnSceneLoad;
 
-        PlayBGM();
+        if (!PlayerPrefs.HasKey("SongSelect"))
+        {
+            PlayBGM();
+        }
+
+
     }
 
     #endregion

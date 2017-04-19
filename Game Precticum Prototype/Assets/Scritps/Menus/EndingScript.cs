@@ -25,7 +25,7 @@ public class EndingScript : MonoBehaviour {
     /// <param name="score"></param>
     public void setEnd(int score)
     {
-        highscore = GlobalVariables.HIGHSCORE_TABLE[tableSize - 5, turns / 10];
+        highscore = GlobalVariables.HIGHSCORE_TABLE[(tableSize - 5), (turns - 1) / 10];
         finalScore.text = "Final Score: " + score;
         if (score > highscore)
         {
