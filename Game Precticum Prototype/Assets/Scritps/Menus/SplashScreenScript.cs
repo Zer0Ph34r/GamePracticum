@@ -45,6 +45,12 @@ public class SplashScreenScript : MonoBehaviour {
     private void Update()
     {
         timer.Update(Time.deltaTime);
+        if (Input.GetAxis("Fire1") > 0)
+        {
+            move = true;
+            MainMenu.SetActive(true);
+            timer.PauseTimer();
+        }
         if (move)
         {
             stuff.transform.position -= new Vector3(0, 10 * Time.deltaTime, 0);
