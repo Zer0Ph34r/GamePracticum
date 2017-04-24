@@ -2,6 +2,8 @@
 using UnityEngine.Networking;
 using System;
 using UnityEngine.SceneManagement;
+using System.Net.Sockets;
+using System.Net;
 
 public enum InfoType { board, hand, info};
 
@@ -270,7 +272,6 @@ public class NetworkScript : NetworkManager
             //StartClient();
             SetupClient();
             // register all messages with their perspective methods
-
             //client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
             //client.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
             //client.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
@@ -284,9 +285,9 @@ public class NetworkScript : NetworkManager
             //StartServer();
             SetupServer();
             // register all methods for the different messages
-            NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
-            NetworkServer.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
-            NetworkServer.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
+            //NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
+            //NetworkServer.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
+            //NetworkServer.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
         }
 
         
@@ -296,6 +297,7 @@ public class NetworkScript : NetworkManager
     private void Update()
     {
         timer.Update(Time.deltaTime);
+        
     }
 
     #region Send Info
@@ -479,6 +481,10 @@ public class NetworkScript : NetworkManager
     {
         NetworkServer.Listen(7777);
         isAtStartup = false;
+
+        NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
+        NetworkServer.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
+        NetworkServer.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
     }
     #endregion
 
