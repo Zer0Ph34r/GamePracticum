@@ -270,9 +270,10 @@ public class NetworkScript : NetworkManager
             //StartClient();
             SetupClient();
             // register all messages with their perspective methods
-            client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
-            client.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
-            client.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
+
+            //client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
+            //client.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
+            //client.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
         }
         else
         {
@@ -502,6 +503,10 @@ public class NetworkScript : NetworkManager
         myClient.RegisterHandler(MsgType.Connect, OnConnected);
         myClient.Connect("13.65.46.156", 7777);
         isAtStartup = false;
+
+        client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
+        client.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
+        client.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
     }
 
     #endregion
@@ -516,6 +521,7 @@ public class NetworkScript : NetworkManager
 
     public override void OnStopClient()
     {
+        Debug.Log("Re-connect");
         timer.ChangeTime(1);
         timer.StartTimer();
         
