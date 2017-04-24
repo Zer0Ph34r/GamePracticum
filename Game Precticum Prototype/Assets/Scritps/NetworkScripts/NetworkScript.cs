@@ -246,6 +246,8 @@ public class NetworkScript : NetworkManager
     public bool isClient = true;
     public bool canSend { get; set; }
 
+    TimerScript timer = new TimerScript(1);
+
     #region Awake
     private void Awake()
     {
@@ -261,6 +263,7 @@ public class NetworkScript : NetworkManager
         // if this is the client machine
         if (isClient)
         {
+            TimerScript.timerEnded += SetupClient;
             // set client player to not have the current turn
             playerInstance.GetComponent<NetworkPlayerScript>().currTurn = false;
             // star client and connect to server
@@ -273,6 +276,7 @@ public class NetworkScript : NetworkManager
         }
         else
         {
+            TimerScript.timerEnded += SetupServer;
             // set server player to active turn
             playerInstance.GetComponent<NetworkPlayerScript>().currTurn = true;
             // start a server
@@ -283,8 +287,15 @@ public class NetworkScript : NetworkManager
             NetworkServer.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
             NetworkServer.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
         }
+
+        
     }
     #endregion
+
+    private void Update()
+    {
+        timer.Update(Time.deltaTime);
+    }
 
     #region Send Info
     /// <summary>
@@ -465,7 +476,7 @@ public class NetworkScript : NetworkManager
     // Create a server and listen on a port
     public void SetupServer()
     {
-        NetworkServer.Listen(4444);
+        NetworkServer.Listen(7777);
         isAtStartup = false;
     }
     #endregion
@@ -501,6 +512,19 @@ public class NetworkScript : NetworkManager
     public void OnConnected(NetworkMessage netMsg)
     {
         Debug.Log("Connected to server");
+    }
+
+    public override void OnStopClient()
+    {
+        timer.ChangeTime(1);
+        timer.StartTimer();
+        
+    }
+
+    private void OnDestroy()
+    {
+        TimerScript.timerEnded -= SetupServer;
+        TimerScript.timerEnded -= SetupClient;
     }
 
     #endregion
