@@ -2,8 +2,6 @@
 using UnityEngine.Networking;
 using System;
 using UnityEngine.SceneManagement;
-using System.Net.Sockets;
-using System.Net;
 
 public enum InfoType { board, hand, info};
 
@@ -253,6 +251,7 @@ public class NetworkScript : NetworkManager
     #region Awake
     private void Awake()
     {
+
         //Save instance f this object
         if (instance == null)
         {
@@ -269,12 +268,12 @@ public class NetworkScript : NetworkManager
             // set client player to not have the current turn
             playerInstance.GetComponent<NetworkPlayerScript>().currTurn = false;
             // star client and connect to server
-            //StartClient();
-            SetupClient();
+            StartClient();
+            //SetupClient();
             // register all messages with their perspective methods
-            //client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
-            //client.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
-            //client.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
+            client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
+            client.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
+            client.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
         }
         else
         {
@@ -282,18 +281,19 @@ public class NetworkScript : NetworkManager
             // set server player to active turn
             playerInstance.GetComponent<NetworkPlayerScript>().currTurn = true;
             // start a server
-            //StartServer();
-            SetupServer();
+            StartServer();
+            //SetupServer();
             // register all methods for the different messages
-            //NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
-            //NetworkServer.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
-            //NetworkServer.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
-        }
-
-        
+            NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
+            NetworkServer.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
+            NetworkServer.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
+        }        
     }
+
     #endregion
 
+    
+    // UPdate timer when running
     private void Update()
     {
         timer.Update(Time.deltaTime);
@@ -482,14 +482,10 @@ public class NetworkScript : NetworkManager
         NetworkServer.Listen(7777);
         isAtStartup = false;
 
-        NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
-        NetworkServer.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
-        NetworkServer.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
     }
     #endregion
 
-    #region Local Server
-    // Create a local client and connect to the local server
+    #region Setup Local Client
     public void SetupLocalClient()
     {
         myClient = ClientScene.ConnectLocalServer();
@@ -507,12 +503,8 @@ public class NetworkScript : NetworkManager
     {
         myClient = new NetworkClient();
         myClient.RegisterHandler(MsgType.Connect, OnConnected);
-        myClient.Connect("13.65.46.156", 7777);
+        myClient.Connect("127.0.0.1", 7777);
         isAtStartup = false;
-
-        client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
-        client.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
-        client.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
     }
 
     #endregion
@@ -529,7 +521,7 @@ public class NetworkScript : NetworkManager
     {
         Debug.Log("Re-connect");
         timer.ChangeTime(1);
-        timer.StartTimer();
+        //timer.StartTimer();
         
     }
 
