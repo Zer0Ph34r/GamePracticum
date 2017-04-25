@@ -291,7 +291,6 @@ public class NetworkScript : NetworkManager
     }
 
     #endregion
-
     
     // UPdate timer when running
     private void Update()
@@ -349,6 +348,7 @@ public class NetworkScript : NetworkManager
     // when this client connects with the server
     public override void OnClientConnect(NetworkConnection conn)
     {
+        Debug.Log("Client Connected");
         // call base OnClientConnect method
         base.OnClientConnect(conn);
         canSend = true;
@@ -362,6 +362,7 @@ public class NetworkScript : NetworkManager
     // When the server connects to a client
     public override void OnServerConnect(NetworkConnection conn)
     {
+        Debug.Log("Server Connected");
         // use base onserverconnect
         base.OnServerConnect(conn);
         connection = conn.connectionId;
@@ -417,6 +418,7 @@ public class NetworkScript : NetworkManager
     /// <param name="netMsg"></param>
     void OnBoardMessageReceived(NetworkMessage netMsg)
     {
+        Debug.Log("BoardMessageRecieved");
         // Exctract data from message
         GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
 
@@ -442,6 +444,7 @@ public class NetworkScript : NetworkManager
     /// <param name="netMsg"></param>
     void OnHandMessageReceived(NetworkMessage netMsg)
     {
+        Debug.Log("Hand Message Recieved");
         // Exctract data from message
         GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
 
@@ -460,6 +463,8 @@ public class NetworkScript : NetworkManager
 
     public void OnInfoMessageReceived(NetworkMessage netMsg)
     {
+
+        Debug.Log("Info Recieved");
         // Read in received message
         InfoMessage receivedMsg = netMsg.ReadMessage<InfoMessage>();
 
@@ -479,6 +484,9 @@ public class NetworkScript : NetworkManager
     // Create a server and listen on a port
     public void SetupServer()
     {
+        // Use NAT punchthrough if no public IP present
+        //Network.InitializeServer(32, 25002, !Network.HavePublicAddress());
+        //MasterServer.RegisterHost("MyUniqueGameType", "JohnDoes game", "l33t game for all");
         NetworkServer.Listen(7777);
         isAtStartup = false;
 
@@ -488,13 +496,14 @@ public class NetworkScript : NetworkManager
     #region Setup Local Client
     public void SetupLocalClient()
     {
+        //HostData[] data = MasterServer.PollHostList();
+        //Network.Connect(data[0]);
         myClient = ClientScene.ConnectLocalServer();
         myClient.RegisterHandler(MsgType.Connect, OnConnected);
         isAtStartup = false;
     }
 
     #endregion
-
 
     #region SetUpClient
 
@@ -519,10 +528,11 @@ public class NetworkScript : NetworkManager
 
     public override void OnStopClient()
     {
-        Debug.Log("Re-connect");
+        Debug.Log("Client Stopped");
+        //Debug.Log("Re-connect");
         timer.ChangeTime(1);
-        //timer.StartTimer();
-        
+        timer.StartTimer();
+
     }
 
     private void OnDestroy()
