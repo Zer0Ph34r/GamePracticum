@@ -1349,7 +1349,7 @@ public class NetworkPlayerScript : MonoBehaviour
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <param name="color"></param>
-    public void SetOpponantBoard(short x, short y, short color)
+    public void SetOpponantBoard(int x, int y, int color)
     {
         Destroy(opponantTable[x, y]);
         opponantTable[x, y] = null;
@@ -1393,7 +1393,7 @@ public class NetworkPlayerScript : MonoBehaviour
     /// <param name="x"></param>
     /// <param name="y"></param>
     /// <param name="color"></param>
-    public void SetOpponantHand(short x, short y, short color)
+    public void SetOpponantHand(int x, int y, int color)
     {
         // delete gem in this position
         Destroy(opponantHand[x]);

@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 using System;
+using System.Text;
 using UnityEngine.SceneManagement;
+using Byn.Net;
+using System.Collections.Generic;
+using Byn.Common;
 
 public enum InfoType { board, hand, info};
 
@@ -217,6 +221,7 @@ public class SyncGem
 
 public class NetworkScript : NetworkManager
 {
+    #region Fields
 
     #region Message Fields
 
@@ -235,6 +240,20 @@ public class NetworkScript : NetworkManager
 
     #endregion
 
+    #region Custom Message Fields
+
+    public string uSignalingUrl = "wss://because-why-not.com:12777/chatapp";
+    public string uStunServer = "stun:stun.l.google.com:19302";
+    public bool uLog = false;
+    public bool uDebugConsole = false;
+    private IBasicNetwork mNetwork = null;
+    private bool mIsServer = false;
+    private List<ConnectionId> mConnections = new List<ConnectionId>();
+
+    #endregion
+
+    #region Misc.
+
     // instance of this object
     public static NetworkScript instance;
 
@@ -248,9 +267,33 @@ public class NetworkScript : NetworkManager
 
     TimerScript timer = new TimerScript(1);
 
+    bool started = true;
+
+    #endregion
+
+    #endregion
+
     #region Awake
     private void Awake()
     {
+        #region Custom Message Start
+
+        //shows the console on all platforms. for debugging only
+        if (uDebugConsole)
+            DebugHelper.ActivateConsole();
+        if (uLog)
+            SLog.SetLogger(OnLog);
+
+        SLog.LV("Verbose log is active!");
+        SLog.LD("Debug mode is active");
+
+        Debug.Log("Setting up WebRtcNetworkFactory");
+        WebRtcNetworkFactory factory = WebRtcNetworkFactory.Instance;
+        if (factory != null)
+            Debug.Log("WebRtcNetworkFactory created");
+
+        #endregion
+
 
         //Save instance f this object
         if (instance == null)
@@ -268,12 +311,12 @@ public class NetworkScript : NetworkManager
             // set client player to not have the current turn
             playerInstance.GetComponent<NetworkPlayerScript>().currTurn = false;
             // star client and connect to server
-            StartClient();
-            //SetupClient();
+            //StartClient();
+            SetupClient();
             // register all messages with their perspective methods
-            client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
-            client.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
-            client.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
+            //client.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
+            //client.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
+            //client.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
         }
         else
         {
@@ -281,23 +324,160 @@ public class NetworkScript : NetworkManager
             // set server player to active turn
             playerInstance.GetComponent<NetworkPlayerScript>().currTurn = true;
             // start a server
-            StartServer();
-            //SetupServer();
+            //StartServer();
+            SetupServer();
             // register all methods for the different messages
-            NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
-            NetworkServer.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
-            NetworkServer.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
-        }        
+            //NetworkServer.RegisterHandler(GemMsg.boardMessage, OnBoardMessageReceived);
+            //NetworkServer.RegisterHandler(GemMsg.handMessage, OnHandMessageReceived);
+            //NetworkServer.RegisterHandler(GemMsg.infoMessage, OnInfoMessageReceived);
+        }
     }
 
     #endregion
-    
-    // UPdate timer when running
-    private void Update()
+
+    #region Update Message Class
+
+    /// <summary>
+    /// Fixed Update is always called a certain number of times each second
+    /// </summary>
+    private void FixedUpdate()
     {
-        timer.Update(Time.deltaTime);
-        
+        //check each fixed update if we have got new events
+        HandleNetwork();
     }
+
+    /// <summary>
+    /// Handles all networking componants
+    /// </summary>
+    private void HandleNetwork()
+    {
+        //check if the network was created
+        if (mNetwork != null)
+        {
+            //first update it to read the data from the underlaying network system
+            mNetwork.Update();
+
+            //handle all new events that happened since the last update
+            NetworkEvent evt;
+            //check for new messages and keep checking if mNetwork is available. it might get destroyed
+            //due to an event
+            while (mNetwork != null && mNetwork.Dequeue(out evt))
+            {
+                //print to the console for debugging
+                Debug.Log(evt);
+
+                if (isClient &&
+                    started)
+                {
+                    Debug.Log("client sent info");
+                    started = false;
+                    ClientConnected();
+                }
+                else if (started)
+                {
+                    Debug.Log("Server sent info");
+                    started = false;
+                    ServerConnected();
+                }
+
+                //check every message
+                switch (evt.Type)
+                {
+                    case NetEventType.ServerInitialized:
+                        {
+                            //server initialized message received
+                            //this is the reaction to StartServer -> switch GUI mode
+                            mIsServer = true;
+                            string address = evt.Info;
+                            //Debug.Log("Server started. Address: " + address);
+                            //uRoomName.text = "" + address;
+                        }
+                        break;
+                    case NetEventType.ServerInitFailed:
+                        {
+                            //user tried to start the server but it failed
+                            //maybe the user is offline or signaling server down?
+                            mIsServer = false;
+                            //Debug.Log("Server start failed.");
+                            Reset();
+                        }
+                        break;
+                    case NetEventType.ServerClosed:
+                        {
+                            //server shut down. reaction to "Shutdown" call or
+                            //StopServer or the connection broke down
+                            mIsServer = false;
+                            //Debug.Log("Server closed. No incoming connections possible until restart.");
+                        }
+                        break;
+                    case NetEventType.NewConnection:
+                        {
+
+                            mConnections.Add(evt.ConnectionId);
+                            //either user runs a client and connected to a server or the
+                            //user runs the server and a new client connected
+                            //Debug.Log("New local connection! ID: " + evt.ConnectionId);
+
+                            //if server -> send announcement to everyone and use the local id as username
+                            if (mIsServer)
+                            {
+                                //user runs a server. announce to everyone the new connection
+                                //using the server side connection id as identification
+                                //string msg = "New user " + evt.ConnectionId + " joined the room.";
+                                //Debug.Log(msg);
+                                //SendMessageInfo(msg);
+                            }
+                        }
+                        break;
+                    case NetEventType.ConnectionFailed:
+                        {
+                            //Outgoing connection failed. Inform the user.
+                            //Debug.Log("Connection failed");
+                            Reset();
+                        }
+                        break;
+                    case NetEventType.Disconnected:
+                        {
+                            mConnections.Remove(evt.ConnectionId);
+                            //A connection was disconnected
+                            //If this was the client then he was disconnected from the server
+                            //if it was the server this just means that one of the clients left
+                           // Debug.Log("Local Connection ID " + evt.ConnectionId + " disconnected");
+                            if (mIsServer == false)
+                            {
+                                Reset();
+                            }
+                            else
+                            {
+                                //string userLeftMsg = "User " + evt.ConnectionId + " left the room.";
+
+                                //show the server the message
+                                //Debug.Log(userLeftMsg);
+
+                                //other users left? inform them 
+                                if (mConnections.Count > 0)
+                                {
+                                    //SendMessageInfo(userLeftMsg);
+                                }
+                            }
+                        }
+                        break;
+                    case NetEventType.ReliableMessageReceived:
+                    case NetEventType.UnreliableMessageReceived:
+                        {
+                            HandleIncommingMessage(ref evt);
+                        }
+                        break;
+                }
+            }
+
+            //finish this update by flushing the messages out if the network wasn't destroyed during update
+            if (mNetwork != null)
+                mNetwork.Flush();
+        }
+    }
+
+    #endregion
 
     #region Send Info
     /// <summary>
@@ -308,6 +488,8 @@ public class NetworkScript : NetworkManager
     /// <param name="color"></param>
     public void SendInfo(int xPos, int yPos, short color, InfoType type)
     {
+
+        
         // check if the message should be sent over from the server or from the client
         if (isClient)
         {
@@ -315,13 +497,19 @@ public class NetworkScript : NetworkManager
             switch (type)
             {
                 case InfoType.board:
-                    gemMessenger.SendGemBoardInfo(client, xPos, yPos, color);
+                    Debug.Log("Board Piece Sent");
+                    //gemMessenger.SendGemBoardInfo(client, xPos, yPos, color);
+                    SendMessageBoard("0" + xPos + yPos + color, true);
                     break;
                 case InfoType.hand:
-                    gemMessenger.SendGemHandInfo(client, xPos, yPos, color);
+                    Debug.Log("Hand Piece Sent");
+                    //gemMessenger.SendGemHandInfo(client, xPos, yPos, color);
+                    SendMessageHand("1" + xPos + color, true);
                     break;
                 case InfoType.info:
-                    gemMessenger.SendGameInfo(client, xPos, (short)yPos);
+                    Debug.Log("Info Sent");
+                    //gemMessenger.SendGameInfo(client, xPos, (short)yPos);
+                    SendMessageInfo("2" + yPos + xPos, true);
                     break;
             }
         }
@@ -331,13 +519,19 @@ public class NetworkScript : NetworkManager
             switch (type)
             {
                 case InfoType.board:
-                    gemMessenger.SendBoardInfoServer(xPos, yPos, color);
+                    Debug.Log("Board Piece Sent");
+                    //gemMessenger.SendBoardInfoServer(xPos, yPos, color);
+                    SendMessageBoard("0" + xPos + yPos + color, true);
                     break;
                 case InfoType.hand:
-                    gemMessenger.SendHandInfoServer(xPos, yPos, color);
+                    Debug.Log("Hand Piece Sent");
+                    //gemMessenger.SendHandInfoServer(xPos, yPos, color);
+                    SendMessageHand("1" + xPos + color, true);
                     break;
                 case InfoType.info:
-                    gemMessenger.SendGameInfoServer(xPos, (short)yPos);
+                    Debug.Log("Info Sent");
+                    //gemMessenger.SendGameInfoServer(xPos, (short)yPos);
+                    SendMessageInfo("2" + yPos + xPos, true);
                     break;
             }
         }
@@ -351,6 +545,16 @@ public class NetworkScript : NetworkManager
         Debug.Log("Client Connected");
         // call base OnClientConnect method
         base.OnClientConnect(conn);
+        canSend = true;
+        // send client info to server to set opponant's board
+        playerInstance.GetComponent<NetworkPlayerScript>().SendBoard();
+        playerInstance.GetComponent<NetworkPlayerScript>().SendHand();
+    }
+
+    public void ClientConnected()
+    {
+        Debug.Log("Client Connected");
+        // call base OnClientConnect method
         canSend = true;
         // send client info to server to set opponant's board
         playerInstance.GetComponent<NetworkPlayerScript>().SendBoard();
@@ -371,6 +575,15 @@ public class NetworkScript : NetworkManager
         playerInstance.GetComponent<NetworkPlayerScript>().SendBoard();
         playerInstance.GetComponent<NetworkPlayerScript>().SendHand();
 
+    }
+
+    public void ServerConnected()
+    {
+        Debug.Log("Server Connected");
+
+        // Send board and hand info
+        playerInstance.GetComponent<NetworkPlayerScript>().SendBoard();
+        playerInstance.GetComponent<NetworkPlayerScript>().SendHand();
     }
     #endregion
 
@@ -416,16 +629,16 @@ public class NetworkScript : NetworkManager
     /// Method called when message is recieved
     /// </summary>
     /// <param name="netMsg"></param>
-    void OnBoardMessageReceived(NetworkMessage netMsg)
+    void OnBoardMessageReceived(string /*NetworkMessage*/ netMsg)
     {
-        Debug.Log("BoardMessageRecieved");
+        
         // Exctract data from message
-        GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
+        //GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
 
         // get info from message
-        short x = receivedMsg.xPos;
-        short y = receivedMsg.yPos;
-        short color = receivedMsg.gemColor;
+        int x = Int32.Parse("" + netMsg[1]);//receivedMsg.xPos;
+        int y = Int32.Parse("" + netMsg[2]);//receivedMsg.yPos;
+        int color = Int32.Parse("" + netMsg[3]);//receivedMsg.gemColor;
 
         // display sent data to console
         //Debug.Log("Message Data - X " + x + " Y " + y + " Color " + color);
@@ -442,16 +655,15 @@ public class NetworkScript : NetworkManager
     /// Method called when message is recieved
     /// </summary>
     /// <param name="netMsg"></param>
-    void OnHandMessageReceived(NetworkMessage netMsg)
+    void OnHandMessageReceived(string /*NetworkMessage*/ netMsg)
     {
-        Debug.Log("Hand Message Recieved");
         // Exctract data from message
-        GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
+        //GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
 
         // get info from message
-        short x = receivedMsg.xPos;
-        short y = receivedMsg.yPos;
-        short color = receivedMsg.gemColor;
+        int x = Int32.Parse("" + netMsg[1]);//receivedMsg.xPos;
+        int y = 11;//Convert.ToInt16(netMsg[2]);//receivedMsg.yPos;
+        int color = Int32.Parse("" + netMsg[2]);//receivedMsg.gemColor;
 
         // set piece in opponant board
         playerInstance.GetComponent<NetworkPlayerScript>().SetOpponantHand(x, y, color);
@@ -461,16 +673,23 @@ public class NetworkScript : NetworkManager
 
     #region On Info Message Recieved
 
-    public void OnInfoMessageReceived(NetworkMessage netMsg)
+    public void OnInfoMessageReceived(string /*NetworkMessage*/ netMsg)
     {
-
-        Debug.Log("Info Recieved");
+        string scoreString = "";
         // Read in received message
-        InfoMessage receivedMsg = netMsg.ReadMessage<InfoMessage>();
+        //InfoMessage receivedMsg = netMsg.ReadMessage<InfoMessage>();
 
         // Set info to temp variables
-        short turnCount = receivedMsg.turnCount;
-        int score = receivedMsg.score;
+        int turnCount = Int32.Parse("" + netMsg[1]);//receivedMsg.turnCount;
+        // Get all characters after turn count
+        for (int i = 2; i < netMsg.Length; i++)
+        {
+            scoreString += netMsg[i];
+        }
+
+        int score = Int32.Parse(scoreString); //receivedMsg.score;
+        Debug.Log(scoreString);
+        Debug.Log("Score " + score);
 
         // Set opponants score value
         playerInstance.GetComponent<NetworkPlayerScript>().SetInfo(turnCount, score);
@@ -479,30 +698,23 @@ public class NetworkScript : NetworkManager
 
     #endregion
 
+    #region Server Client Connection
+
     #region SetUpServer
 
     // Create a server and listen on a port
     public void SetupServer()
     {
-        // Use NAT punchthrough if no public IP present
-        //Network.InitializeServer(32, 25002, !Network.HavePublicAddress());
-        //MasterServer.RegisterHost("MyUniqueGameType", "JohnDoes game", "l33t game for all");
-        NetworkServer.Listen(7777);
-        isAtStartup = false;
+
+        //NetworkServer.Listen(7777);
+        //isAtStartup = false;
+
+        // Custom Message start
+        Setup();
+        EnsureLength();
+        mNetwork.StartServer("PowerSwapRoom");
 
     }
-    #endregion
-
-    #region Setup Local Client
-    public void SetupLocalClient()
-    {
-        //HostData[] data = MasterServer.PollHostList();
-        //Network.Connect(data[0]);
-        myClient = ClientScene.ConnectLocalServer();
-        myClient.RegisterHandler(MsgType.Connect, OnConnected);
-        isAtStartup = false;
-    }
-
     #endregion
 
     #region SetUpClient
@@ -510,35 +722,200 @@ public class NetworkScript : NetworkManager
     // Create a client and connect to the server port
     public void SetupClient()
     {
-        myClient = new NetworkClient();
-        myClient.RegisterHandler(MsgType.Connect, OnConnected);
-        myClient.Connect("127.0.0.1", 7777);
-        isAtStartup = false;
+        //myClient = new NetworkClient();
+        //myClient.RegisterHandler(MsgType.Connect, OnConnected);
+        //myClient.Connect("127.0.0.1", 7777);
+        //isAtStartup = false;
+
+        // Custom Messaging Connect
+        Setup();
+        mNetwork.Connect("PowerSwapRoom");
+        Debug.Log("Connecting to " + "PowerSwapRoom" + " ...");
+
     }
 
     #endregion
 
-    #region OnConnect
+    #endregion
 
-    // client function
-    public void OnConnected(NetworkMessage netMsg)
-    {
-        Debug.Log("Connected to server");
-    }
-
-    public override void OnStopClient()
-    {
-        Debug.Log("Client Stopped");
-        //Debug.Log("Re-connect");
-        timer.ChangeTime(1);
-        timer.StartTimer();
-
-    }
+    #region On Destroy
 
     private void OnDestroy()
     {
-        TimerScript.timerEnded -= SetupServer;
-        TimerScript.timerEnded -= SetupClient;
+        //TimerScript.timerEnded -= SetupServer;
+        //TimerScript.timerEnded -= SetupClient;
+
+        if (mNetwork != null)
+        {
+            Cleanup();
+        }
+    }
+
+    #endregion
+
+    #region Custom Message Client
+
+    /// <summary>
+    /// Create instance of the server
+    /// </summary>
+    private void Setup()
+    {
+        Debug.Log("Initializing webrtc network");
+
+        mNetwork = WebRtcNetworkFactory.Instance.CreateDefault(uSignalingUrl, new IceServer[] { new IceServer(uStunServer) });
+        if (mNetwork != null)
+        {
+            Debug.Log("WebRTCNetwork created");
+        }
+        else
+        {
+            Debug.Log("Failed to access webrtc ");
+        }
+    }
+
+    private void EnsureLength()
+    {
+        //if (uRoomName.text.Length > MAX_CODE_LENGTH)
+        //{
+        //    uRoomName.text = uRoomName.text.Substring(0, MAX_CODE_LENGTH);
+        //}
+    }
+
+    private void Reset()
+    {
+        Debug.Log("Cleanup!");
+
+        mIsServer = false;
+        mConnections = new List<ConnectionId>();
+        Cleanup();
+        //SetGuiState(true);
+    }
+
+    private void Cleanup()
+    {
+        mNetwork.Dispose();
+        mNetwork = null;
+    }
+
+    private void OnLog(object msg, string[] tags)
+    {
+        StringBuilder builder = new StringBuilder();
+        TimeSpan time = DateTime.Now - DateTime.Today;
+        builder.Append(time);
+        builder.Append("[");
+        for (int i = 0; i < tags.Length; i++)
+        {
+            if (i != 0)
+                builder.Append(",");
+            builder.Append(tags[i]);
+        }
+        builder.Append("]");
+        builder.Append(msg);
+        Debug.Log(builder.ToString());
+    }
+
+    
+
+    #endregion
+
+    #region Send Message
+
+    /// <summary>
+    /// Sends Data to all other players in given room
+    /// </summary>
+    /// <param name="msg"></param>
+    /// <param name="reliable"></param>
+    private void SendMessageInfo(string msg, bool reliable = true)
+    {
+        if (mNetwork == null || mConnections.Count == 0)
+        {
+            Debug.Log("No connection. Can't send message.");
+        }
+        else
+        {
+            byte[] msgData = Encoding.UTF8.GetBytes(msg);
+            foreach (ConnectionId id in mConnections)
+            {
+                mNetwork.SendData(id, msgData, 0, msgData.Length, reliable);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Sends Data to all other players in given room
+    /// </summary>
+    /// <param name="msg"></param>
+    /// <param name="reliable"></param>
+    private void SendMessageBoard(string msg, bool reliable = true)
+    {
+        if (mNetwork == null || mConnections.Count == 0)
+        {
+            Debug.Log("No connection. Can't send message.");
+        }
+        else
+        {
+            byte[] msgData = Encoding.UTF8.GetBytes(msg);
+            foreach (ConnectionId id in mConnections)
+            {
+                mNetwork.SendData(id, msgData, 0, msgData.Length, reliable);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Sends Data to all other players in given room
+    /// </summary>
+    /// <param name="msg"></param>
+    /// <param name="reliable"></param>
+    private void SendMessageHand(string msg, bool reliable = true)
+    {
+        if (mNetwork == null || mConnections.Count == 0)
+        {
+            Debug.Log("No connection. Can't send message.");
+        }
+        else
+        {
+            byte[] msgData = Encoding.UTF8.GetBytes(msg);
+            foreach (ConnectionId id in mConnections)
+            {
+                mNetwork.SendData(id, msgData, 0, msgData.Length, reliable);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Handle Messages
+
+    private void HandleIncommingMessage(ref NetworkEvent evt)
+    {
+        MessageDataBuffer buffer = (MessageDataBuffer)evt.MessageData;
+
+        string msg = Encoding.UTF8.GetString(buffer.Buffer, 0, buffer.ContentLength);
+        
+        //Debug.Log("Message Recieved" + msg);
+
+        //if server -> forward the message to everyone else including the sender
+        //if (mIsServer)
+        //{
+        //we use the server side connection id to identify the client
+        string idAndMessage = evt.ConnectionId + ":" + msg;
+        if (msg[0] == '0')
+        {
+            Debug.Log("Board Recieved" + msg);
+            OnBoardMessageReceived(msg);
+        }
+        else if (msg[0] == '1')
+        {
+            Debug.Log("Hand Recieved" + msg);
+            OnHandMessageReceived(msg);
+        }
+        else if (msg[0] == '2')
+        {
+            Debug.Log("Info Recieved" + msg);
+            OnInfoMessageReceived(msg);
+        }
+        buffer.Dispose();
     }
 
     #endregion
