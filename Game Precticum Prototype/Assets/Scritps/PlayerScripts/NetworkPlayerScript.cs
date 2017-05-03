@@ -1185,7 +1185,7 @@ public class NetworkPlayerScript : MonoBehaviour
                     gems[i, k].gameObject.GetComponent<GemScript>().RunSwap(new Vector3(i, k, 0));
                 }
             }
-            // send rotated board to oppanant
+            // send rotated board to opponant
             SendBoard();
         }
     }

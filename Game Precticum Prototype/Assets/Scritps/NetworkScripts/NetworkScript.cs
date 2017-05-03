@@ -268,6 +268,7 @@ public class NetworkScript : NetworkManager
     TimerScript timer = new TimerScript(1);
 
     bool started = true;
+    bool connected = false;
 
     #endregion
 
@@ -287,13 +288,12 @@ public class NetworkScript : NetworkManager
         SLog.LV("Verbose log is active!");
         SLog.LD("Debug mode is active");
 
-        Debug.Log("Setting up WebRtcNetworkFactory");
+        //Debug.Log("Setting up WebRtcNetworkFactory");
         WebRtcNetworkFactory factory = WebRtcNetworkFactory.Instance;
         if (factory != null)
-            Debug.Log("WebRtcNetworkFactory created");
+            //Debug.Log("WebRtcNetworkFactory created");
 
         #endregion
-
 
         //Save instance f this object
         if (instance == null)
@@ -344,6 +344,23 @@ public class NetworkScript : NetworkManager
     {
         //check each fixed update if we have got new events
         HandleNetwork();
+
+        if (isClient &&
+            started &&
+            connected)
+        {
+            Debug.Log("client sent info");
+            started = false;
+            ClientConnected();
+        }
+        else if (started &&
+            connected)
+        {
+            Debug.Log("Server sent info");
+            started = false;
+            ServerConnected();
+        }
+
     }
 
     /// <summary>
@@ -366,20 +383,6 @@ public class NetworkScript : NetworkManager
                 //print to the console for debugging
                 Debug.Log(evt);
 
-                if (isClient &&
-                    started)
-                {
-                    Debug.Log("client sent info");
-                    started = false;
-                    ClientConnected();
-                }
-                else if (started)
-                {
-                    Debug.Log("Server sent info");
-                    started = false;
-                    ServerConnected();
-                }
-
                 //check every message
                 switch (evt.Type)
                 {
@@ -389,8 +392,7 @@ public class NetworkScript : NetworkManager
                             //this is the reaction to StartServer -> switch GUI mode
                             mIsServer = true;
                             string address = evt.Info;
-                            //Debug.Log("Server started. Address: " + address);
-                            //uRoomName.text = "" + address;
+                            Debug.Log("Server started. Address: " + address);
                         }
                         break;
                     case NetEventType.ServerInitFailed:
@@ -398,7 +400,7 @@ public class NetworkScript : NetworkManager
                             //user tried to start the server but it failed
                             //maybe the user is offline or signaling server down?
                             mIsServer = false;
-                            //Debug.Log("Server start failed.");
+                            Debug.Log("Server start failed.");
                             Reset();
                         }
                         break;
@@ -407,32 +409,21 @@ public class NetworkScript : NetworkManager
                             //server shut down. reaction to "Shutdown" call or
                             //StopServer or the connection broke down
                             mIsServer = false;
-                            //Debug.Log("Server closed. No incoming connections possible until restart.");
+                            Debug.Log("Server closed. No incoming connections possible until restart.");
                         }
                         break;
                     case NetEventType.NewConnection:
                         {
-
+                            // Add connection to connection ID
                             mConnections.Add(evt.ConnectionId);
-                            //either user runs a client and connected to a server or the
-                            //user runs the server and a new client connected
-                            //Debug.Log("New local connection! ID: " + evt.ConnectionId);
-
-                            //if server -> send announcement to everyone and use the local id as username
-                            if (mIsServer)
-                            {
-                                //user runs a server. announce to everyone the new connection
-                                //using the server side connection id as identification
-                                //string msg = "New user " + evt.ConnectionId + " joined the room.";
-                                //Debug.Log(msg);
-                                //SendMessageInfo(msg);
-                            }
+                            connected = true;
                         }
                         break;
                     case NetEventType.ConnectionFailed:
                         {
                             //Outgoing connection failed. Inform the user.
-                            //Debug.Log("Connection failed");
+                            Debug.Log("Connection failed");
+                            started = true;
                             Reset();
                         }
                         break;
@@ -441,24 +432,9 @@ public class NetworkScript : NetworkManager
                             mConnections.Remove(evt.ConnectionId);
                             //A connection was disconnected
                             //If this was the client then he was disconnected from the server
-                            //if it was the server this just means that one of the clients left
-                           // Debug.Log("Local Connection ID " + evt.ConnectionId + " disconnected");
                             if (mIsServer == false)
                             {
                                 Reset();
-                            }
-                            else
-                            {
-                                //string userLeftMsg = "User " + evt.ConnectionId + " left the room.";
-
-                                //show the server the message
-                                //Debug.Log(userLeftMsg);
-
-                                //other users left? inform them 
-                                if (mConnections.Count > 0)
-                                {
-                                    //SendMessageInfo(userLeftMsg);
-                                }
                             }
                         }
                         break;
@@ -488,8 +464,6 @@ public class NetworkScript : NetworkManager
     /// <param name="color"></param>
     public void SendInfo(int xPos, int yPos, short color, InfoType type)
     {
-
-        
         // check if the message should be sent over from the server or from the client
         if (isClient)
         {
@@ -497,18 +471,18 @@ public class NetworkScript : NetworkManager
             switch (type)
             {
                 case InfoType.board:
-                    Debug.Log("Board Piece Sent");
                     //gemMessenger.SendGemBoardInfo(client, xPos, yPos, color);
+                    Debug.Log("Board Piece Sent");
                     SendMessageBoard("0" + xPos + yPos + color, true);
                     break;
                 case InfoType.hand:
-                    Debug.Log("Hand Piece Sent");
                     //gemMessenger.SendGemHandInfo(client, xPos, yPos, color);
+                    Debug.Log("Hand Piece Sent");
                     SendMessageHand("1" + xPos + color, true);
                     break;
                 case InfoType.info:
-                    Debug.Log("Info Sent");
                     //gemMessenger.SendGameInfo(client, xPos, (short)yPos);
+                    Debug.Log("Info Sent");
                     SendMessageInfo("2" + yPos + xPos, true);
                     break;
             }
@@ -519,18 +493,18 @@ public class NetworkScript : NetworkManager
             switch (type)
             {
                 case InfoType.board:
-                    Debug.Log("Board Piece Sent");
                     //gemMessenger.SendBoardInfoServer(xPos, yPos, color);
+                    Debug.Log("Board Piece Sent");
                     SendMessageBoard("0" + xPos + yPos + color, true);
                     break;
                 case InfoType.hand:
-                    Debug.Log("Hand Piece Sent");
                     //gemMessenger.SendHandInfoServer(xPos, yPos, color);
+                    Debug.Log("Hand Piece Sent");
                     SendMessageHand("1" + xPos + color, true);
                     break;
                 case InfoType.info:
-                    Debug.Log("Info Sent");
                     //gemMessenger.SendGameInfoServer(xPos, (short)yPos);
+                    Debug.Log("Info Sent");
                     SendMessageInfo("2" + yPos + xPos, true);
                     break;
             }
@@ -542,7 +516,6 @@ public class NetworkScript : NetworkManager
     // when this client connects with the server
     public override void OnClientConnect(NetworkConnection conn)
     {
-        Debug.Log("Client Connected");
         // call base OnClientConnect method
         base.OnClientConnect(conn);
         canSend = true;
@@ -553,7 +526,6 @@ public class NetworkScript : NetworkManager
 
     public void ClientConnected()
     {
-        Debug.Log("Client Connected");
         // call base OnClientConnect method
         canSend = true;
         // send client info to server to set opponant's board
@@ -566,7 +538,6 @@ public class NetworkScript : NetworkManager
     // When the server connects to a client
     public override void OnServerConnect(NetworkConnection conn)
     {
-        Debug.Log("Server Connected");
         // use base onserverconnect
         base.OnServerConnect(conn);
         connection = conn.connectionId;
@@ -579,8 +550,6 @@ public class NetworkScript : NetworkManager
 
     public void ServerConnected()
     {
-        Debug.Log("Server Connected");
-
         // Send board and hand info
         playerInstance.GetComponent<NetworkPlayerScript>().SendBoard();
         playerInstance.GetComponent<NetworkPlayerScript>().SendHand();
@@ -597,8 +566,6 @@ public class NetworkScript : NetworkManager
     {
         // Call base opperations
         base.OnClientDisconnect(conn);
-        // send debug message
-        Debug.Log("This client has disconnected from the server.");
         // return user to main menu
         SceneManager.LoadScene("Main Menu");
     }
@@ -615,8 +582,6 @@ public class NetworkScript : NetworkManager
     {
         // call base opperations
         base.OnServerDisconnect(conn);
-        // send debug message
-        Debug.Log("Client has disconnected from the server");
         // Send user to main menu
         SceneManager.LoadScene("Main Menu");
     }
@@ -631,17 +596,15 @@ public class NetworkScript : NetworkManager
     /// <param name="netMsg"></param>
     void OnBoardMessageReceived(string /*NetworkMessage*/ netMsg)
     {
-        
+
         // Exctract data from message
         //GemMessage receivedMsg = netMsg.ReadMessage<GemMessage>();
+        Debug.Log("Board Piece Recieved");
 
         // get info from message
         int x = Int32.Parse("" + netMsg[1]);//receivedMsg.xPos;
         int y = Int32.Parse("" + netMsg[2]);//receivedMsg.yPos;
         int color = Int32.Parse("" + netMsg[3]);//receivedMsg.gemColor;
-
-        // display sent data to console
-        //Debug.Log("Message Data - X " + x + " Y " + y + " Color " + color);
 
         // set piece in opponant board
         playerInstance.GetComponent<NetworkPlayerScript>().SetOpponantBoard(x, y, color);
@@ -688,8 +651,6 @@ public class NetworkScript : NetworkManager
         }
 
         int score = Int32.Parse(scoreString); //receivedMsg.score;
-        Debug.Log(scoreString);
-        Debug.Log("Score " + score);
 
         // Set opponants score value
         playerInstance.GetComponent<NetworkPlayerScript>().SetInfo(turnCount, score);
@@ -730,7 +691,7 @@ public class NetworkScript : NetworkManager
         // Custom Messaging Connect
         Setup();
         mNetwork.Connect("PowerSwapRoom");
-        Debug.Log("Connecting to " + "PowerSwapRoom" + " ...");
+        //Debug.Log("Connecting to " + "PowerSwapRoom" + " ...");
 
     }
 
@@ -760,7 +721,7 @@ public class NetworkScript : NetworkManager
     /// </summary>
     private void Setup()
     {
-        Debug.Log("Initializing webrtc network");
+        //Debug.Log("Initializing webrtc network");
 
         mNetwork = WebRtcNetworkFactory.Instance.CreateDefault(uSignalingUrl, new IceServer[] { new IceServer(uStunServer) });
         if (mNetwork != null)
@@ -783,12 +744,11 @@ public class NetworkScript : NetworkManager
 
     private void Reset()
     {
-        Debug.Log("Cleanup!");
+        Debug.Log("Reset Cleanup!");
 
         mIsServer = false;
         mConnections = new List<ConnectionId>();
         Cleanup();
-        //SetGuiState(true);
     }
 
     private void Cleanup()
@@ -811,10 +771,7 @@ public class NetworkScript : NetworkManager
         }
         builder.Append("]");
         builder.Append(msg);
-        Debug.Log(builder.ToString());
     }
-
-    
 
     #endregion
 
@@ -902,17 +859,17 @@ public class NetworkScript : NetworkManager
         string idAndMessage = evt.ConnectionId + ":" + msg;
         if (msg[0] == '0')
         {
-            Debug.Log("Board Recieved" + msg);
+            //Debug.Log("Board Recieved" + msg);
             OnBoardMessageReceived(msg);
         }
         else if (msg[0] == '1')
         {
-            Debug.Log("Hand Recieved" + msg);
+            //Debug.Log("Hand Recieved" + msg);
             OnHandMessageReceived(msg);
         }
         else if (msg[0] == '2')
         {
-            Debug.Log("Info Recieved" + msg);
+            //Debug.Log("Info Recieved" + msg);
             OnInfoMessageReceived(msg);
         }
         buffer.Dispose();
